@@ -1,0 +1,27 @@
+macro Out_Dif(file)
+{
+   out file
+   phase_out file load out_record out_fmt out_eqn
+   {
+     " %11.5f"   = D_spacing;
+     " %11.5f\n" = I_after_scale_pks;
+   }
+}
+
+#include mylist.txt
+
+'num_runs 9
+num_runs 13955
+
+iters 1
+yobs_eqn = 0;
+  min 0
+  max 80
+  del .01
+	LP_Factor( 0)
+	lam
+		ymin_on_ymax  0.0001
+		la  1.0 lo  1.540596 lh  0.1
+	#include FileName(Run_Number)
+
+	Out_Dif( FileNameOut(Run_Number) )

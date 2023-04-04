@@ -1,0 +1,371 @@
+
+r_exp  1.093 r_exp_dash  2.087 r_wp  5.920 r_wp_dash  11.305 r_p  4.075 r_p_dash  10.619 weighted_Durbin_Watson  0.099 gof  5.418
+iters 100000
+xdd "Z:\home\dmitrienka\Dropbox\R\metarefine\sucrose-re2 [001]_Add_Scans.raw"
+	r_exp  1.093 r_exp_dash  2.087 r_wp  5.920 r_wp_dash  11.305 r_p  4.075 r_p_dash  10.619 weighted_Durbin_Watson  0.099 gof  5.418
+	bkg @  7654.78291` -9513.75341`  7055.34658` -4095.20999`  2172.48352` -1093.84952`  601.587918` -340.44733`  327.41455` -337.775355`  259.86137` -150.885223`  61.8087` -9.19489947`  3.23277949`  15.8673346` -19.0991996`  24.8926582`
+	LP_Factor( 27.3)
+	Zero_Error(@, 0.01251`)
+	do_errors
+	Rp 217.5
+	Rs 217.5
+
+	axial_conv 
+		   filament_length  16
+		   sample_length @  4`_0.151150541_LIMIT_MIN_4 min =4; max =16;
+		   receiving_slit_length  17_LIMIT_MIN_0.0001
+		    primary_soller_angle  @  5.42891224`_0.01447577
+		    secondary_soller_angle  2.3
+		    axial_n_beta  10
+		    User_Defined_Dependence_Convolution(gauss_fwhm,  1/Cos(Th) , , 0.02357439146)
+		    Foil_ThicknessI(@ , 0.22916`_0.00288)
+
+	lam
+		ymin_on_ymax  0.0001
+		la  1 lo  1.540596 lh  0.5
+	str 
+		CS_G(@, 638.00154`)
+		r_bragg  4.66825228
+		scale @  0.0224625979`
+		phase_name "Structure"
+		MVW( 684.601, 715.281851`, 100.000`)
+		space_group P21
+		Phase_LAC_1_on_cm( 12.45981`)
+		Phase_Density_g_on_cm3( 1.58931`)
+		a @  7.75996`
+		b @  8.70631` ' comment with Out_CIF_STR
+		c @  10.86361`
+		be @  102.95105`
+		
+		PO_Spherical_Harmonics(,4)
+		Out_CIF_STR("sucrose-new.cif")
+		penalties_weighting_K1 1000
+
+	
+' Упоротый комментарий
+
+
+		prm beqo  1.33732`
+        prm beqc  0.77839`
+        prm beqh  =beqc*1.2;
+
+        prm =beqo/(8*Pi^2); :  0.01694`
+        prm =beqc/(8*Pi^2); :  0.00986`
+        prm =beqh/(8*Pi^2); :  0.01183`
+
+        site O1    x @ -0.63231` y @ -0.64333` z @ -0.12228` occ O 1.000 beq =beqo;' comments!
+        site O2    x @ -0.60777` y @ -0.59229` z @ -0.32909` occ O 1.000 beq =beqo;' comments!
+        site O3    x @ -0.68352` y @ -0.33804` z @ -0.28834` occ O 1.000 beq =beqo;
+        site O4    x   -0.25176 y   -0.68065 z   -0.27318 occ O 1.000 beq =beqo;
+        site O5    x   -0.79513 y   -0.56815 z   -0.57332 occ O 1.000 beq =beqo;
+        site C6    x   -0.51417 y   -0.60237 z   -0.19999 occ C 1.000 beq =beqc;
+        site H6    x   -0.46290 y   -0.50147 z   -0.17368 occ H 1.000 beq =beqh;
+        site C7    x @ -0.63006` y @ -0.43715` z @ -0.37649` occ C 1.000 beq =beqc;
+        site O8    x   -1.09293 y   -0.34306 z   -0.52255 occ O 1.000 beq =beqo;
+        site O9    x   -0.37535 y   -0.48207 z   -0.47041 occ O 1.000 beq =beqo;
+        site O10   x   -0.96186 y   -0.48715 z   -0.17331 occ O 1.000 beq =beqo;
+        site C11   x   -0.78518 y   -0.43701 z   -0.49432 occ C 1.000 beq =beqc;
+        site H11   x   -0.77208 y   -0.34614 z   -0.54471 occ H 1.000 beq =beqh;
+        site O12   x   -0.71554 y   -0.79696 z    0.08422 occ O 1.000 beq =beqo;
+        site C13   x   -0.36216 y   -0.71949 z   -0.18748 occ C 1.000 beq =beqc;
+        site H13   x   -0.29051 y   -0.71521 z   -0.10090 occ H 1.000 beq =beqh;
+        site C14   x   -0.87320 y   -0.30594 z   -0.32360 occ C 1.000 beq =beqc;
+        site H14   x   -0.89077 y   -0.19885 z   -0.35136 occ H 1.000 beq =beqh;
+        site C15   x   -0.70564 y   -0.79773 z   -0.14068 occ C 1.000 beq =beqc;
+        site H15   x   -0.78099 y   -0.80809 z   -0.22564 occ H 1.000 beq =beqh;
+        site O16   x   -0.29514 y   -0.99546 z   -0.19141 occ O 1.000 beq =beqo;
+        site C17   x   -0.43507 y   -0.88335 z   -0.21449 occ C 1.000 beq =beqc;
+        site H17   x   -0.50189 y   -0.89224 z   -0.30219 occ H 1.000 beq =beqh;
+        site C18   x   -0.94738 y   -0.41216 z   -0.43572 occ C 1.000 beq =beqc;
+        site H18   x   -0.98329 y   -0.51021 z   -0.40491 occ H 1.000 beq =beqh;
+        site C19   x   -0.45325 y   -0.37551 z   -0.39795 occ C 1.000 beq =beqc;
+        site H19A  x   -0.47070 y   -0.27800 z   -0.44229 occ H 1.000 beq =beqh;
+        site H19B  x   -0.37365 y   -0.35861 z   -0.31653 occ H 1.000 beq =beqh;
+        site C20   x   -0.55726 y   -0.91752 z   -0.12484 occ C 1.000 beq =beqc;
+        site H20   x   -0.48677 y   -0.91538 z   -0.03791 occ H 1.000 beq =beqh;
+        site C21   x   -0.81874 y   -0.81676 z   -0.04180 occ C 1.000 beq =beqc;
+        site H21A  x   -0.91444 y   -0.74259 z   -0.05928 occ H 1.000 beq =beqh;
+        site H21B  x   -0.87048 y   -0.91870 z   -0.04998 occ H 1.000 beq =beqh;
+        site C23   x   -0.95326 y   -0.32776 z   -0.20854 occ C 1.000 beq =beqc;
+        site H23A  x   -0.88245 y   -0.27186 z   -0.13768 occ H 1.000 beq =beqh;
+        site H23B  x   -1.07130 y   -0.28419 z   -0.22657 occ H 1.000 beq =beqh;
+        site O6    x   -0.64372 y   -1.06277 z   -0.14935 occ O 1.000 beq =beqo;
+        site H4    x   -0.16157 y   -0.62688 z   -0.23235 occ H 1.000 beq =beqh;
+        site H16   x   -0.26493 y   -1.02272 z   -0.25517 occ H 1.000 beq =beqh;
+        site H10   x   -0.85004 y   -0.51842 z   -0.14793 occ H 1.000 beq =beqh;
+        site H12   x   -0.71579 y   -0.70151 z    0.10326 occ H 1.000 beq =beqh;
+        site H9    x   -0.34423 y   -0.55272 z   -0.42712 occ H 1.000 beq =beqh;
+        site H8    x   -1.18232 y   -0.39548 z   -0.51565 occ H 1.000 beq =beqh;
+        site H5    x   -0.81633 y   -0.64297 z   -0.53694 occ H 1.000 beq =beqh;
+        site H6A   x   -0.57641 y   -1.12155 z   -0.15454 occ H 1.000 beq =beqh;
+
+        'Bond restraints
+        'internal
+        Distance_Restrain_Breakable(  O1    C6,  1.413,  1.42381`, 4, 1000)
+        Distance_Restrain_Breakable(  O1   C15,  1.443,  1.45595`, 4, 1000)
+        Distance_Restrain_Breakable(  O2    C6,  1.427,  1.43026`, 4, 1000)
+        Distance_Restrain_Breakable(  O2    C7,  1.433,  1.44206`, 4, 1000)
+        Distance_Restrain_Breakable(  O3    C7,  1.410,  1.41837`, 4, 1000)
+        Distance_Restrain_Breakable(  O3   C14,  1.449,  1.46241`, 4, 1000)
+        Distance_Restrain_Breakable(  O4   C13,  1.428,  1.43964`, 4, 1000)
+        Distance_Restrain_Breakable(  O5   C11,  1.408,  1.41999`, 4, 1000)
+        Distance_Restrain_Breakable(  O6   C20,  1.414,  1.42834`, 4, 1000)
+        Distance_Restrain_Breakable(  O8   C18,  1.425,  1.43173`, 4, 1000)
+        Distance_Restrain_Breakable(  O9   C19,  1.427,  1.43494`, 4, 1000)
+        Distance_Restrain_Breakable( O10   C23,  1.428,  1.44503`, 4, 1000)
+        Distance_Restrain_Breakable( O12   C21,  1.420,  1.43313`, 4, 1000)
+        Distance_Restrain_Breakable( O16   C17,  1.429,  1.43965`, 4, 1000)
+        Distance_Restrain_Breakable(  C6   C13,  1.535,  1.54201`, 4, 1000)
+        Distance_Restrain_Breakable(  C7   C11,  1.542,  1.54818`, 4, 1000)
+        Distance_Restrain_Breakable(  C7   C19,  1.523,  1.53890`, 4, 1000)
+        Distance_Restrain_Breakable( C11   C18,  1.524,  1.54774`, 4, 1000)
+        Distance_Restrain_Breakable( C13   C17,  1.523,  1.53851`, 4, 1000)
+        Distance_Restrain_Breakable( C14   C18,  1.527,  1.53489`, 4, 1000)
+        Distance_Restrain_Breakable( C14   C23,  1.514,  1.52727`, 4, 1000)
+        Distance_Restrain_Breakable( C15   C20,  1.524,  1.53436`, 4, 1000)
+        Distance_Restrain_Breakable( C15   C21,  1.527,  1.54084`, 4, 1000)
+        Distance_Restrain_Breakable( C17   C20,  1.525,  1.53298`, 4, 1000)
+
+
+        'Angle restraints
+        'internal
+        Angle_Restrain(  C6    O1   C15,  115.685,  115.69749`, 1.0, 10.0)
+        Angle_Restrain(  C6    O2    C7,  113.944,  113.67417`, 1.0, 10.0)
+        Angle_Restrain(  C7    O3   C14,  111.527,  111.64943`, 1.0, 10.0)
+        Angle_Restrain(  O1    C6    O2,  110.337,  110.10973`, 1.0, 10.0)
+        Angle_Restrain(  O1    C6   C13,  110.985,  111.32168`, 1.0, 10.0)
+        Angle_Restrain(  O2    C6   C13,  110.134,  109.71421`, 1.0, 10.0)
+        Angle_Restrain(  O2    C7    O3,  110.974,  111.01147`, 1.0, 10.0)
+        Angle_Restrain(  O2    C7   C11,  108.229,  107.74544`, 1.0, 10.0)
+        Angle_Restrain(  O2    C7   C19,  110.145,  109.94186`, 1.0, 10.0)
+        Angle_Restrain(  O3    C7   C11,  105.167,  105.47971`, 1.0, 10.0)
+        Angle_Restrain(  O3    C7   C19,  107.155,  107.20184`, 1.0, 10.0)
+        Angle_Restrain( C11    C7   C19,  115.075,  115.39515`, 1.0, 10.0)
+        Angle_Restrain(  O5   C11    C7,  115.786,  115.21203`, 1.0, 10.0)
+        Angle_Restrain(  O5   C11   C18,  115.352,  114.95534`, 1.0, 10.0)
+        Angle_Restrain(  C7   C11   C18,  102.517,  102.31580`, 1.0, 10.0)
+        Angle_Restrain(  O4   C13    C6,  110.212,  109.99962`, 1.0, 10.0)
+        Angle_Restrain(  O4   C13   C17,  110.182,  109.94779`, 1.0, 10.0)
+        Angle_Restrain(  C6   C13   C17,  111.000,  110.79438`, 1.0, 10.0)
+        Angle_Restrain(  O3   C14   C18,  105.665,  105.61444`, 1.0, 10.0)
+        Angle_Restrain(  O3   C14   C23,  109.723,  109.39127`, 1.0, 10.0)
+        Angle_Restrain( C18   C14   C23,  115.010,  115.18430`, 1.0, 10.0)
+        Angle_Restrain(  O1   C15   C20,  110.810,  110.59695`, 1.0, 10.0)
+        Angle_Restrain(  O1   C15   C21,  105.646,  105.64753`, 1.0, 10.0)
+        Angle_Restrain( C20   C15   C21,  112.149,  112.27788`, 1.0, 10.0)
+        Angle_Restrain( O16   C17   C13,  111.433,  111.38823`, 1.0, 10.0)
+        Angle_Restrain( O16   C17   C20,  107.871,  107.91168`, 1.0, 10.0)
+        Angle_Restrain( C13   C17   C20,  108.148,  108.18969`, 1.0, 10.0)
+        Angle_Restrain(  O8   C18   C11,  112.368,  112.45311`, 1.0, 10.0)
+        Angle_Restrain(  O8   C18   C14,  111.575,  111.70556`, 1.0, 10.0)
+        Angle_Restrain( C11   C18   C14,  102.357,  102.45669`, 1.0, 10.0)
+        Angle_Restrain(  O9   C19    C7,  111.041,  110.92567`, 1.0, 10.0)
+        Angle_Restrain(  O6   C20   C15,  105.672,  105.75636`, 1.0, 10.0)
+        Angle_Restrain(  O6   C20   C17,  112.748,  112.64171`, 1.0, 10.0)
+        Angle_Restrain( C15   C20   C17,  110.712,  110.62833`, 1.0, 10.0)
+        Angle_Restrain( O12   C21   C15,  111.563,  111.67766`, 1.0, 10.0)
+        Angle_Restrain( O10   C23   C14,  113.064,  112.80691`, 1.0, 10.0)
+
+        'hydrogen
+        Angle_Restrain(  O1    C6    H6,  109.500,  108.95570`, 1.0, 1.0)
+        Angle_Restrain(  O2    C6    H6,  109.500,  108.33993`, 1.0, 1.0)
+        Angle_Restrain( C13    C6    H6,  109.500,  108.32791`, 1.0, 1.0)
+        Angle_Restrain(  O5   C11   H11,  109.500,  108.04804`, 1.0, 1.0)
+        Angle_Restrain(  C7   C11   H11,  109.500,  107.67699`, 1.0, 1.0)
+        Angle_Restrain( C18   C11   H11,  109.500,  108.21410`, 1.0, 1.0)
+        Angle_Restrain(  O4   C13   H13,  109.500,  108.65322`, 1.0, 1.0)
+        Angle_Restrain(  C6   C13   H13,  109.500,  108.51758`, 1.0, 1.0)
+        Angle_Restrain( C17   C13   H13,  109.500,  108.87817`, 1.0, 1.0)
+        Angle_Restrain(  O3   C14   H14,  109.500,  108.95518`, 1.0, 1.0)
+        Angle_Restrain( C18   C14   H14,  109.500,  109.11207`, 1.0, 1.0)
+        Angle_Restrain( C23   C14   H14,  109.500,  108.43329`, 1.0, 1.0)
+        Angle_Restrain(  O1   C15   H15,  109.500,  110.28439`, 1.0, 1.0)
+        Angle_Restrain( C20   C15   H15,  109.500,  108.51055`, 1.0, 1.0)
+        Angle_Restrain( C21   C15   H15,  109.500,  109.50640`, 1.0, 1.0)
+        Angle_Restrain( O16   C17   H17,  109.500,  109.25390`, 1.0, 1.0)
+        Angle_Restrain( C13   C17   H17,  109.500,  110.50886`, 1.0, 1.0)
+        Angle_Restrain( C20   C17   H17,  109.500,  109.53130`, 1.0, 1.0)
+        Angle_Restrain(  O8   C18   H18,  109.500,  110.38921`, 1.0, 1.0)
+        Angle_Restrain( C11   C18   H18,  109.500,  109.78082`, 1.0, 1.0)
+        Angle_Restrain( C14   C18   H18,  109.500,  109.79119`, 1.0, 1.0)
+        Angle_Restrain(  O9   C19  H19A,  109.500,  108.81025`, 1.0, 1.0)
+        Angle_Restrain(  C7   C19  H19A,  109.500,  110.50258`, 1.0, 1.0)
+        Angle_Restrain(  O9   C19  H19B,  109.500,  109.74537`, 1.0, 1.0)
+        Angle_Restrain(  C7   C19  H19B,  109.500,  108.78273`, 1.0, 1.0)
+        Angle_Restrain(  O6   C20   H20,  109.500,  109.51206`, 1.0, 1.0)
+        Angle_Restrain( C15   C20   H20,  109.500,  109.75409`, 1.0, 1.0)
+        Angle_Restrain( C17   C20   H20,  109.500,  108.51080`, 1.0, 1.0)
+        Angle_Restrain( O12   C21  H21A,  109.500,  110.25386`, 1.0, 1.0)
+        Angle_Restrain( C15   C21  H21A,  109.500,  108.81995`, 1.0, 1.0)
+        Angle_Restrain( O12   C21  H21B,  109.500,  109.19588`, 1.0, 1.0)
+        Angle_Restrain( C15   C21  H21B,  109.500,  108.85994`, 1.0, 1.0)
+        Angle_Restrain( O10   C23  H23A,  109.500,  108.84798`, 1.0, 1.0)
+        Angle_Restrain( C14   C23  H23A,  109.500,  108.96190`, 1.0, 1.0)
+        Angle_Restrain( O10   C23  H23B,  109.500,  109.35720`, 1.0, 1.0)
+        Angle_Restrain( C14   C23  H23B,  109.500,  108.96468`, 1.0, 1.0)
+
+
+        'Rigid bodies
+        rigid
+            load point_for_site ux uy uz {
+                  O4  0.0000  0.0000  0.0000
+                  H4  0.5998  0.4872  0.4116
+            }
+         rotate  0 qx  0.74875 qy  0.23736 qz -0.61890
+        Rotate_about_axies(@   0.99979`_LIMIT_MIN_-1 min -1 max 1, @  -0.99999`_LIMIT_MIN_-1 min -1 max 1, @ -0.99979`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.25176`, @  -0.68065`, @ -0.27318`)
+
+        rigid
+            load point_for_site ux uy uz {
+                  O5  0.0000  0.0000  0.0000
+                  H5 -0.2365 -0.6608  0.3796
+            }
+         rotate  0 qx  0.08272 qy -0.78710 qz -0.61126
+        Rotate_about_axies(@  -1.00000`_LIMIT_MIN_-1 min -1 max 1, @  -0.80309`_LIMIT_MIN_-1 min -1 max 1, @ -0.99994`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.79513`, @  -0.56815`, @ -0.57332`)
+
+        rigid
+            load point_for_site ux uy uz {
+                  O6  0.0000  0.0000  0.0000
+                 H6A  0.5251 -0.5193 -0.0752
+            }
+         rotate  0 qx -0.43242 qy -0.88186 qz -0.18797
+        Rotate_about_axies(@  -1.00000`_LIMIT_MIN_-1 min -1 max 1, @  -1.00000`_LIMIT_MIN_-1 min -1 max 1, @  0.99951`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.64372`, @  -1.06277`, @ -0.14935`)
+
+        rigid
+            load point_for_site ux uy uz {
+                  O8  0.0000  0.0000  0.0000
+                  H8 -0.7168 -0.4430  0.0916
+            }
+         rotate  0 qx -0.63794 qy  0.42548 qz -0.64187
+        Rotate_about_axies(@   0.99994`_LIMIT_MIN_-1 min -1 max 1, @  -0.99994`_LIMIT_MIN_-1 min -1 max 1, @  1.00000`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -1.09293`, @  -0.34306`, @ -0.52255`)
+
+        rigid
+            load point_for_site ux uy uz {
+                  O9  0.0000  0.0000  0.0000
+                  H9  0.1545 -0.6188  0.4474
+            }
+         rotate  0 qx  0.54436 qy -0.63902 qz -0.54343
+        Rotate_about_axies(@  -0.99999`_LIMIT_MIN_-1 min -1 max 1, @  -1.00000`_LIMIT_MIN_-1 min -1 max 1, @ -1.00000`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.37535`, @  -0.48207`, @ -0.47041`)
+
+        rigid
+            load point_for_site ux uy uz {
+                 O10  0.0000  0.0000  0.0000
+                 H10  0.8057 -0.2913  0.2486
+            }
+         rotate  0 qx -0.10049 qy -0.95560 qz  0.27699
+        Rotate_about_axies(@  -0.99982`_LIMIT_MIN_-1 min -1 max 1, @  -0.99979`_LIMIT_MIN_-1 min -1 max 1, @  1.00000`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.96186`, @  -0.48715`, @ -0.17331`)
+
+        rigid
+            load point_for_site ux uy uz {
+                 O12  0.0000  0.0000  0.0000
+                 H12 -0.0659  0.8342  0.1827
+            }
+         rotate  0 qx  0.34365 qy  0.15360 qz  0.92645
+        Rotate_about_axies(@   0.99960`_LIMIT_MIN_-1 min -1 max 1, @   0.99998`_LIMIT_MIN_-1 min -1 max 1, @ -0.99998`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.71554`, @  -0.79696`, @  0.08422`)
+
+        rigid
+            load point_for_site ux uy uz {
+                 O16  0.0000  0.0000  0.0000
+                 H16  0.3992 -0.2511 -0.6644
+            }
+         rotate  0 qx  0.71513 qy -0.67743 qz  0.17225
+        Rotate_about_axies(@   0.99998`_LIMIT_MIN_-1 min -1 max 1, @   0.99997`_LIMIT_MIN_-1 min -1 max 1, @  0.54079`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.29514`, @  -0.99546`, @ -0.19141`)
+
+        rigid
+            load point_for_site ux uy uz {
+                  C6  0.0000  0.0000  0.0000
+                  H6  0.3311  0.8770  0.2864
+            }
+        Rotate_about_axies(@  -1.00000`_LIMIT_MIN_-1 min -1 max 1, @  -1.00000`_LIMIT_MIN_-1 min -1 max 1, @ -0.50180`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.51417`, @  -0.60237`, @ -0.19999`)
+
+        rigid
+            load point_for_site ux uy uz {
+                 C11  0.0000  0.0000  0.0000
+                 H11  0.2202  0.8019 -0.5189
+            }
+        Rotate_about_axies(@  -1.00000`_LIMIT_MIN_-1 min -1 max 1, @   1.00000`_LIMIT_MAX_1 min -1 max 1, @ -1.00000`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.78518`, @  -0.43701`, @ -0.49432`)
+
+        rigid
+            load point_for_site ux uy uz {
+                 C13  0.0000  0.0000  0.0000
+                 H13  0.3366  0.0307  0.9201
+            }
+        Rotate_about_axies(@  -1.00000`_LIMIT_MIN_-1 min -1 max 1, @   0.49187`_LIMIT_MIN_-1 min -1 max 1, @ -1.00000`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.36216`, @  -0.71949`, @ -0.18748`)
+
+        rigid
+            load point_for_site ux uy uz {
+                 C14  0.0000  0.0000  0.0000
+                 H14 -0.0540  0.9310 -0.3013
+            }
+        Rotate_about_axies(@   0.68846`_LIMIT_MIN_-1 min -1 max 1, @  -0.22918`_LIMIT_MIN_-1 min -1 max 1, @  0.99961`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.87320`, @  -0.30594`, @ -0.32360`)
+
+        rigid
+            load point_for_site ux uy uz {
+                 C15  0.0000  0.0000  0.0000
+                 H15 -0.3873 -0.0708 -0.8972
+            }
+        Rotate_about_axies(@  -0.73169`_LIMIT_MIN_-1 min -1 max 1, @  -0.52807`_LIMIT_MIN_-1 min -1 max 1, @  0.79727`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.70564`, @  -0.79773`, @ -0.14068`)
+
+        rigid
+            load point_for_site ux uy uz {
+                 C17  0.0000  0.0000  0.0000
+                 H17 -0.3006 -0.0644 -0.9309
+            }
+        Rotate_about_axies(@  -0.46561`_LIMIT_MIN_-1 min -1 max 1, @   0.32060`_LIMIT_MIN_-1 min -1 max 1, @  0.61506`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.43507`, @  -0.88335`, @ -0.21449`)
+
+        rigid
+            load point_for_site ux uy uz {
+                 C18  0.0000  0.0000  0.0000
+                 H18 -0.3616 -0.8534  0.3181
+            }
+        Rotate_about_axies(@  -0.08850`_LIMIT_MIN_-1 min -1 max 1, @   0.99918`_LIMIT_MIN_-1 min -1 max 1, @  0.16058`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.94738`, @  -0.41216`, @ -0.43572`)
+
+        rigid
+            load point_for_site ux uy uz {
+                 C19  0.0000  0.0000  0.0000
+                H19A -0.0499  0.8533 -0.4596
+                H19B  0.4319  0.1451  0.8562
+            }
+        Rotate_about_axies(@  -0.82554`_LIMIT_MIN_-1 min -1 max 1, @  -0.99901`_LIMIT_MIN_-1 min -1 max 1, @ -0.98254`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.45325`, @  -0.37551`, @ -0.39795`)
+
+        rigid
+            load point_for_site ux uy uz {
+                 C20  0.0000  0.0000  0.0000
+                 H20  0.3225  0.0103  0.9251
+            }
+        Rotate_about_axies(@  -0.28527`_LIMIT_MIN_-1 min -1 max 1, @   0.80568`_LIMIT_MIN_-1 min -1 max 1, @  0.40390`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.55726`, @  -0.91752`, @ -0.12484`)
+
+        rigid
+            load point_for_site ux uy uz {
+                 C21  0.0000  0.0000  0.0000
+                H21A -0.7141  0.6299 -0.1861
+                H21B -0.3678 -0.8954 -0.0611
+            }
+        Rotate_about_axies(@   1.00000`_LIMIT_MIN_-1 min -1 max 1, @  -1.00000`_LIMIT_MIN_-1 min -1 max 1, @ -1.00000`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.81874`, @  -0.81676`, @ -0.04180`)
+
+        rigid
+            load point_for_site ux uy uz {
+                 C23  0.0000  0.0000  0.0000
+                H23A  0.3555  0.5090  0.7458
+                H23B -0.8749  0.3600 -0.2140
+            }
+        Rotate_about_axies(@   0.99940`_LIMIT_MIN_-1 min -1 max 1, @   0.99999`_LIMIT_MIN_-1 min -1 max 1, @ -0.99987`_LIMIT_MIN_-1 min -1 max 1)
+        Translate(@  -0.95326`, @  -0.32776`, @ -0.20854`)
+

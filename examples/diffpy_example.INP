@@ -1,0 +1,59 @@
+
+r_exp 4.97976698 r_exp_dash 6.57667424 r_wp 75.10388453 r_wp_dash 99.18813163 r_p 68.77349496 r_p_dash 98.59675388 weighted_Durbin_Watson 0.05775867044 gof 15.08180701
+iters 100000
+xdd "C:\preliminary_fit\file\location.raw"
+	r_exp 4.97976698 r_exp_dash 6.57667424 r_wp 75.10388453 r_wp_dash 99.18813163 r_p 68.77349496 r_p_dash 98.59675388 weighted_Durbin_Watson 0.05775867044 gof 15.08180701
+	bkg @ 167.2686521 -82.61473108
+	LP_Factor( 0)
+	Rp 217.5
+	Rs 217.5
+	lam
+		ymin_on_ymax  0.001
+		la  0.653817 lo  1.540596 lh  0.501844
+		la  0.346183 lo  1.544493 lh  0.626579
+	str 
+		LVol_FWHM_CS_G_L( 1, 127.3239545, 0.89, 178,,,, 200)
+		r_bragg  32.22633601
+		phase_MAC 6.377875586
+		phase_name "LiO2"
+		MVW( 119.5256, 99.19447134, 93.58268467)
+		space_group Fm-3m
+		scale @ 0.001289256025
+		Phase_LAC_1_on_cm( 12.76141706)
+		Phase_Density_g_on_cm3( 2.000888366)
+		Cubic(@ 4.629092109)
+		site O1 num_posns 4 x  0 y  0 z  0 occ O-2  1 beq  0.4
+		site Li1 num_posns 8 x  0.25 y  0.25 z  0.25 occ Li+1  1 beq  0.74
+	str 
+		LVol_FWHM_CS_G_L( 1, 127.3239545, 0.89, 178,,,, 200)
+		r_bragg  74.26722874
+		phase_MAC 136.1251753
+		phase_name "RuO2_tetragonal"
+		MVW( 266.1376, 64.42632984, 1.778223569)
+		space_group P42/mnm
+		scale @ 1.693982048e-005
+		Phase_LAC_1_on_cm( 933.7501625)
+		Phase_Density_g_on_cm3( 6.859496492)
+		Tetragonal(@ 4.547936921,@ 3.114831276)
+		site Ru1 num_posns 2 x  0 y  0 z  0 occ Ru+4  1 beq  0.384
+		site O1 num_posns 4 x  0.3058 y  0.3058 z  0 occ O-2  1 beq  0.517
+	str 
+		LVol_FWHM_CS_G_L( 1, 127.3239545, 0.89, 178,,,, 200)
+		r_bragg  31.90594124
+		phase_MAC 175.5883185
+		phase_name "Ru_mp-8639_conventional_standard"
+		MVW( 404.28, 53.97497487, 4.639091765)
+		space_group P1
+		scale @ 3.472564545e-005
+		Phase_LAC_1_on_cm( 2183.910428)
+		Phase_Density_g_on_cm3( 12.43767494)
+		a @ 3.779234591
+		b @ 3.779234726
+		c @ 3.779234609
+		al @ 90.30985739
+		be @ 90.30985739
+		ga @ 90.30985739
+		site Ru0 num_posns 1 x  0 y  0 z  0 occ Ru  1 beq  1
+		site Ru1 num_posns 1 x  0 y  0.5 z  0.5 occ Ru  1 beq  1
+		site Ru2 num_posns 1 x  0.5 y  0 z  0.5 occ Ru  1 beq  1
+		site Ru3 num_posns 1 x  0.5 y  0.5 z  0 occ Ru  1 beq  1

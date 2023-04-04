@@ -1,0 +1,173 @@
+macro Ni_occ {0.90}
+macro Co_occ {0.1}
+macro Al_occ {0.1}
+macro Mn_occ {0.0}
+macro Three_Variables(a, a1, a2, da, b, b1, b2, db, c, c1, c2, dc)
+   {
+	#prm numberOfStepsForA = Round((a2-a1)/da);
+	#prm numberOfStepsForB = Round((b2-b1)/db);
+	#prm numberOfStepsForC = Round((c2-c1)/dc);
+
+	prm numberOfRuns = numberOfStepsForA * numberOfStepsForB * numberOfStepsForC;
+'	num_runs numberOfRuns
+
+	#prm a = a1 + (da * Round(Run_Number/(numberOfStepsForB * numberOfStepsForC)-0.499999999));
+	#prm b = b1 + (db * Round(Mod(Run_Number/numberOfStepsForC, numberOfStepsForB)-0.499999999));
+	#prm c = c1 + (dc * Mod(Run_Number, numberOfStepsForC));
+
+   }
+num_runs 10
+iters 0
+yobs_eqn  !aac.xy = 0;
+	min 5 max 100 del 0.01
+Three_Variables(pa, 0, 0.3, 0.03, pb, 0, 0.3, 0.03, pc, 0, 0.3, 0.03)
+prm !pa = #out pa; prm !pb = #out pb; prm !pc = #out pc;
+out papbpc.txt append
+	out_record out_eqn = pa; out_fmt "(%.3f, "
+	out_record out_eqn = pb; out_fmt "%.3f, "
+	out_record out_eqn = pc; out_fmt "%.3f)\n"
+	#if (pc == 0.3) Out_String("\n") #endif
+
+
+seed
+LP_Factor( 20)
+Rp 217.5
+Rs 217.5
+Slit_Width( 0.1)
+Divergence( 0.18)
+axial_conv
+  filament_length  12
+  sample_length  15
+  receiving_slit_length  12
+  primary_soller_angle !soller 2.5
+  secondary_soller_angle !soller 2.5
+  axial_n_beta  30
+	lam
+		ymin_on_ymax  1e-006
+		la  1 lo  0.7093 lh  0.01
+	str
+
+		r_bragg  9.32936827
+		phase_MAC  30.5494734
+		phase_name "(CoNiMn)(OH)2"
+		MVW( 127905.358,volume 57029.462`, 100.000`)
+		space_group P1
+		scale    1
+		Phase_LAC_1_on_cm( 113.77388`)
+		Phase_Density_g_on_cm3( 3.72425`)
+
+		a  = lpa;
+		b  = lpa;
+		c  = Get(generated_c);
+		ga 120
+		prm lpa  5.3670014` min 5.3 max 5.5
+
+		prm !px = pa;:0
+		prm !py = pb;:0
+		prm !pcar = pc;:0
+
+		prm h1  4.65687917` min 4.5 max 4.8
+		prm h2  1.58902702` min 0.0 max 4.0
+
+		prm s  0.31005` min 1e-15
+		scale = s 1e-6/ (Nv Nstr);
+
+		generate_stack_sequences {
+		pr_str { B layers_tol} 10
+		number_of_sequences Nstr 100
+		number_of_stacks_per_sequence Nv 500
+			Transition(A, h1)
+				to A = 1-px-py-pcar;          a_add =  0;  b_add = 0;
+				to B = px;                    a_add = 1/3; b_add = 0;
+				to C = py;                    a_add =  0;  b_add = -1/3;
+				to D = pcar*(1-px-py);        a_add =  0;  b_add = 0;
+				to E = pcar*px;               a_add = 1/3; b_add = 0;
+				to F = pcar*py;               a_add =  0;  b_add = -1/3;
+				to G = 0;                     a_add =  0;  b_add = 0;
+			Transition(B, A, h1)
+				to A = 1-px-py-pcar;          a_add =  0;  b_add = 0;
+				to B = px;                    a_add = 1/3; b_add = 0;
+				to C = py;                    a_add =  0;  b_add = -1/3;
+				to D = pcar*(1-px-py);        a_add =  0;  b_add = 0;
+				to E = pcar*px;               a_add = 1/3; b_add = 0;
+				to F = pcar*py;               a_add =  0;  b_add = -1/3;
+				to G = 0;                     a_add =  0;  b_add = 0;
+			Transition(C, A, h1)
+				to A = 1-px-py-pcar;          a_add =  0;  b_add = 0;
+				to B = px;                    a_add = 1/3; b_add = 0;
+				to C = py;                    a_add =  0;  b_add = -1/3;
+				to D = pcar*(1-px-py);        a_add =  0;  b_add = 0;
+				to E = pcar*px;               a_add = 1/3; b_add = 0;
+				to F = pcar*py;               a_add =  0;  b_add = -1/3;
+				to G = 0;                     a_add =  0;  b_add = 0;
+			Transition(D, A, h2)
+				to A = 0;                     a_add =  0;  b_add = 0;
+				to B = 0;                     a_add = 1/3; b_add = 0;
+				to C = 0;                     a_add =  0;  b_add = -1/3;
+				to D = 0;                     a_add =  0;  b_add = 0;
+				to E = 0;                     a_add = 1/3; b_add = 0;
+				to F = 0;                     a_add =  0;  b_add = -1/3;
+				to G = 1;                     a_add =  0;  b_add = 0;
+			Transition(E, A, h2)
+				to A = 0;                     a_add =  0;  b_add = 0;
+				to B = 0;                     a_add = 1/3; b_add = 0;
+				to C = 0;                     a_add =  0;  b_add = -1/3;
+				to D = 0;                     a_add =  0;  b_add = 0;
+				to E = 0;                     a_add = 1/3; b_add = 0;
+				to F = 0;                     a_add =  0;  b_add = -1/3;
+				to G = 1;                     a_add =  0;  b_add = 0;
+			Transition(F, A, h2)
+				to A = 0;                     a_add =  0;  b_add = 0;
+				to B = 0;                     a_add = 1/3; b_add = 0;
+				to C = 0;                     a_add =  0;  b_add = -1/3;
+				to D = 0;                     a_add =  0;  b_add = 0;
+				to E = 0;                     a_add = 1/3; b_add = 0;
+				to F = 0;                     a_add =  0;  b_add = -1/3;
+				to G = 1;                     a_add =  0;  b_add = 0;
+			Transition(G, h2)
+				to A = (1-px-py)*(1-pcar);    a_add = 1/3; b_add = 1/3;
+				to B = px*(1-pcar);           a_add = 1/3; b_add = 1/3;
+				to C = py*(1-pcar);           a_add = 1/3; b_add = 1/3;
+				to D = pcar*(1-px-py);        a_add = 1/3; b_add = 1/3;
+				to E = pcar*px;               a_add = 1/3; b_add = 1/3;
+				to F = pcar*py;               a_add = 1/3; b_add = 1/3;
+				to G = 0;                     a_add = 1/3; b_add = 1/3;
+		}
+
+		prm !b1  0.42077 min 0 max 3
+		prm !b2  0.10124_LIMIT_MIN_0.1 min 0.1 max 5
+		prm !b3  6.00000_LIMIT_MIN_0 min 0 max 6
+
+		prm !oz  0.23518
+
+
+		site Ni1 x 0.0000 y 0.0000 z = (0.0000)/Nv; occ Ni+2 Ni_occ beq = b1; layer A
+		site Co1 x 0.0000 y 0.0000 z = (0.0000)/Nv; occ Co+2 Co_occ beq = b1; layer A
+		site Al1 x 0.0000 y 0.0000 z = (0.0000)/Nv; occ Al+3 Al_occ beq = b1; layer A
+		site Ni2 x = 1/3; y = 2/3; z = (0.0000)/Nv; occ Ni+2 Ni_occ beq = b1; layer A
+		site Co2 x = 1/3; y = 2/3; z = (0.0000)/Nv; occ Co+2 Co_occ beq = b1; layer A
+		site Al2 x = 1/3; y = 2/3; z = (0.0000)/Nv; occ Al+3 Al_occ beq = b1; layer A
+		site Ni3 x = 2/3; y = 1/3; z = (0.0000)/Nv; occ Ni+2 Ni_occ beq = b1; layer A
+		site Co3 x = 2/3; y = 1/3; z = (0.0000)/Nv; occ Co+2 Co_occ beq = b1; layer A
+		site Al3 x = 2/3; y = 1/3; z = (0.0000)/Nv; occ Al+3 Al_occ beq = b1; layer A
+		site O1a x = 1/3; y 0.0000 z = (oz)/Nv; occ O-2 = 1; beq = b2; layer A
+		site O2a x 0.0000 y = 1/3; z = (oz)/Nv; occ O-2 = 1; beq = b2; layer A
+		site O3a x = 2/3; y = 2/3; z = (oz)/Nv; occ O-2 =1; beq = b2; layer A
+		site O4a x = 1/3; y = 1/3; z = (-oz)/Nv; occ O-2 = 1; beq = b2; layer A
+		site O5a x 0.0000 y = 2/3; z = (-oz)/Nv; occ O-2 = 1; beq = b2; layer A
+		site O6a x = 2/3; y 0.0000 z = (-oz)/Nv; occ O-2 = 1; beq = b2; layer A
+
+		site C1  x = 1/3; y = 1/3; z = 0.0000 /Nv; occ C   1 beq = b3; layer G
+		site O11 x = 1/3; y 0.0860 z = 0.0000 /Nv; occ O-2 1 beq = b3; layer G
+		site O12 x 0.0860 y = 1/3; z = 0.0000 /Nv; occ O-2 1 beq = b3; layer G
+		site O13 x 0.5806 y 0.5806 z = 0.0000 /Nv; occ O-2 1 beq = b3; layer G
+
+
+		peak_buffer_based_on = Xo;
+		peak_buffer_based_on_tol 0.1
+
+		'SF_smooth(@, 14.39451_LIMIT_MIN_1e-06, 1)
+		'Save_Best
+
+
+		Out_X_Ycalc(##Run_Number##.xy)

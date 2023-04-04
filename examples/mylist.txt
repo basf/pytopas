@@ -1,0 +1,4 @@
+#list FileName FileNameOut {
+4115474.str	4115474.dI
+2002698.str	2002698.dI
+}

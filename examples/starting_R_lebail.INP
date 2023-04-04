@@ -1,0 +1,73 @@
+
+r_exp 1.114005754 r_exp_dash 1.741117525 r_wp 1.477786277 r_wp_dash 2.309682492 r_p 1.181189495 r_p_dash 1.89105823 weighted_Durbin_Watson 0.6512584448 gof 1.326551746
+iters 100000
+do_errors
+no_LIMIT_warnings
+
+#ifdef GUI_LINES
+xdd filename##.xye
+#else
+xdd La090Sr010FeO3_ramp-00000.xye
+#endif
+
+	r_exp 1.114005754 
+	r_exp_dash 1.741117525 
+	r_wp 1.477786277 
+	r_wp_dash 2.309682492 
+	r_p 1.181189495 
+	r_p_dash 1.89105823 
+	weighted_Durbin_Watson 0.6512584448 
+	gof 1.326551746
+	
+	
+	bkg @ 3391.558041 -1356.63652 926.5285274 -1534.16669 1054.017554 -305.0793988 234.6981016 
+	start_X  3
+	finish_X  27
+	LP_Factor( 90)
+	Zero_Error(, -0.009809616)
+	
+	
+	lam
+		ymin_on_ymax  0.001
+		la  1 lo  0.45336 lh  0.1
+	x_calculation_step 0.001
+			
+hkl_Is 
+		lebail  1
+		
+		phase_name "La0.5Sr0.5FeO3_rhomb" 
+		CS_G(crys_gaus, 48.8 min=30;)
+		Strain_G(strain_gaus, 0.3284005 max=0.45;)
+		r_bragg  1.80744325
+		MVW(m_v 960.7377,v_v 247.4399322,w_v 100)
+		space_group R-3cH
+		
+		Trigonal(ka 5.5822118,kc 13.5862302)
+		
+#ifdef GUI_LINES		
+'''''Refinement plot and tics - do not move this line
+		Rietveld_Plot(filename##_lebail_plot.txt) ' Topas4-2 use updateDataFile.py to change these filenames in temp.inp
+		Rietveld_Tics_2th(filename##_lebail_tics.txt)
+#endif
+      
+#ifdef header
+out "results_lebail.txt" 'append 
+Out_String(filename)
+Out_String("	r_wp	")
+Out_String("volume	error	")
+Out_String("ka	error	")
+Out_String("kc	error	")
+Out_String("crys_gaus	error	")
+Out_String("strain_gaus	error	\n")
+#endif      
+#ifdef GUI_LINES
+out "results_lebail.txt" append 
+Out_String(filename)
+Out(Get (r_wp), " %11.5f")
+Out(v_v, " %11.5f", " %11.5f")
+Out(ka,	" %11.5f", " %11.5f")
+Out(kc,	" %11.5f", " %11.5f")
+Out(crys_gaus, " %11.5f", " %11.5f")
+Out(strain_gaus, " %11.5f", " %11.5f\n")
+#endif
+

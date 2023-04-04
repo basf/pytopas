@@ -1,0 +1,31 @@
+str
+   space_group C_1_2/c_1
+   phase_name "Copper indium ditungsten oxide"
+   ' Formula: Cu In O8 W2
+   a a_2002698   9.6576
+   b b_2002698  11.6496
+   c c_2002698   4.9863
+   al 90.000
+   be be_2002698  91.170
+   ga 90.000
+   ' Lattice: Base-centered monoclinic
+   site w_1  x !x_w_1_2002698  0.25490 y !y_w_1_2002698  0.08910 z !z_w_1_2002698  0.25180 occ w  !occ_w_1_2002698  1.0000 beq !beq_w_1_2002698  1.000
+   site in_1 x =0;                     y !y_in_1_2002698 0.8386  z =1/4;                   occ in !occ_in_1_2002698 1.0000 beq !beq_in_1_2002698 1.000
+   site cu_1 x =0;                     y !y_cu_1_2002698 0.3519  z =1/4;                   occ cu !occ_cu_1_2002698 1.0000 beq !beq_cu_1_2002698 1.000
+   site o_1  x !x_o_1_2002698  0.12700 y !y_o_1_2002698  0.18900 z !z_o_1_2002698  0.11000 occ o  !occ_o_1_2002698  1.0000 beq !beq_o_1_2002698  1.000
+   site o_2  x !x_o_2_2002698  0.37900 y !y_o_2_2002698  0.18100 z !z_o_2_2002698  0.40900 occ o  !occ_o_2_2002698  1.0000 beq !beq_o_2_2002698  1.000
+   site o_3  x !x_o_3_2002698  0.14800 y !y_o_3_2002698  0.45400 z !z_o_3_2002698  0.05000 occ o  !occ_o_3_2002698  1.0000 beq !beq_o_3_2002698  1.000
+   site o_4  x !x_o_4_2002698  0.35400 y !y_o_4_2002698  0.44600 z !z_o_4_2002698  0.42700 occ o  !occ_o_4_2002698  1.0000 beq !beq_o_4_2002698  1.000
+   ' Z: 4
+   ' Unit cell volume [A^3]:  560.88
+   ' Density (calculated) [g/cm^3]:  7.98200
+   CS(cs_2002698, 1000 min 30)
+   scale sc_2002698 0.001
+   /*
+     Reference: Mueller-Buschbaum Hk, Szillat H, 'Zur Kristallchemie der
+     Kupfer-Lanthanoid-Oxowolframate: (I)triklin-$- alpha-Cu Tb W2 O8, (II)monoklin-Cu In W2 O8 und
+     (III)monoklin-Cu Y W2 O8', Zeitschrift fuer Anorganische und Allgemeine
+     Chemie 620, 642-646 (1994).
+   */
+   ' Orig. COD entry no.: 2002698
+   ' Link to original entry: http://www.crystallography.net/cif/2/00/26/2002698.cif

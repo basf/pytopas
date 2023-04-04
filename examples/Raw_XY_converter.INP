@@ -1,0 +1,8 @@
+xdd "name.raw"
+range 1
+
+xdd_out name.xy load out_record out_fmt out_eqn
+	   {
+	     " %11.5f   " = X;
+	     " %11.5f\n " = Yobs;
+	   }

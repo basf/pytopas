@@ -1,0 +1,53 @@
+str
+   space_group P_42/m_n_m
+   phase_name "clathrate-III"
+   ' Formula: Cs1.72 Na0.35 Rb2.03 Sn20.31
+   a a_4115474  23.4900
+   b =a_4115474;
+   c c_4115474  12.0870
+   al 90.000
+   be 90.000
+   ga 90.000
+   ' Lattice: Tetragonal
+   site sn_1  x !x_sn_1_4115474 0.81540  y !y_sn_1_4115474 0.44697  z !z_sn_1_4115474 0.18119   occ sn !occ_sn_1_4115474 1.0000  beq !beq_sn_1_4115474 1.515 
+   site sn_2  x !x_sn_2_4115474 0.2642   y =!x_sn_2_4115474;        z =0;                       occ sn !occ_sn_2_4115474 1.0000  beq !beq_sn_2_4115474 1.167 
+   site sn_3  x !x_sn_3_4115474 0.1458   y !y_sn_3_4115474 0.2952   z =0;                       occ sn !occ_sn_3_4115474 1.0000  beq !beq_sn_3_4115474 1.286 
+   site sn_4  x !x_sn_4_4115474 0.3940   y =!x_sn_4_4115474;        z !z_sn_4_4115474 0.1178    occ sn !occ_sn_4_4115474 1.0000  beq !beq_sn_4_4115474 1.437 
+   site sn_5  x !x_sn_5_4115474 0.6561   y !y_sn_5_4115474 0.4299   z =0;                       occ sn !occ_sn_5_4115474 1.0000  beq !beq_sn_5_4115474 1.483 
+   site sn_6  x !x_sn_6_4115474 0.73503  y !y_sn_6_4115474 0.50953  z !z_sn_6_4115474 0.31033   occ sn !occ_sn_6_4115474 1.0000  beq !beq_sn_6_4115474 1.697 
+   site sn_7  x !x_sn_7_4115474 0.86235  y !y_sn_7_4115474 0.63270  z !z_sn_7_4115474 0.18879   occ sn !occ_sn_7_4115474 1.0000  beq !beq_sn_7_4115474 1.578 
+   site sn_8  x !x_sn_8_4115474 0.0590   y !y_sn_8_4115474 0.2081   z =0;                       occ sn !occ_sn_8_4115474 1.0000  beq !beq_sn_8_4115474 1.721 
+   site sn_9  x =0;                      y =1/2;                    z =1/4;                     occ sn !occ_sn_9_4115474 1.0000  beq !beq_sn_9_4115474 1.358 
+   site sn_10 x !x_sn_10_4115474 0.3137  y =!x_sn_10_4115474;       z !z_sn_10_4115474 0.1971   occ sn !occ_sn_10_4115474 1.0000 beq !beq_sn_10_4115474 1.570
+   site sn_11 x !x_sn_11_4115474 0.90235 y !y_sn_11_4115474 0.52441 z !z_sn_11_4115474 -0.11897 occ sn !occ_sn_11_4115474 1.0000 beq !beq_sn_11_4115474 1.467
+   site sn_12 x !x_sn_12_4115474 0.63142 y !y_sn_12_4115474 0.49538 z !z_sn_12_4115474 0.19451  occ sn !occ_sn_12_4115474 1.0000 beq !beq_sn_12_4115474 1.768
+   site sn_13 x !x_sn_13_4115474 0.2306  y !y_sn_13_4115474 0.6172  z =0;                       occ sn !occ_sn_13_4115474 1.0000 beq !beq_sn_13_4115474 2.076
+   site sn_14 x !x_sn_14_4115474 0.0406  y =!x_sn_14_4115474;       z !z_sn_14_4115474 0.1734   occ sn !occ_sn_14_4115474 0.8000 beq !beq_sn_14_4115474 3.495
+   site sn_15 x !x_sn_15_4115474 0.76659 y !y_sn_15_4115474 0.62750 z !z_sn_15_4115474 0.33297  occ sn !occ_sn_15_4115474 1.0000 beq !beq_sn_15_4115474 2.762
+   site sn_16 x !x_sn_16_4115474 0.0928  y =!x_sn_16_4115474;       z =0;                       occ sn !occ_sn_16_4115474 0.5300 beq !beq_sn_16_4115474 1.483
+   site sn_17 x !x_sn_17_4115474 0.2005  y !y_sn_17_4115474 0.7280  z =0;                       occ sn !occ_sn_17_4115474 0.2399 beq !beq_sn_17_4115474 1.808
+   site na_1  x !x_na_1_4115474 0.2379   y =-!x_na_1_4115474;       z =0;                       occ na !occ_na_1_4115474 0.5100  beq !beq_na_1_4115474 3.709 
+   site na_2  x !x_na_2_4115474 0.0660   y =!x_na_2_4115474;        z !z_na_2_4115474 0.1050    occ na !occ_na_2_4115474 0.0899  beq !beq_na_2_4115474 0.708 
+   site cs_1  x !x_cs_1_4115474 0.8951   y =-!x_cs_1_4115474;       z =0;                       occ cs !occ_cs_1_4115474 0.7600  beq !beq_cs_1_4115474 5.241 
+   site rb_1  x !x_rb_1_4115474 0.8951   y =-!x_rb_1_4115474;       z =0;                       occ rb !occ_rb_1_4115474 0.2399  beq !beq_rb_1_4115474 5.241 
+   site cs_2  x !x_cs_2_4115474 0.1780   y =!x_cs_2_4115474;        z !z_cs_2_4115474 0.2426    occ cs !occ_cs_2_4115474 0.5400  beq !beq_cs_2_4115474 4.618 
+   site rb_2  x !x_rb_2_4115474 0.1780   y =!x_rb_2_4115474;        z !z_rb_2_4115474 0.2426    occ rb !occ_rb_2_4115474 0.4600  beq !beq_rb_2_4115474 4.618 
+   site cs_3  x !x_cs_3_4115474 0.3730   y !y_cs_3_4115474 0.9705   z =0;                       occ cs !occ_cs_3_4115474 0.5997  beq !beq_cs_3_4115474 3.853 
+   site rb_3  x !x_rb_3_4115474 0.3730   y !y_rb_3_4115474 0.9705   z =0;                       occ rb !occ_rb_3_4115474 0.4000  beq !beq_rb_3_4115474 3.853 
+   site cs_4  x !x_cs_4_4115474 0.7500   y !y_cs_4_4115474 0.5658   z =0;                       occ cs !occ_cs_4_4115474 0.1620  beq !beq_cs_4_4115474 1.918 
+   site rb_4  x !x_rb_4_4115474 0.7500   y !y_rb_4_4115474 0.5658   z =0;                       occ rb !occ_rb_4_4115474 0.8379  beq !beq_rb_4_4115474 1.918 
+   site cs_5  x =0;                      y =0;                      z =1/2;                     occ cs !occ_cs_5_4115474 0.1199  beq !beq_cs_5_4115474 1.997 
+   site rb_5  x =0;                      y =0;                      z =1/2;                     occ rb !occ_rb_5_4115474 0.8800  beq !beq_rb_5_4115474 1.997 
+   ' Z: 8
+   ' Unit cell volume [A^3]: 6669.37
+   ' Color: black
+   ' Density (calculated) [g/cm^3]:  5.61600
+   ' Temperature [K]:  293.00
+   CS(cs_4115474, 1000 min 30)
+   scale sc_4115474 0.001
+   /*
+     Reference: Svilen Bobev, Slavi C. Sevov, 'Clathrate III of Group 14 Exists After All',
+     Journal of the American Chemical Society 123, 3389-3390 (2001).
+   */
+   ' Orig. COD entry no.: 4115474
+   ' Link to original entry: http://www.crystallography.net/cif/4/11/54/4115474.cif
