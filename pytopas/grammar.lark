@@ -1,0 +1,376 @@
+//
+// Keywords enclosed in square brackets [ ] are optional.
+// Keywords ending in ... indicate that multiple keywords of that type are allowed.
+// Text beginning with the character # corresponds to a number.
+// Text beginning with the character $ corresponds to a User defined string.
+// E after keyword: An equation (i.e. = a+b;) or constant (i.e. 1.245)
+//  or a parameter name with a value (i.e. lp 5.4013) that can be refined.
+// !E after keyword: An equation or constant or a parameter name with
+//   a value that cannot be refined.
+
+
+%import common.DIGIT
+%import common.ESCAPED_STRING
+%import common.LETTER
+%import common.NEWLINE
+%import common.NUMBER
+%import common.SIGNED_NUMBER
+%import common.WS
+
+STRING: ESCAPED_STRING | /\S+/
+
+
+//
+// Whitespaces
+//
+
+%ignore WS
+
+
+//
+// Comments
+//
+
+BLOCK_COMMENT: "/*" /(.|\r?\n)*?/ "*/"
+%ignore BLOCK_COMMENT
+LINE_COMMENT: /'[^\r?\n]*/
+%ignore LINE_COMMENT
+
+
+//
+// Templates
+//
+
+_separated{x, sep}: x (sep x)*
+
+
+//
+// Operators
+//
+
+OPERATOR: "=" | "+" | "+=" | "-" | "-=" | "*" | "*=" | "/" | "/=" | "^"
+        | "==" | ">" | ">=" | ">" | "<="
+
+
+//
+// Parameters
+//
+
+// The first character can be an upper or lower-case letter.
+// Subsequent characters can include the underscore character '_'
+// and the numbers 0 through 9.
+PARAMETER_NAME: LETTER (LETTER | "_" | DIGIT)*
+
+// The character ! placed before name signals that parameter is not to be refined
+PARAMETER_TO_BE_FIXED: "!"
+// A parameter can also be flagged for refinement by placing
+// the @ character at the start of its name
+PARAMETER_TO_BE_REFINED: "@"
+
+// Parameter value with optional error and min/max limit
+PARAMETER_VALUE: SIGNED_NUMBER
+PARAMETER_BACKTICK: "`"
+PARAMETER_ESD: SIGNED_NUMBER
+_parameter_esd: "_" PARAMETER_ESD
+PARAMETER_MIN: SIGNED_NUMBER
+_parameter_min: "_LIMIT_MIN_" PARAMETER_MIN
+PARAMETER_MAX: SIGNED_NUMBER
+_parameter_max: "_LIMIT_MAX_" PARAMETER_MAX
+_parameter_lims: _parameter_min? _parameter_max? | _parameter_max? _parameter_min?
+parameter_value: PARAMETER_VALUE PARAMETER_BACKTICK? _parameter_esd? _parameter_lims
+
+// equations start with an equal sign and end in a semicolon
+PARAMETER_EQUATION_BODY: /[^;]+/
+// When an equation is used in place of a parameter 'name' and 'value'
+// then it is possible to obtain the value of the equation by placing
+// " : 0" after it.
+PARAMETER_EQUATION_REPORT: /:\s*0/
+// TODO: fix conflict with SIGNED_NUMBER (like a = a+1;)
+parameter_equation: "=" formula ";" PARAMETER_EQUATION_REPORT?
+
+
+// User defined parameters - the `prm` keyword
+// [prm|local E]
+// optionals: [min !E] [max !E] [del !E] [update !E] [stop_when !E] [val_on_continue !E]
+
+_prm_opts_val: parameter_value | parameter_equation
+prm_min: "min" _prm_opts_val
+prm_max: "max" _prm_opts_val
+prm_del: "del" _prm_opts_val
+prm_update: "update" _prm_opts_val
+prm_stop_when: "stop_when" _prm_opts_val
+prm_val_on_continue: "val_on_continue" _prm_opts_val
+_prm_optionals: prm_min
+              | prm_max
+              | prm_del
+              | prm_update
+              | prm_stop_when
+prm: "prm" PARAMETER_TO_BE_FIXED? PARAMETER_NAME? _prm_opts_val _prm_optionals*
+
+
+//
+// Formulas
+//
+
+NAME: PARAMETER_NAME
+_formula_arg: formula~0..1 | ESCAPED_STRING | /\w+/
+_formula_el: "(" formula ")"
+           | NAME ("(" _separated{_formula_arg, ","} ")")
+           | NAME+
+           | PARAMETER_TO_BE_REFINED PARAMETER_NAME? _formula_el?
+           | PARAMETER_TO_BE_FIXED PARAMETER_NAME _formula_el? 
+           | parameter_value _prm_optionals*
+           | parameter_equation _prm_optionals*
+           | _prm_optionals+
+formula: OPERATOR? _separated{_formula_el, OPERATOR}
+
+
+// The local keyword is used for defining named parameters
+// as local to the top, xdd or phase level
+local: "local" PARAMETER_NAME (parameter_value | parameter_equation)
+
+// [existing_prm E]...
+// Allowed operators for existing_prm are +=, -=, *-, /= and ^=
+EXISTING_PRM_OPERATOR: "+=" | "-=" | "*-" | "/=" | "^=" | "="
+existing_prm: "existing_prm" PARAMETER_NAME EXISTING_PRM_OPERATOR PARAMETER_EQUATION_BODY ";"
+
+// Typically, an INP file is run once; num_runs change’s this behavior
+// where the refinement is restarted and performed again until it is
+// performed num_runs times.
+NUM_RUNS: NUMBER
+num_runs: "num_runs" NUM_RUNS
+
+
+// out_file determines the name of the output file
+// updated on refinement termination
+out_file: "out_file" parameter_equation
+
+
+
+
+//
+// xdd...
+//
+
+// [xdd $file [{ $data }] [range #] [xye_format] [gsas_format] [fullprof_format] ]...
+// [gui_reload]
+// [gui_ignore]
+// Defines the start of xdd dependent keywords
+// and the file containing the observed data.
+
+XDD_FILENAME: ESCAPED_STRING | /\S+/
+XDD_INLINE_DATA_XY_FLAG: "_xy"
+XDD_INLINE_DATA_VALUE: SIGNED_NUMBER
+xdd_inline_data: "{" XDD_INLINE_DATA_XY_FLAG? XDD_INLINE_DATA_VALUE+ "}"
+XDD_RANGE: SIGNED_NUMBER
+_range: "range" XDD_RANGE
+XYE_FORMAT: "xye_format"
+GSAS_FORMAT: "gsas_format"
+FULLPROF_FORMAT: "fullprof_format"
+GUI_RELOAD: "gui_reload"
+GUI_IGNORE: "gui_ignore"
+xdd_param: PARAMETER_NAME (parameter_value | parameter_equation)
+_xdd_optionals: _range
+              | XYE_FORMAT
+              | GSAS_FORMAT
+              | FULLPROF_FORMAT
+              | GUI_RELOAD
+              | GUI_IGNORE
+              | xdd_param
+              | local
+xdd: "xdd" (XDD_FILENAME | xdd_inline_data) _xdd_optionals*
+
+
+//
+// axial_conv
+//
+
+// [axial_conv]...
+//   filament_length E sample_length E receiving_slit_length E
+//   [primary_soller_angle E]
+//   [secondary_soller_angle E]
+//   [axial_n_beta !E]
+// Full axial divergence model using the method of Cheary & Coelho
+
+_axial_conv_val: formula
+filament_length: "filament_length" _axial_conv_val
+sample_length: "sample_length" _axial_conv_val
+receiving_slit_length: "receiving_slit_length" _axial_conv_val
+primary_soller_angle: "primary_soller_angle" _axial_conv_val
+secondary_soller_angle: "secondary_soller_angle" _axial_conv_val
+axial_n_beta: "axial_n_beta" _axial_conv_val
+_axial_conv_args: filament_length sample_length receiving_slit_length
+_axial_conv_opt_args: primary_soller_angle? secondary_soller_angle? axial_n_beta?
+axial_conv: "axial_conv" _axial_conv_args _axial_conv_opt_args
+
+//
+// bkg
+//
+
+// [bkg [@] # # # ...]
+// Defines a Chebyshev polynomial where the number of coefficients is equal
+// to the number of numeric values appearing after bkg.
+
+bkg: "bkg" PARAMETER_TO_BE_REFINED? parameter_value+
+
+
+//
+// Macroses
+//
+
+// Macros are defined using the macro directive;
+// Macros can have multiple arguments or none
+
+MACRO_NAME: PARAMETER_NAME
+macro_def: MACRO_NAME ("(" _separated{PARAMETER_NAME, ","} ")")?
+macro_body: _statement*
+macro: "macro" macro_def "{" macro_body "}"
+
+
+
+// [lam [ymin_on_ymax #] [no_th_dependence] [Lam !E] [calculate_Lam]]
+//   [la E lo E [lh E] | [lg E] [lo_ref] ]...
+// Defines an emission profile
+
+ymin_on_ymax: "ymin_on_ymax" parameter_value
+no_th_dependence: "no_th_dependence"
+llam: "Lam" formula
+calculate_lam: "calculate_Lam"
+lam_la: "la" formula
+lam_lo: "lo" formula
+lam_lh: "lh" formula
+lam_lg: "lg" formula
+lam_lo_ref: "lam_lo_ref"
+_em_profile: lam_la lam_lo (lam_lh? | lam_lg?) lam_lo_ref?
+lam: "lam" ymin_on_ymax? no_th_dependence? llam? calculate_lam? _em_profile?
+
+
+// [str|dummy_str]
+STR: "str"
+DUMMY_STR: "dummy_str"
+str: (STR | DUMMY_STR) _statement+
+
+// [scale E]
+// Rietveld scale factor
+scale: "scale" formula
+
+// [phase_name $phase_name]
+// The name given to a phase
+phase_name: "phase_name" STRING
+
+// [space_group $]
+space_group: "space_group" STRING
+
+
+// [site $site [x E] [y E] [z E] ]...
+//   [occ $atom E [beq E] [scale_occ E] ]...
+//   [num_posns #] [rand_xyz !E] [inter !E #]
+site_name: STRING
+site_x: "x" formula
+site_y: "y" formula
+site_z: "z" formula
+site_occ_atom: STRING
+site_occ_beq: "beq" formula
+site_scale_occ: "scale_occ" formula
+site_occ: "occ" site_occ_atom formula site_occ_beq? site_scale_occ?
+site_num_posns: "num_posns" formula
+site_rand_xyz: "rand_xyz" formula
+site_inter: "inter" formula
+site: "site" site_name site_x? site_y? site_z? site_occ* site_num_posns? site_rand_xyz? site_inter?
+
+
+// [rigid]...
+//   [point_for_site $site [ux | ua E] [uy | ub E] [uz | uc E] ]...
+//   [in_cartesian] [in_FC]
+//   [z_matrix atom_1 [atom_2 E] [atom_3 E] [atom_4 E] ]...
+//   [rotate E [qx | qa E] [qy | qb E] [qz | qc E] ]...
+//     [operate_on_points $sites]
+//     [in_cartesian] [in_FC]
+//   [translate [tx | ta E] [ty | tb E] [tz | tc E] ]...
+//     [operate_on_points $sites]
+//     [in_cartesian] [in_FC]
+//     [rand_xyz !E]
+//     [start_values_from_site $unique_site_name]
+
+_point_val: parameter_value //| parameter_equation
+
+point_ux: "ux" _point_val
+point_ua: "ua" _point_val
+point_uy: "uy" _point_val
+point_ub: "ub" _point_val
+point_uz: "uz" _point_val
+point_uc: "uc" _point_val
+point_site: STRING
+point_for_site: "point_for_site" point_site (point_ux | point_ua)? (point_uy | point_ub)? (point_uz | point_uc)?
+_point_for_site_load_line: /[^\s]+/+
+_point_for_site_load_block: "{" _point_for_site_load_line "}"
+point_for_site_load: "load" "point_for_site" ("ux" | "ua")? ("uy" | "ub")? ("uz" | "uc")? _point_for_site_load_block
+
+rigid_in_cartesian: "rigid_in_cartesian"
+rigid_in_fc: "in_FC"
+rigid_operate_on_points: "operate_on_points" STRING
+
+rigid_z_matrix: "z_matrix" formula+
+
+rigid_rotate_qx: "qx" formula
+rigid_rotate_qa: "qa" formula
+rigid_rotate_qy: "qy" formula
+rigid_rotate_qb: "qb" formula
+rigid_rotate_qz: "qz" formula
+rigid_rotate_qc: "qc" formula
+rigid_rotate: "rotate" formula (rigid_rotate_qx | rigid_rotate_qa)? (rigid_rotate_qy | rigid_rotate_qb)? (rigid_rotate_qz | rigid_rotate_qc)? rigid_operate_on_points? rigid_in_cartesian? rigid_in_fc?
+
+rigid_trans_tx: "tx" formula
+rigid_trans_ta: "ta" formula
+rigid_trans_ty: "ty" formula
+rigid_trans_tb: "tb" formula
+rigid_trans_tz: "tz" formula
+rigid_trans_tc: "tc" formula
+rigid_rand_xyz: "rand_xyz" formula
+rigid_trans_start: "start_values_from_site" STRING
+rigid_translate: "translate" (rigid_trans_tx | rigid_trans_ta)? (rigid_trans_ty | rigid_trans_tb)? (rigid_trans_tz | rigid_trans_tc)? rigid_operate_on_points? rigid_in_cartesian? rigid_in_fc? rigid_rand_xyz? rigid_trans_start?
+
+rigid: "rigid" (point_for_site* | point_for_site_load) rigid_in_cartesian? rigid_in_fc? rigid_z_matrix* rigid_rotate* rigid_translate*
+
+
+//
+// Hash parameters
+//
+
+HASH_PRM: "#prm"
+hash_prm: HASH_PRM PARAMETER_NAME parameter_equation
+HASH_DEFINE: "#define"
+hash_define: HASH_DEFINE /[^\n]+/ // TODO
+
+
+_statement: formula
+          | macro
+          | prm
+          | local
+          | existing_prm
+          | num_runs
+          | out_file
+          | xdd
+          | axial_conv
+          | bkg
+          | lam
+          | str
+          | scale
+          | phase_name
+          | space_group
+          | site
+          | rigid
+          | hash_prm
+          | hash_define
+?program: _statement*
+
+
+
+
+
+
+
+//   xo_Is...       : 2-I values for single line or whole powder pattern fitting.
+//   d_Is...        : d-I values for single line or whole powder pattern fitting.
+//   hkl_Is...      : Lattice information for Le Bail or Pawley fitting.
+//   fit_obj...     : User defined fit models.
