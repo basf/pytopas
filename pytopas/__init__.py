@@ -1,9 +1,10 @@
 import sys
 from pathlib import Path
 
-from pytopas.lark_standalone import Lark_StandAlone, Transformer, Token, UnexpectedToken
+from pytopas.lark_standalone import Lark_StandAlone, Token, Transformer, UnexpectedToken
 
 __VERSION__ = "0.0.1"
+
 
 class TOPASTransformer(Transformer):
     "TOPAS parser transformer"
