@@ -1,8 +1,9 @@
 import sys
 from pathlib import Path
 
-from lark import Lark, Token, Transformer, UnexpectedToken
+from pytopas.lark_standalone import Lark_StandAlone, Transformer, Token, UnexpectedToken
 
+__VERSION__ = "0.0.1"
 
 class TOPASTransformer(Transformer):
     "TOPAS parser transformer"
@@ -14,10 +15,7 @@ class TOPASTransformer(Transformer):
         return tok
 
 
-with (Path(__file__).parent / "grammar.lark").open() as f:
-    parser = Lark(
-        f.read(), start="program", parser="lalr", transformer=TOPASTransformer()
-    )
+parser = Lark_StandAlone(transformer=TOPASTransformer())
 
 with Path(sys.argv[1]).open() as f:
     INPUT = f.read()
