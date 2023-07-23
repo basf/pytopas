@@ -1,0 +1,7 @@
+*.log
+.CHANGELOG-CURRENT.md
+.DS_Store
+.idea
+dist/
+private_examples/
+tmp/
