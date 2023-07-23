@@ -1,0 +1,60 @@
+[build-system]
+# build the package with [flit](https://flit.readthedocs.io)
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "pytopas"
+version = "0.0.1"
+description = """Bruker's TOPAS macro language parser"""
+authors = [{name = "Sergei Korolev", email = "knopki@duck.com"}]
+readme = "README.md"
+license = {file = "LICENSE"} # TODO
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: BSD License",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Information Analysis"
+]
+keywords = ["TOPAS", "XRPD", "Rietveld refinement", "pair distribution function", "stacking-faults", "charge flipping", "structure solution", "deconvolution"]
+requires-python = ">=3.8"
+dependencies = [
+]
+
+[project.optional-dependencies]
+dev = [
+      "lark >= 1.1",
+]
+release = [
+    "commitizen",
+    "flit",
+]
+
+[project.urls]
+Home = "https://github.com/metis-science/pytopas"
+Changelog = "https://github.com/metis-science/pytopas/blob/master/CHANGELOG.md"
+Issues = "https://github.com/metis-science/pytopas/issues"
+Source = "https://github.com/metis-science/pytopas"
+
+[tool.flit.module]
+name = "pytopas"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.0.1"
+tag_format = "v$version"
+major_version_zero = true
+version_files = [
+    "pyproject.toml:^version",
+    # "pytopas/const.py:^PROJECT_VERSION", TODO
+]
+update_changelog_on_bump = true
