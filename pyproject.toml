@@ -4,9 +4,9 @@ requires = ["flit_core >=3.4,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "pytoper"
+name = "pytopas"
 version = "0.0.1"
-description = """TOPAS macro language parser"""
+description = """Bruker's TOPAS macro language parser"""
 authors = [{name = "Sergei Korolev", email = "knopki@duck.com"}]
 readme = "README.md"
 license = {file = "LICENSE"} # TODO
@@ -25,7 +25,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
     "Topic :: Scientific/Engineering :: Information Analysis"
 ]
-keywords = ["TOPAS", "parser"]
+keywords = ["TOPAS", "XRPD", "Rietveld refinement", "pair distribution function", "stacking-faults", "charge flipping", "structure solution", "deconvolution"]
 requires-python = ">=3.8"
 dependencies = [
 ]
@@ -40,10 +40,10 @@ release = [
 ]
 
 [project.urls]
-Home = "https://github.com/tilde-lab/pytopas"
-Changelog = "https://github.com/tilde-lab/pytopas/blob/master/CHANGELOG.md"
-Issues = "https://github.com/tilde-lab/pytopas/issues"
-Source = "https://github.com/tilde-lab/pytopas"
+Home = "https://github.com/metis-science/pytopas"
+Changelog = "https://github.com/metis-science/pytopas/blob/master/CHANGELOG.md"
+Issues = "https://github.com/metis-science/pytopas/issues"
+Source = "https://github.com/metis-science/pytopas"
 
 [tool.flit.module]
 name = "pytopas"
