@@ -49,7 +49,7 @@ test = [
 release = [
     "commitizen",
     "flit",
-    "lark >= 1.1",
+    "lark >= 1.1.7",
 ]
 
 [project.urls]
@@ -59,7 +59,8 @@ Issues = "https://github.com/metis-science/pytopas/issues"
 Source = "https://github.com/metis-science/pytopas"
 
 [project.scripts]
-# TODO: create script?
+topas2json = "pytopas.cli:topas2json"
+json2topas = "pytopas.cli:json2topas"
 
 [tool.autoflake]
 expand-star-imports = true

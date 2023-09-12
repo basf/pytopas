@@ -18,7 +18,8 @@
 %import common.WS
 
 STRING: ESCAPED_STRING | /\S+/
-
+EQUALS: "="
+SEMICOLON: ";"
 
 //
 // Whitespaces
@@ -48,7 +49,7 @@ _separated{x, sep}: x (sep x)*
 // Operators
 //
 
-OPERATOR: "=" | "+" | "+=" | "-" | "-=" | "*" | "*=" | "/" | "/=" | "^"
+OPERATOR: EQUALS | "+" | "+=" | "-" | "-=" | "*" | "*=" | "/" | "/=" | "^"
         | "==" | ">" | ">=" | ">" | "<="
 
 
@@ -68,7 +69,7 @@ PARAMETER_TO_BE_FIXED: "!"
 PARAMETER_TO_BE_REFINED: "@"
 
 // Parameter value with optional error and min/max limit
-PARAMETER_VALUE: SIGNED_NUMBER
+PARAMETER_VAL: SIGNED_NUMBER
 PARAMETER_BACKTICK: "`"
 PARAMETER_ESD: SIGNED_NUMBER
 _parameter_esd: "_" PARAMETER_ESD
@@ -77,7 +78,7 @@ _parameter_min: "_LIMIT_MIN_" PARAMETER_MIN
 PARAMETER_MAX: SIGNED_NUMBER
 _parameter_max: "_LIMIT_MAX_" PARAMETER_MAX
 _parameter_lims: _parameter_min? _parameter_max? | _parameter_max? _parameter_min?
-parameter_value: PARAMETER_VALUE PARAMETER_BACKTICK? _parameter_esd? _parameter_lims
+parameter_value: PARAMETER_VAL PARAMETER_BACKTICK? _parameter_esd? _parameter_lims
 
 // equations start with an equal sign and end in a semicolon
 PARAMETER_EQUATION_BODY: /[^;]+/
@@ -86,7 +87,7 @@ PARAMETER_EQUATION_BODY: /[^;]+/
 // " : 0" after it.
 PARAMETER_EQUATION_REPORT: /:\s*0/
 // TODO: fix conflict with SIGNED_NUMBER (like a = a+1;)
-parameter_equation: "=" formula ";" PARAMETER_EQUATION_REPORT?
+parameter_equation: EQUALS formula SEMICOLON PARAMETER_EQUATION_REPORT?
 
 
 // User defined parameters - the `prm` keyword
@@ -362,7 +363,7 @@ _statement: formula
           | rigid
           | hash_prm
           | hash_define
-?program: _statement*
+?topas: _statement*
 
 
 
