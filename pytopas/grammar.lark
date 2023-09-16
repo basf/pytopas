@@ -363,7 +363,7 @@ _statement: formula
           | rigid
           | hash_prm
           | hash_define
-?topas: _statement*
+topas: _statement*
 
 
 

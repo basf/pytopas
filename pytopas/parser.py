@@ -10,7 +10,7 @@ from .tree import TOPASParseTree
 class TOPASParser(Lark):
     "TOPAS parser"
 
-    def __init__(self) -> None:
+    def __init__(self) -> None:  # pylint: disable=W0231
         "Init"
         self._load(
             {"data": DATA, "memo": MEMO},

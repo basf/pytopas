@@ -1,6 +1,7 @@
 *.log
 .CHANGELOG-CURRENT.md
 .DS_Store
+.coverage
 .idea
 dist/
 private_examples/

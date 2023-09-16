@@ -21,6 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Scientific/Engineering :: Physics",
@@ -32,6 +33,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+dev = [
+    "lark >= 1.1.7",
+]
 lint = [
      "autoflake",
      "black >= 23.1",
@@ -49,7 +53,6 @@ test = [
 release = [
     "commitizen",
     "flit",
-    "lark >= 1.1.7",
 ]
 
 [project.urls]
@@ -84,6 +87,9 @@ version_files = [
 ]
 version_provider = "pep621"
 update_changelog_on_bump = true
+
+[tool.coverage.run]
+omit = ['pytopas/lark_standalone.py', 'tests/*']
 
 [tool.flit.module]
 name = "pytopas"
@@ -128,5 +134,4 @@ score = "no"
 "/tests/" = "redefined-outer-name"
 
 [tool.pytest.ini_options]
-asyncio_mode = "auto"
 addopts = "--cov=pytopas --cov-report=term --no-cov-on-fail --cov-fail-under=99"

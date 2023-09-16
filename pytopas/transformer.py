@@ -86,7 +86,7 @@ class TOPAS2CompactTransformer(Transformer):
 class Tree2TOPASTransformer(Transformer):
     "Fold TOPAS tree to source"
 
-    def __default__(self, data, children, meta):
+    def __default__(self, data, children, _):
         "Default function that is called if there is no attribute matching data"
         return load_tree(data, children).fold()
 

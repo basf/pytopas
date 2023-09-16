@@ -1,4 +1,3 @@
-#prm a = numberOfStepsForB*0.499999999;
 macro Ni_occ {0.90}
 macro Co_occ {0.1}
 macro Al_occ {0.1}
@@ -8,15 +7,15 @@ macro Three_Variables(a, a1, a2, da, b, b1, b2, db, c, c1, c2, dc)
 	#prm numberOfStepsForA = Round((a2-a1)/da);
 	#prm numberOfStepsForB = Round((b2-b1)/db);
 	#prm numberOfStepsForC = Round((c2-c1)/dc);
+
 	prm numberOfRuns = numberOfStepsForA * numberOfStepsForB * numberOfStepsForC;
 '	num_runs numberOfRuns
 
 	#prm a = a1 + (da * Round(Run_Number/(numberOfStepsForB * numberOfStepsForC)-0.499999999));
-	''#prm b = b1 + (db * Round(Mod(Run_Number/numberOfStepsForC, numberOfStepsForB)-0.499999999));
-	'#prm c = c1 + (dc * Mod(Run_Number, numberOfStepsForC));
+	#prm b = b1 + (db * Round(Mod(Run_Number/numberOfStepsForC, numberOfStepsForB)-0.499999999));
+	#prm c = c1 + (dc * Mod(Run_Number, numberOfStepsForC));
 
    }
-/*
 num_runs 10
 iters 0
 yobs_eqn  !aac.xy = 0;
@@ -172,4 +171,3 @@ axial_conv
 
 
 		Out_X_Ycalc(##Run_Number##.xy)
-*/

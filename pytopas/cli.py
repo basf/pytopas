@@ -1,16 +1,19 @@
 "Command line tools"
 
 import argparse
+import sys
 from io import TextIOWrapper
 from json import JSONDecodeError
+from typing import List, Optional
 
 from .lark_standalone import UnexpectedToken
 from .parser import TOPASParser
 from .tree import TOPASParseTree
 
 
-def topas2json():
-    "CLI tool that converts TOPAS to JSON"
+def _topas2json_parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
+    "Parse topas2json args"
+
     arg_parser = argparse.ArgumentParser(
         prog="topas2json",
         description="Parse TOPAS input and output JSON",
@@ -23,28 +26,29 @@ def topas2json():
     arg_parser.add_argument(
         "-c", "--compact", action="store_true", help="Use compact output"
     )
-    args = arg_parser.parse_args()
+    return arg_parser.parse_args(args=args is not None and args or sys.argv[1:])
 
+
+def topas2json(args: Optional[argparse.Namespace] = None):
+    "CLI tool that converts TOPAS to JSON"
+
+    args = args is not None and args or _topas2json_parse_args()
     file: TextIOWrapper = args.file
     input_topas = file.read()
     file.close()
-
-    print("\n=== input topas source:\n", input_topas)
 
     parser = TOPASParser()
 
     try:
         tree = parser.parse(input_topas)
-        print("\n=== original tree:\n", tree)
-        print("\n=== original tree pretty:\n", tree.pretty())
-        print("\n=== result json:\n", tree.to_json(compact=args.compact))
-    except UnexpectedToken as e:
-        print(e.state.value_stack)
-        raise e
+        print(tree.to_json(compact=args.compact))
+    except UnexpectedToken as exp:
+        print(exp.state.value_stack)
+        raise exp
 
 
-def json2topas():
-    "CLI tool that converts JSON to TOPAS"
+def _json2topas_parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
+    "Parse json2topas args"
     arg_parser = argparse.ArgumentParser(
         prog="json2topas",
         description="Parse JSON input and output TOPAS",
@@ -54,20 +58,22 @@ def json2topas():
         type=argparse.FileType("r"),
         help="Path to JSON file or '-' for stdin input",
     )
-    args = arg_parser.parse_args()
+    return arg_parser.parse_args(args=args is not None and args or sys.argv[1:])
 
+
+def json2topas(args: Optional[argparse.Namespace] = None):
+    "CLI tool that converts JSON to TOPAS"
+
+    args = args is not None and args or _json2topas_parse_args()
     file: TextIOWrapper = args.file
     input_json = file.read()
     file.close()
 
-    print("\n=== input json source:\n", input_json)
     try:
         tree = TOPASParseTree.from_json(input_json)
-        print("\n=== original tree:\n", tree)
-        print("\n=== original tree pretty:\n", tree.pretty())
-        print("\n=== result topas:\n", tree.to_topas())
-    except JSONDecodeError as e:
-        raise e
-    except UnexpectedToken as e:
-        print(e.state.value_stack)
-        raise e
+        print(tree.to_topas())
+    except JSONDecodeError as exp:
+        raise exp
+    except UnexpectedToken as exp:
+        print(exp.state.value_stack)
+        raise exp

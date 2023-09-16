@@ -12,7 +12,7 @@ class BaseToken(Token):
     type: str = "__OVERRIDE_ME__"
 
     def __repr__(self):
-        return "{}({!r}, {!r})".format(self.__class__.__name__, self.type, self.value)
+        return f"{self.__class__.__name__}({self.type!r}, {self.value!r})"
 
     @classmethod
     def from_token(cls, tok: Token):
@@ -25,9 +25,11 @@ class BaseToken(Token):
         "Serialize to tuple"
         return (self.type, self.value)
 
-    def fold(self) -> str | Tuple[str, Any]:
+    def fold(self) -> str:
         "Maybe serialize to string"
         return self.value
+
+    to_topas = fold
 
 
 class EqualsToken(BaseToken):
