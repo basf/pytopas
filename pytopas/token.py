@@ -68,7 +68,7 @@ class XddFilenameToken(BaseToken):
         return cls(
             tok.type,
             # handle quoted path
-            tok.value.removeprefix('"').removesuffix('"')
+            tok.value.strip('"')
             if tok.startswith('"') and tok.endswith('"')
             else tok.value,
         )
