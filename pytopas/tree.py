@@ -2,13 +2,13 @@
 # pylint: disable=import-outside-toplevel
 
 import json
-from typing import Any, Generic, List, Sequence, Tuple, Type, Union, cast
+from typing import Any, List, Sequence, Tuple, Type, Union, cast
 
-from .lark_standalone import Token, Tree, _Leaf_T
+from .lark_standalone import Tree, _Leaf_T
 from .token import AllTokens, BaseToken
 
 
-class TOPASTree(Tree[Generic[_Leaf_T]]):
+class TOPASTree(Tree[_Leaf_T]):
     "Enchanced Tree"
 
     def __repr__(self):
@@ -66,16 +66,17 @@ class TOPASTree(Tree[Generic[_Leaf_T]]):
         return " ".join(folded.children)
 
     @classmethod
-    def _from_str(cls, data: str) -> "TOPASTree":
+    def _from_str(cls, data: str) -> "TOPASTree[_Leaf_T]":
         "Private helper"
         from .parser import TOPASParser
 
-        return TOPASParser().parse(data)
+        tree = TOPASParser().parse(data)
+        return cast(TOPASTree[_Leaf_T], tree)
 
     @classmethod
     def _from_tuples(
         cls, data: Union[Tuple[str, Any], str]
-    ) -> "Union[TOPASTree, BaseToken]":
+    ) -> "Union[TOPASTree[_Leaf_T], BaseToken]":
         "Private helper"
         if isinstance(data, str):
             return cls._from_str(data)
@@ -104,7 +105,7 @@ class TOPASTree(Tree[Generic[_Leaf_T]]):
         raise AssertionError(f"{head!r} is unknown rule name")
 
     @classmethod
-    def from_tuples(cls, data: Tuple[str, Any]) -> "TOPASTree":
+    def from_tuples(cls, data: Tuple[str, Any]) -> "TOPASTree[_Leaf_T]":
         "Convert tuples to Tree"
         assert type(data) in [list, tuple]
         assert len(data) == 2
@@ -120,7 +121,7 @@ class TOPASTree(Tree[Generic[_Leaf_T]]):
         return TopasTree.from_children(children)
 
     @classmethod
-    def from_json(cls, data: str) -> "TOPASTree | BaseToken":
+    def from_json(cls, data: str) -> "TOPASTree[_Leaf_T] | BaseToken":
         "Convert JSON to Tree"
         return cls.from_tuples(json.loads(data))
 
@@ -149,7 +150,7 @@ class ParameterEquationTree(TOPASTree):
     data = "parameter_equation"
 
 
-TOPASParseTree = TOPASTree[Token]
+TOPASParseTree = TOPASTree[BaseToken]
 
 AllTrees: Sequence[Type[TOPASTree]] = [
     TopasTree,
