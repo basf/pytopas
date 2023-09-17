@@ -2,7 +2,7 @@
 .PHONY: parser
 
 pytopas/lark_standalone.py: pytopas/grammar.lark
-	PYTHONHASHSEED=0 python -m lark.tools.standalone -c -s topas $< > $@
+	PYTHONHASHSEED=0 python -m lark.tools.standalone -s topas $< > $@
 
 parser: pytopas/lark_standalone.py
 
