@@ -1,0 +1,42 @@
+---
+# yamllint disable rule:line-length
+name: Publish release to pypi
+
+on:
+  release:
+    types: [published]
+
+  workflow_dispatch:
+
+jobs:
+  pypi:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: release
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        if: ${{ !env.ACT }} # skip during local actions testing
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[release]
+
+      - name: Build
+        run: make dist
+
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
