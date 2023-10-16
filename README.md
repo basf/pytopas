@@ -1,10 +1,10 @@
 # pytopas
 
-Bruker's TOPAS macro language parser.
+This is the parser for Bruker's TOPAS macro language. We have compared two canonical parsing approaches for Python: `lark` vs. `pyparsing`.
 
 ## Usage
 
-Parse TOPAS source code and convert it to json:
+Parse TOPAS input and convert it to JSON:
 
 ```python
 from pytopas import TOPASParser
@@ -16,7 +16,7 @@ tree = parser.parse(src)
 print(tree.to_json(compact=True))
 ```
 
-Convert JSON encoded TOPAS code back into TOPAS source code:
+Convert parser's JSON-encoded TOPAS code back into the TOPAS input format:
 
 ```python
 from pytopas import TOPASParseTree
@@ -63,3 +63,11 @@ options:
 Install package with optional dependencies: `pip install -e .[dev,lint,test,release]`
 
 Regenerate standalone `lark` parser after `grammar.lark` change: `make parser`
+
+## License
+
+Author Sergey Korolev, Tilde Materials Informatics
+
+Copyright 2023 BASF SE
+
+BSD 3-Clause
