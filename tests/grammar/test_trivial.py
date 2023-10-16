@@ -39,6 +39,33 @@ test_trivial_params = [
         False,
     ),
     ("1 + 1", "1 + 1", "1 + 1", True),
+    ("1+1", "1 + 1", "1 + 1", True),
+    ("1-1", "1 - 1", "1 - 1", True),
+    ("1+-1", "1 + -1", "1 + -1", True),
+    #
+    # parameter_equation / EQUATION
+    #
+    (
+        "= 1 ;",
+        (
+            "formula",
+            [
+                (
+                    "parameter_equation",
+                    [
+                        ("EQUALS", "="),
+                        ("formula", [("parameter_value", [("PARAMETER_VAL", "1")])]),
+                        ("SEMICOLON", ";"),
+                    ],
+                )
+            ],
+        ),
+        "= 1 ;",
+        False,
+    ),
+    ("=1;", "= 1 ;", "= 1 ;", True),
+    ("a =1; 0", "= 1 ;", "= 1 ;", False),
+    # ("=1", "= 1", "= 1", False),
 ]
 
 

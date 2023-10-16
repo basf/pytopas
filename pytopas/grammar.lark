@@ -49,7 +49,7 @@ _separated{x, sep}: x (sep x)*
 // Operators
 //
 
-OPERATOR: EQUALS | "+" | "+=" | "-" | "-=" | "*" | "*=" | "/" | "/=" | "^"
+OPERATOR.2: EQUALS | "+" | "+=" | "-" | "-=" | "*" | "*=" | "/" | "/=" | "^"
         | "==" | ">" | ">=" | ">" | "<="
 
 
@@ -86,8 +86,7 @@ PARAMETER_EQUATION_BODY: /[^;]+/
 // then it is possible to obtain the value of the equation by placing
 // " : 0" after it.
 PARAMETER_EQUATION_REPORT: /:\s*0/
-// TODO: fix conflict with SIGNED_NUMBER (like a = a+1;)
-parameter_equation: EQUALS formula SEMICOLON PARAMETER_EQUATION_REPORT?
+parameter_equation.2: EQUALS formula SEMICOLON PARAMETER_EQUATION_REPORT?
 
 
 // User defined parameters - the `prm` keyword
@@ -123,7 +122,7 @@ _formula_el: "(" formula ")"
            | parameter_value _prm_optionals*
            | parameter_equation _prm_optionals*
            | _prm_optionals+
-formula: OPERATOR? _separated{_formula_el, OPERATOR}
+formula: _separated{_formula_el, OPERATOR}
 
 
 // The local keyword is used for defining named parameters
