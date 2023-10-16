@@ -30,12 +30,10 @@ classifiers = [
 keywords = ["TOPAS", "XRPD", "Rietveld refinement", "pair distribution function", "stacking-faults", "charge flipping", "structure solution", "deconvolution"]
 requires-python = ">=3.8"
 dependencies = [
+    "pyparsing >= 3",
 ]
 
 [project.optional-dependencies]
-dev = [
-    "lark >= 1.1.7",
-]
 lint = [
      "autoflake",
      "black >= 23.1",
