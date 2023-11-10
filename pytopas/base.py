@@ -82,7 +82,7 @@ class FallbackNode(BaseNode):
     @classmethod
     @cache
     def get_parser(cls):
-        return pp.Empty().add_parse_action(lambda text, loc, toks: cls(value=text))
+        return pp.Regex(r"\S").add_parse_action(lambda text, loc, toks: cls(value=text))
 
     def unparse(self) -> str:
         return self.value
