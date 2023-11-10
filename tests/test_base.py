@@ -1,11 +1,10 @@
 "Test base nodes"
 
-from dataclasses import astuple, asdict
+from dataclasses import asdict
 import pytest
-from pyparsing.results import ParseResults
 
 from pytopas.exc import ParseException, ParseWarning
-from pytopas.basis import (
+from pytopas.base import (
     FallbackNode,
     ParameterNameNode,
     ParameterValueNode,
