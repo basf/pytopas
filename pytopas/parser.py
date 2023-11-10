@@ -1,28 +1,49 @@
 "TOPAS parser"
 
-from typing import Callable, Optional
+from dataclasses import dataclass
+from functools import cache, reduce
+from typing import Any, List, Union, Type
 
-from .lark_standalone import DATA, MEMO, Lark, UnexpectedInput
-from .transformer import TOPASTransformer
-from .tree import TOPASParseTree
+import pyparsing as pp
+
+from .base import BaseNode, FallbackNode, FormulaNode
+
+RootStatements = Union[FormulaNode, FallbackNode]
+root_statements_cls = (FormulaNode, FallbackNode)
 
 
-class TOPASParser(Lark):
-    "TOPAS parser"
+@dataclass
+class RootNode(BaseNode):
+    "Root node of AST"
+    type = "topas"
+    statements: List[RootStatements]
 
-    def __init__(self) -> None:  # pylint: disable=W0231
-        "Init"
-        self._load(
-            {"data": DATA, "memo": MEMO},
-            transformer=TOPASTransformer(),
+    @classmethod
+    @cache
+    def get_parser(cls):
+        root_stmts = [
+            x.get_parser()
+            for x in root_statements_cls
+            if not isinstance(x, FallbackNode)
+        ]
+        root_stmt = reduce(lambda a, b: a | b, root_stmts).set_results_name("stmt")
+        parser = (
+            pp.MatchFirst([root_stmt, FallbackNode.get_parser()])[...]
+            .set_results_name("stmts")
+            .add_parse_action(lambda toks: cls(statements=toks.as_list()))
         )
+        return parser
 
-    def parse(
-        self,
-        text: str,
-        start: Optional[str] = None,
-        on_error: Optional[Callable[[UnexpectedInput], bool]] = None,
-    ) -> TOPASParseTree:
-        "Parse TOPAS"
+    def unparse(self):
+        return " ".join(x.unparse() for x in self.statements)
 
-        return super().parse(text, start, on_error)
+    def serialize(self):
+        return [self.type, *[x.serialize() for x in self.statements]]
+
+    @classmethod
+    def unserialize(cls, data: list[Any]):
+        assert len(data) >= 1
+        assert data[0] == cls.type
+        return cls(
+            statements=[cls.match_unserialize(root_statements_cls, x) for x in data[1:]]
+        )
