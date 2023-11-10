@@ -304,8 +304,8 @@ class FormulaAdd(BaseNode):
     @classmethod
     @cache
     def get_parser(cls):
-        operand = (
-            FormulaElementNode.get_parser() | FallbackNode.get_parser()
+        operand = pp.MatchFirst(
+            [FormulaElementNode.get_parser(), FallbackNode.get_parser()]
         ).set_results_name("operand")
 
         operator = pp.Literal(cls.operator).set_results_name("operator")
