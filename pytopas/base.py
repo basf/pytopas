@@ -404,57 +404,9 @@ class FormulaEQ(FormulaAdd):
     type = "=="
     operator = "=="
 
-    # @classmethod
-    # def from_tokens(cls, toks: ParseResults):
-    #     """
-    #     Create instance from _list_ of tokens
-    #     Used by local parser and by infix notation's op list
-    #     """
-    #     operands = [x for x in toks[0] if x != cls.operator]
-    #     return cls(operands=operands)
-
-    # @classmethod
-    # @cache
-    # def get_parser(cls):
-    #     operand = (
-    #         FormulaElementNode.get_parser() | FallbackNode.get_parser()
-    #     ).set_results_name("operand")
-
-    #     operator = pp.Literal(cls.operator).set_results_name("operator")
-    #     return pp.Group(operand + operator + operand).add_parse_action(cls.from_tokens)
-
     def unparse(self):
         "Unparse and add brackets"
-        # precendence = {"+": 1, "-": 1, "*": 2, "/": 2, "^": 3}
-        # out = []
-        # for operand in self.operands:
-        #     parentheses = False
-        #     operand_src = operand.unparse()
-        #     if isinstance(operand, formula_arith_op_cls):
-        #         op = cast(FormulaArithOps, operand)
-        #         if (
-        #             op.num_operands > 1
-        #             and op.assoc == pp.helpers.OpAssoc.LEFT
-        #             and (
-        #                 precendence.get(self.operator, 1)
-        #                 > precendence.get(op.operator, 1)
-        #             )
-        #         ):
-        #             parentheses = True
-
-        #     out.append(f"( {operand_src} )" if parentheses else operand_src)
         return f" {self.operator} ".join([x.unparse() for x in self.operands])
-
-    # def serialize(self) -> NodeSerialized:
-    #     return [self.type, *[x.serialize() for x in self.operands]]
-
-    # @classmethod
-    # def unserialize(cls, data: list[Any]):
-    #     assert len(data) > 2
-    #     typ, *operands = data
-    #     assert typ == cls.type
-    #     kinds = (FormulaElementNode, *formula_arith_op_cls, FallbackNode)
-    #     return cls(operands=[cls.match_unserialize(kinds, x) for x in operands])
 
 
 @dataclass
