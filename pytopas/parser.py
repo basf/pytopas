@@ -2,14 +2,13 @@
 
 from dataclasses import dataclass
 from functools import cache, reduce
-from typing import Any, List, Union, Type
+from typing import Any, List, Type, Union
 
 import pyparsing as pp
 
-from .base import BaseNode, FallbackNode, FormulaNode
+from .base import BaseNode, FallbackNode, FormulaNode, NodeSerialized
 
 RootStatements = Union[FormulaNode, FallbackNode]
-root_statements_cls = (FormulaNode, FallbackNode)
 
 
 @dataclass
@@ -19,25 +18,32 @@ class RootNode(BaseNode):
     statements: List[RootStatements]
 
     @classmethod
+    @property
+    def root_statement_clses(cls) -> tuple[Type[RootStatements], ...]:
+        return (cls.formula_cls, cls.fallback_cls)
+
+    @classmethod
     @cache
-    def get_parser(cls):
+    def get_parser(cls, permissive=True):
         root_stmts = [
-            x.get_parser()
-            for x in root_statements_cls
-            if not isinstance(x, FallbackNode)
+            x.get_parser(permissive)
+            for x in cls.root_statement_clses
+            if x != cls.fallback_cls
         ]
-        root_stmt = reduce(lambda a, b: a | b, root_stmts).set_results_name("stmt")
-        parser = (
-            pp.MatchFirst([root_stmt, FallbackNode.get_parser()])[...]
-            .set_results_name("stmts")
-            .add_parse_action(lambda toks: cls(statements=toks.as_list()))
-        )
+        parser = pp.OneOrMore(
+            pp.MatchFirst(root_stmts).set_results_name("stmt")
+        ).add_parse_action(lambda toks: cls(statements=toks.as_list()))
         return parser
+
+    @classmethod
+    def parse(cls, text, permissive=True, parse_all=True):
+        "Try to parse text with optional fallback"
+        return super().parse(text, permissive, parse_all=parse_all)
 
     def unparse(self):
         return " ".join(x.unparse() for x in self.statements)
 
-    def serialize(self):
+    def serialize(self) -> NodeSerialized:
         return [self.type, *[x.serialize() for x in self.statements]]
 
     @classmethod
@@ -45,5 +51,18 @@ class RootNode(BaseNode):
         assert len(data) >= 1
         assert data[0] == cls.type
         return cls(
-            statements=[cls.match_unserialize(root_statements_cls, x) for x in data[1:]]
+            statements=[
+                cls.match_unserialize(cls.root_statement_clses, x) for x in data[1:]
+            ]
         )
+
+
+class Parser:
+    "TOPAS Parser"
+
+    @staticmethod
+    def parse(text: str) -> NodeSerialized:
+        "Parse TOPAS source code"
+
+        tree = RootNode.parse(text)
+        return tree.serialize()

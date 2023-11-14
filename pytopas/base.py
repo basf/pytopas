@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 from abc import ABC, abstractclassmethod, abstractmethod
-from collections import defaultdict
 from collections.abc import Sequence
 from functools import cache
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Self, Tuple, Type, TypeVar, Union, Optional, cast
 from warnings import warn
 
@@ -20,25 +19,140 @@ from .trivial import number, LPAR, RPAR
 BaseNodeT = TypeVar("BaseNodeT", bound="BaseNode")
 
 
+class DepsMixin:
+    "Dependencies mixin"
+
+    @classmethod
+    @property
+    def fallback_cls(cls):
+        return FallbackNode
+
+    @classmethod
+    @property
+    def formula_element_cls(cls):
+        return FormulaElementNode
+
+    @classmethod
+    @property
+    def formula_unary_plus_cls(cls):
+        return FormulaUnaryPlus
+
+    @classmethod
+    @property
+    def formula_unary_minus_cls(cls):
+        return FormulaUnaryMinus
+
+    @classmethod
+    @property
+    def formula_add_cls(cls):
+        return FormulaAdd
+
+    @classmethod
+    @property
+    def formula_sub_cls(cls):
+        return FormulaSub
+
+    @classmethod
+    @property
+    def formula_mul_cls(cls):
+        return FormulaMul
+
+    @classmethod
+    @property
+    def formula_div_cls(cls):
+        return FormulaDiv
+
+    @classmethod
+    @property
+    def formula_exp_cls(cls):
+        return FormulaExp
+
+    @classmethod
+    @property
+    def formula_arith_op_clses(cls) -> tuple[Type[FormulaArithOps], ...]:
+        return (
+            cls.formula_unary_plus_cls,
+            cls.formula_unary_minus_cls,
+            cls.formula_exp_cls,
+            cls.formula_mul_cls,
+            cls.formula_div_cls,
+            cls.formula_sub_cls,
+            cls.formula_add_cls,
+        )
+
+    @classmethod
+    @property
+    def formula_eq_cls(cls):
+        return FormulaEQ
+
+    @classmethod
+    @property
+    def formula_ne_cls(cls):
+        return FormulaNE
+
+    @classmethod
+    @property
+    def formula_le_cls(cls):
+        return FormulaLE
+
+    @classmethod
+    @property
+    def formula_lt_cls(cls):
+        return FormulaLT
+
+    @classmethod
+    @property
+    def formula_ge_cls(cls):
+        return FormulaGE
+
+    @classmethod
+    @property
+    def formula_gt_cls(cls):
+        return FormulaGT
+
+    @classmethod
+    @property
+    def formula_comp_op_clses(cls) -> Tuple[Type[FormulaCompOps], ...]:
+        return (
+            cls.formula_eq_cls,
+            cls.formula_ne_cls,
+            cls.formula_le_cls,
+            cls.formula_lt_cls,
+            cls.formula_ge_cls,
+            cls.formula_gt_cls,
+        )
+
+    @classmethod
+    @property
+    def formula_cls(cls):
+        return FormulaNode
+
+
 @dataclass
-class BaseNode(ABC):
+class BaseNode(ABC, DepsMixin):
     type = "base"
-    # children: List[BaseNode] = field(default_factory=list, init=False)
+
+    @classmethod
+    def _wrap_fallback(cls, parser: pp.ParserElement):
+        "Wrap parser with match first and fallback"
+        fallback_parser = cls.fallback_cls.get_parser()
+        return pp.MatchFirst([parser, fallback_parser])
 
     @abstractclassmethod
-    def get_parser(cls) -> pp.ParserElement:
+    def get_parser(cls, permissive=True) -> pp.ParserElement:
         "Return parser"
         ...
 
     @classmethod
-    def parse(cls, text, permissive=True) -> Union[Self, FallbackNode]:
+    def parse(cls, text, permissive=True, parse_all=False) -> Union[Self, FallbackNode]:
         "Try to parse text with optional fallback"
         try:
-            return cast(BaseNode, cls.get_parser().parse_string(text).pop())
+            result = cls.get_parser(permissive).parse_string(text, parse_all=parse_all)
+            return cast(BaseNode, result.pop())
         except pp.ParseException as err:
             if permissive:
                 warn(err.explain(), category=ParseWarning)
-                return FallbackNode.parse(text)
+                return cls.fallback_cls.parse(text, permissive=False)
             raise ParseException(err.pstr, err.loc, err.msg) from err
 
     @abstractmethod
@@ -61,7 +175,7 @@ class BaseNode(ABC):
         kinds: Tuple[Type[BaseNodeT], ...], something: Any
     ) -> BaseNodeT:
         "Helper method for unserializing of tuples"
-        assert len(something) > 1
+        assert len(something) >= 1
         type_name = something[0]
         for kind in kinds:
             if type_name == kind.type:
@@ -81,8 +195,15 @@ class FallbackNode(BaseNode):
 
     @classmethod
     @cache
-    def get_parser(cls):
-        return pp.Regex(r"\S").add_parse_action(lambda text, loc, toks: cls(value=text))
+    def get_parser(cls, permissive=True):
+        parser = pp.Regex(r"\S+").set_results_name("unknown")
+        parser.add_parse_action(
+            lambda text, loc, toks: cls(value=cast(str, toks.unknown))
+        )
+        warn_tmpl = "FallbackNode: Can't parse text '{}'"
+        return parser.add_parse_action(
+            lambda text, loc, toks: warn(warn_tmpl.format(text), category=ParseWarning)
+        )
 
     def unparse(self) -> str:
         return self.value
@@ -106,13 +227,13 @@ class ParameterNameNode(BaseNode):
 
     @classmethod
     @cache
-    def get_parser(cls):
+    def get_parser(cls, permissive=True):
         # The first character can be an upper or lower-case letter.
         # Subsequent characters can include the underscore character '_'
         # and the numbers 0 through 9.
         parser = pp.Word(pp.alphas, pp.alphanums + "_").set_results_name("name")
-        parser.add_parse_action(lambda toks: cls(name=cast(str, toks[0])))
-        return parser
+        parser.add_parse_action(lambda toks: cls(name=cast(str, toks.name)))
+        return cls._wrap_fallback(parser) if permissive else parser
 
     def unparse(self) -> str:
         return self.name
@@ -145,7 +266,7 @@ class ParameterValueNode(BaseNode):
 
     @classmethod
     @cache
-    def get_parser(cls):
+    def get_parser(cls, permissive=True):
         backtick_parser = (
             pp.Literal("`")
             .add_parse_action(lambda toks: toks[0] == "`")
@@ -171,7 +292,8 @@ class ParameterValueNode(BaseNode):
             node.lim_max = tok.get("lim_max", False)
             return node
 
-        return parser.add_parse_action(action)
+        parser.add_parse_action(action)
+        return cls._wrap_fallback(parser) if permissive else parser
 
     def unparse(self) -> str:
         backtick_part = self.backtick and "`" or ""
@@ -199,13 +321,13 @@ class FormulaElementNode(BaseNode):
 
     @classmethod
     @cache
-    def get_parser(cls):
-        def action(toks):
-            return cls(value=toks[0])
-
-        return (
-            number.copy().set_results_name("formula_element").add_parse_action(action)
+    def get_parser(cls, permissive=True):
+        parser = (
+            number.copy()
+            .set_results_name("formula_element")
+            .add_parse_action(lambda toks: cls(value=cast(float, toks.formula_element)))
         )
+        return cls._wrap_fallback(parser) if permissive else parser
 
     def unparse(self):
         return str(self.value)
@@ -222,7 +344,15 @@ class FormulaElementNode(BaseNode):
 
 
 @dataclass
-class FormulaUnaryPlus(BaseNode):
+class FormulaOp(BaseNode):
+    "Formula base operator"
+    operator: str = field(init=False)
+    assoc: pp.helpers.OpAssoc = field(init=False)
+    num_operands: int = field(init=False)
+
+
+@dataclass
+class FormulaUnaryPlus(FormulaOp):
     "Formula unary plus operation"
     type = "+1"
     operator = "+"
@@ -241,11 +371,14 @@ class FormulaUnaryPlus(BaseNode):
 
     @classmethod
     @cache
-    def get_parser(cls):
-        return pp.Group(
+    def get_parser(cls, permissive=True):
+        formula_el = cls.formula_element_cls.get_parser(permissive)
+        parser = pp.Group(
             pp.Literal(cls.operator).set_results_name("operator")
-            + FormulaElementNode.get_parser().set_results_name("operand")
-        ).add_parse_action(cls.from_tokens)
+            + formula_el.set_results_name("operand")
+        )
+        parser.add_parse_action(cls.from_tokens)
+        return cls._wrap_fallback(parser) if permissive else parser
 
     def unparse(self):
         return " ".join([self.operator, self.operand.unparse()])
@@ -258,7 +391,11 @@ class FormulaUnaryPlus(BaseNode):
         assert len(data) == 2
         typ, operand_serial = data
         assert typ == cls.type
-        kinds = (FormulaElementNode, *formula_arith_op_cls, FallbackNode)
+        kinds = (
+            cls.formula_element_cls,
+            *cls.formula_arith_op_clses,
+            cls.fallback_cls,
+        )
         operand = cls.match_unserialize(kinds, operand_serial)
         return cls(operand=operand)
 
@@ -284,7 +421,7 @@ class FormulaUnaryMinus(FormulaUnaryPlus):
 
 
 @dataclass
-class FormulaAdd(BaseNode):
+class FormulaAdd(FormulaOp):
     "Formula addition operation"
     type = "+"
     operator = "+"
@@ -303,13 +440,15 @@ class FormulaAdd(BaseNode):
 
     @classmethod
     @cache
-    def get_parser(cls):
-        operand = pp.MatchFirst(
-            [FormulaElementNode.get_parser(), FallbackNode.get_parser()]
-        ).set_results_name("operand")
+    def get_parser(cls, permissive=True):
+        formula_el = cls.formula_element_cls.get_parser(permissive)
+        fallback = cls.fallback_cls.get_parser(permissive)
+        operand = pp.MatchFirst([formula_el, fallback]).set_results_name("operand")
 
         operator = pp.Literal(cls.operator).set_results_name("operator")
-        return pp.Group(operand + operator + operand).add_parse_action(cls.from_tokens)
+        parser = pp.Group(operand + operator + operand)
+        parser.add_parse_action(cls.from_tokens)
+        return cls._wrap_fallback(parser) if permissive else parser
 
     def unparse(self):
         "Unparse and add brackets"
@@ -318,14 +457,13 @@ class FormulaAdd(BaseNode):
         for operand in self.operands:
             parentheses = False
             operand_src = operand.unparse()
-            if isinstance(operand, formula_arith_op_cls):
-                op = cast(FormulaArithOps, operand)
+            if isinstance(operand, self.formula_arith_op_clses):
                 if (
-                    op.num_operands > 1
-                    and op.assoc == pp.helpers.OpAssoc.LEFT
+                    operand.num_operands > 1
+                    and operand.assoc == pp.helpers.OpAssoc.LEFT
                     and (
                         precendence.get(self.operator, 1)
-                        > precendence.get(op.operator, 1)
+                        > precendence.get(operand.operator, 1)
                     )
                 ):
                     parentheses = True
@@ -342,12 +480,13 @@ class FormulaAdd(BaseNode):
         typ, *operands = data
         assert typ == cls.type
         kinds = (
-            FormulaElementNode,
-            *formula_arith_op_cls,
-            *formula_comp_op_cls,
-            FallbackNode,
+            cls.formula_element_cls,
+            *cls.formula_arith_op_clses,
+            *cls.formula_comp_op_clses,
+            cls.fallback_cls,
         )
-        return cls(operands=[cls.match_unserialize(kinds, x) for x in operands])
+        ops = [cls.match_unserialize(kinds, x) for x in operands]
+        return cls(operands=ops)
 
 
 @dataclass
@@ -387,15 +526,6 @@ FormulaArithOps = Union[
     FormulaSub,
     FormulaAdd,
 ]
-formula_arith_op_cls: Tuple[Type[FormulaArithOps], ...] = (
-    FormulaUnaryPlus,
-    FormulaUnaryMinus,
-    FormulaExp,
-    FormulaMul,
-    FormulaDiv,
-    FormulaSub,
-    FormulaAdd,
-)
 
 
 @dataclass
@@ -452,15 +582,7 @@ FormulaCompOps = Union[
     FormulaGE,
     FormulaGT,
 ]
-formula_comp_op_cls: Tuple[Type[FormulaCompOps], ...] = (
-    FormulaEQ,
-    FormulaNE,
-    FormulaLE,
-    FormulaLT,
-    FormulaGE,
-    FormulaGT,
-)
-FormulaValue = Union[FormulaElementNode, FormulaArithOps, FallbackNode]
+FormulaValue = Union[FormulaElementNode, FormulaArithOps, FormulaCompOps, FallbackNode]
 
 
 @dataclass
@@ -471,26 +593,29 @@ class FormulaNode(BaseNode):
 
     @classmethod
     @cache
-    def get_parser(cls):
+    def get_parser(cls, permissive=True):
+        formula_el = cls.formula_element_cls.get_parser(permissive)
         arith_expr = pp.helpers.infix_notation(
-            FormulaElementNode.get_parser(),
+            formula_el,
             [
                 (x.operator, x.num_operands, x.assoc, x.from_tokens)
-                for x in formula_arith_op_cls
+                for x in cls.formula_arith_op_clses
             ],
             lpar=LPAR.suppress(),
             rpar=RPAR.suppress(),
         )
 
-        comp_expr = pp.helpers.infix_notation(
+        parser = pp.helpers.infix_notation(
             arith_expr,
             [
                 (x.operator, x.num_operands, x.assoc, x.from_tokens)
-                for x in formula_comp_op_cls
+                for x in cls.formula_comp_op_clses
             ],
         ).set_results_name("formula")
-        comp_expr.add_parse_action(lambda toks: cls(value=cast(FormulaValue, toks[0])))
-        return comp_expr
+        parser.add_parse_action(
+            lambda toks: cls(value=cast(FormulaValue, toks.formula))
+        )
+        return cls._wrap_fallback(parser) if permissive else parser
 
     def unparse(self) -> str:
         return self.value.unparse()
@@ -504,9 +629,9 @@ class FormulaNode(BaseNode):
         typ, val = data
         assert typ == cls.type
         kinds = (
-            FormulaElementNode,
-            *formula_arith_op_cls,
-            *formula_comp_op_cls,
-            FallbackNode,
+            cls.formula_element_cls,
+            *cls.formula_arith_op_clses,
+            *cls.formula_comp_op_clses,
+            cls.fallback_cls,
         )
         return cls(value=cls.match_unserialize(kinds, val))

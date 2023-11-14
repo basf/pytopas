@@ -1,31 +1,48 @@
 "Test TOPAS parser"
 
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 import pytest
-
+import pyparsing as pp
 from pytopas.exc import ParseException, ParseWarning
-from pytopas.base import FormulaNode
+from pytopas.base import FormulaNode, DepsMixin, BaseNode, FallbackNode
 from pytopas.parser import RootNode
+
+from tests.test_base import DummyTestNode
+
+
+class DepsOverrideMixin(DepsMixin):
+    @classmethod
+    @property
+    def formula_cls(cls):
+        return DummyTestNode
+
+
+class RootNodeTest(RootNode, DepsOverrideMixin):
+    pass
 
 
 @pytest.mark.parametrize(
     "text_in, serialized, text_out",
     [
         (
-            "1 1",
+            "TEST TEST PANIC\nTEST\nPANIC",
             [
                 "topas",
-                ["formula", ["formula_element", 1]],
-                ["formula", ["formula_element", 1]],
+                ["test"],
+                ["test"],
+                ["fallback", "PANIC"],
+                ["test"],
+                ["fallback", "PANIC"],
             ],
-            "1 1",
+            "TEST TEST PANIC TEST PANIC",
         ),
     ],
 )
 def test_root_node(text_in: str, serialized, text_out):
     "Test RootNode"
-    node = RootNode.parse(text_in, permissive=True)
-    assert isinstance(node, RootNode)
+    with pytest.warns(ParseWarning):
+        node = RootNodeTest.parse(text_in, permissive=True)
+    assert isinstance(node, RootNodeTest)
     assert node.serialize() == serialized
     reconstructed = node.unserialize(serialized)
     assert reconstructed == node
