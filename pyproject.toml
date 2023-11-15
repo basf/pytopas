@@ -5,7 +5,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "pytopas"
-version = "0.0.1"
+version = "0.0.2"
 description = """Bruker's TOPAS macro language parser"""
 authors = [{name = "Sergei Korolev", email = "knopki@duck.com"}]
 readme = "README.md"
@@ -69,10 +69,8 @@ ignore-init-module-imports = true
 remove-all-unused-imports = true
 remove-duplicate-keys = true
 remove-unused-variables = true
-exclude = "pytopas/lark_standalone.py"
 
 [tool.black]
-exclude = "pytopas/lark_standalone.py"
 target-version = ['py38', 'py39', 'py310', 'py311']
 
 [tool.commitizen]
@@ -81,27 +79,22 @@ tag_format = "v$version"
 major_version_zero = true
 version_files = [
     "pyproject.toml:^version",
-    "pytopas/__init__.py:^__version__",
+    "pytopas/__init__.py:^__VERSION__",
 ]
 version_provider = "pep621"
 update_changelog_on_bump = true
 
 [tool.coverage.run]
-omit = ['pytopas/lark_standalone.py', 'tests/*']
+omit = ['tests/*']
 
 [tool.flit.module]
 name = "pytopas"
 
-[tool.flit.sdist]
-include = ["pytopas/grammar.lark"]
-
 [tool.isort]
 profile = "black"
 py_version = 38
-skip = ["pytopas/lark_standalone.py"]
 
 [tool.pylint.MASTER]
-ignore = "lark_standalone.py"
 load-plugins=[
     "pylint_per_file_ignores",
 ]
