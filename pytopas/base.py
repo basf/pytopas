@@ -11,7 +11,7 @@ from warnings import warn
 import pyparsing as pp
 from pyparsing.results import ParseResults
 
-from .exc import ParseException, ParseWarning
+from .exc import ParseException, ParseWarning, ReconstructException
 
 from .trivial import number, LPAR, RPAR
 
@@ -175,12 +175,15 @@ class BaseNode(ABC, DepsMixin):
         kinds: Tuple[Type[BaseNodeT], ...], something: Any
     ) -> BaseNodeT:
         "Helper method for unserializing of tuples"
-        assert len(something) >= 1
+        if not hasattr(something, "__len__") or len(something) < 1:
+            raise ReconstructException("assert len > 1", something)
         type_name = something[0]
         for kind in kinds:
             if type_name == kind.type:
                 return cast(BaseNodeT, kind.unserialize(something))
-        raise TypeError(f"Unknown type {type_name}")
+        raise ReconstructException(
+            f"assert data[0] in [{','.join(x.type for x in kinds)}]", something
+        )
 
 
 Trivial = Union[None, bool, int, float, str, Sequence["Trivial"], Dict[str, "Trivial"]]
@@ -213,9 +216,12 @@ class FallbackNode(BaseNode):
 
     @classmethod
     def unserialize(cls, data: list[Any]):
-        assert len(data) >= 2
-        assert data[0] == cls.type
-        assert isinstance(data[1], str)
+        if not hasattr(data, "__len__") or len(data) < 2:
+            raise ReconstructException("assert len >= 2", data)
+        if data[0] != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
+        if not isinstance(data[1], str):
+            raise ReconstructException("assert type(data[1]) == str", data)
         return cls(value=data[1])
 
 
@@ -243,9 +249,12 @@ class ParameterNameNode(BaseNode):
 
     @classmethod
     def unserialize(cls, data: list[Any]):
-        assert len(data) >= 2
-        assert data[0] == cls.type
-        assert isinstance(data[1], str)
+        if not hasattr(data, "__len__") or len(data) < 2:
+            raise ReconstructException("assert len >= 2", data)
+        if data[0] != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
+        if not isinstance(data[1], str):
+            raise ReconstructException("assert type(data[1]) == str", data)
         return cls(name=data[1])
 
 
@@ -307,9 +316,12 @@ class ParameterValueNode(BaseNode):
 
     @classmethod
     def unserialize(cls, data: list[Any]):
-        assert len(data) >= 2
-        assert data[0] == cls.type
-        assert isinstance(data[1], str)
+        if not hasattr(data, "__len__") or len(data) < 2:
+            raise ReconstructException("assert len >= 2", data)
+        if data[0] != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
+        if not isinstance(data[1], str):
+            raise ReconstructException("assert type(data[1]) == str", data)
         return cls.parse(data[1])
 
 
@@ -337,8 +349,11 @@ class FormulaElementNode(BaseNode):
 
     @classmethod
     def unserialize(cls, data: list[Any]):
-        assert len(data) >= 2
-        assert data[0] == cls.type
+        if not hasattr(data, "__len__") or len(data) < 2:
+            raise ReconstructException("assert len >= 2", data)
+        if data[0] != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
+        # TODO: assert
         assert isinstance(data[1], (int, float))
         return cls(value=data[1])
 
@@ -388,9 +403,11 @@ class FormulaUnaryPlus(FormulaOp):
 
     @classmethod
     def unserialize(cls, data: list[Any]):
-        assert len(data) == 2
+        if not hasattr(data, "__len__") or len(data) != 2:
+            raise ReconstructException("assert len == 2", data)
         typ, operand_serial = data
-        assert typ == cls.type
+        if typ != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
         kinds = (
             cls.formula_element_cls,
             *cls.formula_arith_op_clses,
@@ -476,9 +493,11 @@ class FormulaAdd(FormulaOp):
 
     @classmethod
     def unserialize(cls, data: list[Any]):
-        assert len(data) > 2
+        if not hasattr(data, "__len__") or len(data) <= 2:
+            raise ReconstructException("assert len > 2", data)
         typ, *operands = data
-        assert typ == cls.type
+        if typ != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
         kinds = (
             cls.formula_element_cls,
             *cls.formula_arith_op_clses,
@@ -625,9 +644,11 @@ class FormulaNode(BaseNode):
 
     @classmethod
     def unserialize(cls, data: list[Any]):
-        assert len(data) == 2
+        if not hasattr(data, "__len__") or len(data) != 2:
+            raise ReconstructException("assert len == 2", data)
         typ, val = data
-        assert typ == cls.type
+        if typ != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
         kinds = (
             cls.formula_element_cls,
             *cls.formula_arith_op_clses,

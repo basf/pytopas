@@ -1,14 +1,12 @@
 "Command line tools"
 
 import argparse
+import json
 import sys
 from io import TextIOWrapper
-from json import JSONDecodeError
 from typing import List, Optional
 
-from .lark_standalone import UnexpectedToken
-from .parser import TOPASParser
-from .tree import TOPASParseTree
+from .parser import Parser
 
 
 def _topas2json_parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
@@ -24,7 +22,11 @@ def _topas2json_parse_args(args: Optional[List[str]] = None) -> argparse.Namespa
         help="Path to TOPAS file or '-' for stdin input",
     )
     arg_parser.add_argument(
-        "-c", "--compact", action="store_true", help="Use compact output"
+        "-p",
+        "--permissive",
+        action="store_true",
+        help="Forgive parser errors",
+        default=True,
     )
     return arg_parser.parse_args(args=args is not None and args or sys.argv[1:])
 
@@ -37,14 +39,8 @@ def topas2json(args: Optional[argparse.Namespace] = None):
     input_topas = file.read()
     file.close()
 
-    parser = TOPASParser()
-
-    try:
-        tree = parser.parse(input_topas)
-        print(tree.to_json(compact=args.compact))
-    except UnexpectedToken as exp:
-        print(exp.state.value_stack)
-        raise exp
+    serialized = Parser.parse(input_topas, args.permissive)
+    print(json.dumps(serialized))
 
 
 def _json2topas_parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
@@ -70,10 +66,7 @@ def json2topas(args: Optional[argparse.Namespace] = None):
     file.close()
 
     try:
-        tree = TOPASParseTree.from_json(input_json)
-        print(tree.to_topas())
-    except JSONDecodeError as exp:
-        raise exp
-    except UnexpectedToken as exp:
-        print(exp.state.value_stack)
+        src = Parser.reconstruct(json.loads(input_json))
+        print(src)
+    except json.JSONDecodeError as exp:
         raise exp

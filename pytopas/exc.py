@@ -4,8 +4,12 @@ import pyparsing as pp
 
 
 class ParseException(pp.ParseException):
-    pass
+    "Parse error"
+
+
+class ReconstructException(Exception):
+    "Reconstruction error"
 
 
 class ParseWarning(RuntimeWarning):
-    pass
+    "Parse warning"

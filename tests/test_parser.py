@@ -1,11 +1,9 @@
 "Test TOPAS parser"
 
-from dataclasses import asdict, dataclass
 import pytest
-import pyparsing as pp
-from pytopas.exc import ParseException, ParseWarning
-from pytopas.base import FormulaNode, DepsMixin, BaseNode, FallbackNode
-from pytopas.parser import RootNode
+from pytopas.exc import ParseWarning
+from pytopas.base import DepsMixin
+from pytopas.parser import RootNode, Parser
 
 from tests.test_base import DummyTestNode
 
@@ -47,3 +45,11 @@ def test_root_node(text_in: str, serialized, text_out):
     reconstructed = node.unserialize(serialized)
     assert reconstructed == node
     assert reconstructed.unparse() == text_out
+
+
+def test_parser():
+    "Test Parser"
+    serialized = Parser.parse("1")
+    assert serialized == ["topas", ["formula", ["formula_element", 1]]]
+    src = Parser.reconstruct(serialized)
+    assert src == "1"
