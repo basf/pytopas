@@ -199,14 +199,16 @@ class FallbackNode(BaseNode):
     @classmethod
     @cache
     def get_parser(cls, permissive=True):
+        def make_warn_action(text: str, loc: int, _):
+            new_text = text[loc : 100 + loc]
+            msg = f"FallbackNode: Can't parse text '{new_text}'"
+            return warn(msg, category=ParseWarning)
+
         parser = pp.Regex(r"\S+").set_results_name("unknown")
         parser.add_parse_action(
-            lambda text, loc, toks: cls(value=cast(str, toks.unknown))
+            lambda toks: cls(value=cast(str, toks.unknown))
         )
-        warn_tmpl = "FallbackNode: Can't parse text '{}'"
-        return parser.add_parse_action(
-            lambda text, loc, toks: warn(warn_tmpl.format(text), category=ParseWarning)
-        )
+        return parser.add_parse_action(make_warn_action)
 
     def unparse(self) -> str:
         return self.value
