@@ -29,6 +29,11 @@ class DepsMixin:
 
     @classmethod
     @property
+    def line_break_cls(cls):
+        return LineBreakNode
+
+    @classmethod
+    @property
     def formula_element_cls(cls):
         return FormulaElementNode
 
@@ -225,6 +230,33 @@ class FallbackNode(BaseNode):
         if not isinstance(data[1], str):
             raise ReconstructException("assert type(data[1]) == str", data)
         return cls(value=data[1])
+
+
+@dataclass
+class LineBreakNode(BaseNode):
+    "Line break"
+    type = "lb"
+
+    @classmethod
+    @cache
+    def get_parser(cls, permissive=True):
+        parser = pp.LineEnd().set_results_name("line_break")
+        parser.add_parse_action(lambda _: cls())
+        return parser
+
+    def unparse(self) -> str:
+        return "\n"
+
+    def serialize(self) -> NodeSerialized:
+        return [self.type]
+
+    @classmethod
+    def unserialize(cls, data: list[Any]):
+        if not hasattr(data, "__len__") or len(data) < 1:
+            raise ReconstructException("assert len >= 1", data)
+        if data[0] != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
+        return cls()
 
 
 @dataclass

@@ -6,10 +6,10 @@ from typing import Any, List, Type, Union
 
 import pyparsing as pp
 
-from .base import BaseNode, FallbackNode, FormulaNode, NodeSerialized
+from .base import BaseNode, FallbackNode, FormulaNode, NodeSerialized, LineBreakNode
 from .exc import ReconstructException
 
-RootStatements = Union[FormulaNode, FallbackNode]
+RootStatements = Union[FormulaNode, LineBreakNode, FallbackNode]
 
 
 @dataclass
@@ -21,19 +21,25 @@ class RootNode(BaseNode):
     @classmethod
     @property
     def root_statement_clses(cls) -> tuple[Type[RootStatements], ...]:
-        return (cls.formula_cls, cls.fallback_cls)
+        return (cls.line_break_cls, cls.formula_cls, cls.fallback_cls)
 
     @classmethod
     @cache
     def get_parser(cls, permissive=True):
-        root_stmts = [
-            x.get_parser(permissive)
-            for x in cls.root_statement_clses
-            if x != cls.fallback_cls
-        ]
-        parser = pp.OneOrMore(
-            pp.MatchFirst(root_stmts).set_results_name("stmt")
-        ).add_parse_action(lambda toks: cls(statements=toks.as_list()))
+        def action(toks: pp.ParseResults):
+            stmts = toks.as_list()
+            if len(stmts) and stmts[-1] == LineBreakNode():
+                stmts = stmts[:-1]
+            return cls(statements=stmts)
+
+        root_stmts = pp.MatchFirst(
+            [
+                x.get_parser(permissive)
+                for x in cls.root_statement_clses
+                if x != cls.fallback_cls
+            ]
+        ).set_results_name("stmt")
+        parser = pp.OneOrMore(root_stmts).add_parse_action(action)
         return parser
 
     @classmethod

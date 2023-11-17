@@ -29,10 +29,12 @@ class RootNodeTest(RootNode, DepsOverrideMixin):
                 ["test"],
                 ["test"],
                 ["fallback", "PANIC"],
+                ["lb"],
                 ["test"],
+                ["lb"],
                 ["fallback", "PANIC"],
             ],
-            "TEST TEST PANIC TEST PANIC",
+            "TEST TEST PANIC \n TEST \n PANIC",
         ),
     ],
 )
