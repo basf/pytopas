@@ -149,11 +149,15 @@ class BaseNode(ABC, DepsMixin):
         ...
 
     @classmethod
-    def parse(cls, text, permissive=True, parse_all=False) -> Union[Self, FallbackNode]:
+    def parse(
+        cls, text, permissive=True, parse_all=False, print_dump=False
+    ) -> Union[Self, FallbackNode, None]:
         "Try to parse text with optional fallback"
         try:
             result = cls.get_parser(permissive).parse_string(text, parse_all=parse_all)
-            return cast(BaseNode, result.pop())
+            if print_dump:
+                print(result.dump())
+            return cast(BaseNode, result.pop()) if len(result) else None
         except pp.ParseException as err:
             if permissive:
                 warn(err.explain(), category=ParseWarning)
@@ -210,9 +214,7 @@ class FallbackNode(BaseNode):
             return warn(msg, category=ParseWarning)
 
         parser = pp.Regex(r"\S+").set_results_name("unknown")
-        parser.add_parse_action(
-            lambda toks: cls(value=cast(str, toks.unknown))
-        )
+        parser.add_parse_action(lambda toks: cls(value=cast(str, toks.unknown)))
         return parser.add_parse_action(make_warn_action)
 
     def unparse(self) -> str:
