@@ -368,7 +368,7 @@ class FormulaGTTest(FormulaGT, DepsFormulaOverrides):
 )
 def test_formula_op_nodes(cls_in, cls_out, text_in: str, serialized, text_out):
     "Test FormulaOp and co"
-    node = cls_in.parse(text_in, permissive=False)
+    node = cls_in.parse(text_in, permissive=False, parse_all=True)
     assert isinstance(node, cls_out)
     assert node.serialize() == serialized
     reconstructed = node.unserialize(serialized)
@@ -476,7 +476,7 @@ class FormulaTestNode(FormulaNode, DepsFormulaOverrides):
 )
 def test_formula_node(text_in: str, serialized, text_out):
     "Test FormulaNode and co"
-    node = FormulaTestNode.parse(text_in, permissive=False)
+    node = FormulaTestNode.parse(text_in, permissive=False, parse_all=True)
     assert isinstance(node, FormulaTestNode)
     assert node.serialize() == serialized
     reconstructed = node.unserialize(serialized)
@@ -547,7 +547,7 @@ def test_formula_node(text_in: str, serialized, text_out):
 )
 def test_formula_real_node(text_in: str, serialized, text_out):
     "Test FormulaNode and co"
-    node = FormulaNode.parse(text_in, permissive=False)
+    node = FormulaNode.parse(text_in, permissive=False, parse_all=True)
     assert isinstance(node, FormulaNode)
     assert node.serialize() == serialized
     reconstructed = node.unserialize(serialized)

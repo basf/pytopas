@@ -62,8 +62,8 @@ quoted_str = pp.dbl_quoted_string.set_results_name("quoted_str").add_parse_actio
 )
 string_val = (
     (quoted_str | ws_escaped_str | simple_str)
-    # .add_parse_action(lambda toks: ParseResults.from_dict({"string_val": toks[0]}))
-    .set_results_name("string_val").streamline()
+    .set_results_name("string_val")
+    .streamline()
 )
 
 #

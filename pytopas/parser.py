@@ -1,8 +1,8 @@
 "TOPAS parser"
 
 from dataclasses import dataclass
-from functools import cache, reduce
-from typing import Any, List, Type, Union
+from functools import cache
+from typing import Any, List, Type, Union, Self, cast
 
 import pyparsing as pp
 
@@ -46,9 +46,10 @@ class RootNode(BaseNode):
         return parser
 
     @classmethod
-    def parse(cls, text, permissive=True, parse_all=True):
+    def parse(cls, text, permissive=True, parse_all=True) -> Union[Self, FallbackNode]:
         "Try to parse text with optional fallback"
-        return super().parse(text, permissive, parse_all=parse_all)
+        result = super().parse(text, permissive, parse_all=parse_all)
+        return cast(Union[Self, FallbackNode], result)
 
     def unparse(self):
         return " ".join(x.unparse() for x in self.statements)
