@@ -6,6 +6,7 @@ from typing import Any, List, Type, Union
 
 import pyparsing as pp
 
+from .trivial import line_comment, block_comment
 from .base import BaseNode, FallbackNode, FormulaNode, NodeSerialized, LineBreakNode
 from .exc import ReconstructException
 
@@ -40,6 +41,8 @@ class RootNode(BaseNode):
             ]
         ).set_results_name("stmt")
         parser = pp.OneOrMore(root_stmts).add_parse_action(action)
+        parser.ignore(line_comment)
+        parser.ignore(block_comment)
         return parser
 
     @classmethod
