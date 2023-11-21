@@ -1,197 +1,256 @@
-"TOPAS grammar"
+"Trivial grammar"
+from typing import Type
+
 import pyparsing as pp
-from pyparsing import (
-    Forward,
-    Group,
-    DelimitedList,
-    Word,
-    Combine,
-    Keyword,
-    Opt,
-    Literal,
-    one_of,
-    Empty,
+
+from . import ast
+
+# NOTE: packrat is not working!
+pp.ParserElement.enable_left_recursion()
+
+
+def toks_pop_action(toks: pp.ParseResults):
+    return toks[0]
+
+
+EQUALS = pp.Literal("=")
+COLON = pp.Literal(":")
+SEMICOLON = pp.Literal(";")
+LPAR = pp.Literal("(")
+RPAR = pp.Literal(")")
+
+
+# comments
+line_comment = pp.Regex(r"'.*")("line_comment").suppress()
+block_comment = pp.c_style_comment("block_comment").suppress()
+
+
+# simple numbers
+integer = pp.common.integer("integer")
+signed_integer = pp.common.signed_integer("signed_integer")
+real = pp.common.real("real")
+number = pp.common.number("number")
+
+
+#
+# strings
+#
+
+
+def quoted_str_action(toks: pp.ParseResults):
+    "Undoublequote string action"
+    tok = toks[0]
+    result = (
+        tok.strip('"')
+        if isinstance(tok, str) and tok.startswith('"') and tok.endswith('"')
+        else tok
+    )
+    return result
+
+
+simple_str = pp.Word(pp.printables)("simple_str")
+ws_escaped_str = pp.Combine(
+    pp.Word(pp.printables, exclude_chars="\\'")
+    + (
+        pp.Literal("\\").suppress()
+        + pp.White()
+        + pp.Opt(pp.Word(pp.printables, exclude_chars="\\'"))
+    )[1, ...],
+    adjacent=True,
+)("ws_escaped_str")
+quoted_str = pp.dbl_quoted_string("quoted_str").add_parse_action(quoted_str_action)
+string_val = (quoted_str | ws_escaped_str | simple_str)("string_val")
+
+#
+# fallback
+#
+fallback = (
+    pp.Regex(r"\S+")
+    .set_results_name("unknown")
+    .add_parse_action(ast.FallbackNode.parse_action)
 )
-from pyparsing.results import ParseResults
 
-from .trivial import (
-    EQUALS,
-    COLON,
-    SEMICOLON,
-    LPAR,
-    RPAR,
-    line_comment,
-    block_comment,
-    quoted_str,
-    number,
-)
-from .basis import ParameterNameNode, ParameterValueNode
+#
+# line break
+#
+line_break = pp.LineEnd()("line_break").add_parse_action(ast.LineBreakNode.parse_action)
 
-pp.ParserElement.enablePackrat()
+#
+# forward declarations
+#
+formula = pp.Forward()
 
 
-# forward declaration
-prm_optional = Forward()
-formula = Forward()
-formula_el = Forward()
+#
+# Parameters
+#
+
+
+# The first character can be an upper or lower-case letter.
+# Subsequent characters can include the underscore character '_'
+# and the numbers 0 through 9.
+parameter_name = pp.Word(pp.alphas, pp.alphanums + "_")(
+    "parameter_name"
+).add_parse_action(ast.ParameterNameNode.parse_action)
 
 
 # The character ! placed before name signals that parameter is not to be refined
-parameter_to_be_fixed = Literal("!").set_results_name("parameter_to_be_fixed")
-
+parameter_to_be_fixed = pp.Literal("!")("parameter_to_be_fixed").add_parse_action(
+    lambda toks: toks[0] == "!"
+)
 # A parameter can also be flagged for refinement by placing
 # the @ character at the start of its name
-parameter_to_be_refined = Literal("@").set_results_name("parameter_to_be_refined")
+parameter_to_be_refined = pp.Literal("@")("parameter_to_be_refined").add_parse_action(
+    lambda toks: toks[0] == "@"
+)
 
-parameter_name = ParameterNameNode.get_parser()
-parameter_value = ParameterValueNode.get_parser()
 
+parameter_backtick = pp.Literal("`")("parameter_backtick").add_parse_action(
+    lambda toks: toks[0] == "`"
+)
+parameter_lim_min = pp.Literal("_LIMIT_MIN_").suppress() + number("parameter_lim_min")
+parameter_lim_max = pp.Literal("_LIMIT_MAX_").suppress() + number("parameter_lim_max")
+parameter_value = pp.Combine(
+    number("value")
+    + pp.Opt(parameter_backtick)("backtick")
+    + pp.Opt("_" + number("esd"))
+    + pp.Opt(
+        pp.Opt(parameter_lim_min)("lim_min") & pp.Opt(parameter_lim_max)("lim_max")
+    ),
+    adjacent=True,
+    join_string="",
+)("parameter_value").add_parse_action(ast.ParameterValueNode.parse_action)
 
 # equations start with an equal sign and end in a semicolon
-
-
-def parameter_equation_action(toks: ParseResults):
-    "Format parameter equation"
-
-    tok = toks[0]
-    if not isinstance(tok, ParseResults):
-        return
-    print(tok.dump())
-    print(list(tok.values()))
-
-    print(tok.get("formula", "no formula"))
-
-    return ParseResults.from_dict(
-        {
-            "parameter_equation": {
-                "formula": toks[0],
-                "reporting": None,
-            }
-        }
-    )
-
-
-parameter_equation_reporting = (COLON + number)("parameter_equation_reporting")
 parameter_equation = (
-    (
-        EQUALS.suppress()
-        + formula
-        + SEMICOLON.suppress()
-        + Opt(parameter_equation_reporting)
-        # adjacent=False,
-        # join_string=" ",
-    )
-    .add_parse_action(parameter_equation_action)
-    .set_results_name("parameter_equation")
-)
+    EQUALS.suppress()
+    + formula("formula")
+    + SEMICOLON.suppress()
+    + pp.Opt(COLON.suppress() + parameter_value("reporting"))
+)("parameter_equation").add_parse_action(ast.ParameterEquationNode.parse_action)
 
 
 # User defined parameters - the `prm` keyword
 # [prm|local E]
 # optionals: [min !E] [max !E] [del !E] [update !E] [stop_when !E] [val_on_continue !E]
-prm_opts_val = parameter_value | parameter_equation
-prm_min = Combine(Keyword("min").suppress() + prm_opts_val, adjacent=False)("prm_min")
-prm_max = Combine(Keyword("max").suppress() + prm_opts_val, adjacent=False)("prm_max")
-prm_del = Combine(Keyword("del").suppress() + prm_opts_val, adjacent=False)("prm_del")
-prm_update = Combine(Keyword("update").suppress() + prm_opts_val, adjacent=False)(
-    "prm_update"
+prm_opts_val = (parameter_value | parameter_equation).add_parse_action(toks_pop_action)
+prm_min = pp.Keyword("min").suppress() + prm_opts_val("prm_min")
+prm_max = pp.Keyword("max").suppress() + prm_opts_val("prm_max")
+prm_del = pp.Keyword("del").suppress() + prm_opts_val("prm_del")
+prm_update = pp.Keyword("update").suppress() + prm_opts_val("prm_update")
+prm_stop_when = pp.Keyword("stop_when").suppress() + prm_opts_val("prm_stop_when")
+prm_val_on_continue = pp.Keyword("val_on_continue").suppress() + prm_opts_val(
+    "prm_val_on_continue"
 )
-prm_stop_when = Combine(Keyword("stop_when").suppress() + prm_opts_val, adjacent=False)(
-    "prm_stop_when"
-)
-prm_val_on_continue = Combine(
-    Keyword("val_on_continue").suppress() + prm_opts_val, adjacent=False
-)("prm_val_on_continue")
-prm_optional <<= (
+parameter_optional = (
     prm_min | prm_max | prm_del | prm_update | prm_stop_when | prm_val_on_continue
 )
-prm = Combine(
-    Keyword("prm").suppress()
-    + Opt(parameter_to_be_fixed)
-    + Opt(parameter_name)
-    + prm_opts_val
-    + prm_optional[...],
-    adjacent=False,
-    join_string=" ",
-)("prm")
 
 
-#
-# Formula
-#
-
-
-def debug_action(s: str, loc: int, toks: ParseResults):
-    "help me"
-    print(s)
-
-
-func_name = Word(pp.alphas, pp.alphanums + "_").set_results_name("func_name")
-func_arg = (
-    (formula | quoted_str | Empty()).add_parse_action(debug_action)
-    # .add_parse_action(lambda toks: tok or '' for tok in toks[0])
-    .set_results_name("func_arg")
-)
-func_args = (
-    DelimitedList(func_arg, allow_trailing_delim=True)
-    # .add_parse_action(lambda toks: ParseResults.from_dict({"func_args": toks.get("func_args")}))
-    .set_results_name("func_args")
-)
-func_call = Combine(
-    func_name + LPAR + Group(Opt(func_args)) + RPAR,
-    adjacent=False,
-    join_string="",
-)("func_call")
-
-formula_el <<= (
-    func_call
-    | parameter_name[1, ...]
-    | (parameter_to_be_refined + Opt(parameter_name) + Opt(formula_el))
-    | (parameter_to_be_fixed + parameter_name + Opt(formula_el))
-    | parameter_value + prm_optional[...]
-    | parameter_equation + prm_optional[...]
-    | prm_optional[1, ...]
-).set_results_name("formula_el")
-
-
-formula <<= (
-    pp.helpers.infix_notation(
-        formula_el,
-        [
-            ("-", 1, pp.helpers.OpAssoc.RIGHT),
-            (one_of("* / ^"), 2, pp.helpers.OpAssoc.LEFT),
-            (one_of("+ -"), 2, pp.helpers.OpAssoc.LEFT),
-            (one_of("== < <= > >="), 2, pp.helpers.opAssoc.LEFT),
-        ],
-        lpar=LPAR.suppress(),
-        rpar=RPAR.suppress(),
+parameter = (
+    parameter_optional[1, ...]
+    | (
+        (parameter_to_be_refined("prm_to_be_refined") + parameter_optional[1, ...])
+        | (
+            parameter_to_be_refined("prm_to_be_refined")
+            + pp.Opt(
+                prm_opts_val("prm_value")
+                ^ (parameter_name("prm_name") + pp.Opt(prm_opts_val("prm_value")))
+            )
+            + parameter_optional[...]
+        )
+        | (
+            parameter_to_be_fixed("prm_to_be_fixed")
+            + parameter_name("prm_name")
+            + pp.Opt(prm_opts_val("prm_value"))
+            + parameter_optional[...]
+        )
+        | (
+            parameter_name("prm_name")
+            + prm_opts_val("prm_value")
+            + parameter_optional[...]
+        )
+        | parameter_name("prm_name") + parameter_optional[...]
+        | prm_opts_val("prm_value") + parameter_optional[...]
     )
-    .set_results_name("formula")
+    ^ pp.Group(parameter_name + (parameter_name | parameter_value)[1, ...])
+)("parameter").add_parse_action(ast.ParameterNode.parse_action)
+prm = (
+    pp.Keyword("prm").suppress()
+    + pp.Opt(parameter_to_be_fixed("prm_to_be_fixed"))
+    + pp.Opt(parameter_name("prm_name"))
+    + prm_opts_val("prm_value")
+    + parameter_optional[...]
+)("prm").add_parse_action(ast.PrmNode.parse_action)
+
+#
+# formula
+#
+
+func_name = pp.Word(pp.alphas, pp.alphanums + "_")("func_name")
+func_empty_arg = pp.Empty().add_parse_action(lambda _: None)
+func_args = pp.delimited_list(
+    pp.Group(quoted_str | formula | func_empty_arg),
+    allow_trailing_delim=True,
+    delim=",",
+).add_parse_action(ast.FunctionCallNode.func_args_parse_action)
+func_call = (func_name + LPAR.suppress() + pp.Opt(func_args) + RPAR.suppress())(
+    "func_call"
+).add_parse_action(ast.FunctionCallNode.parse_action)
+
+formula_element = (func_call | parameter)("formula_element")
+
+
+def make_formula_unary_op(node: Type[ast.FormulaUnaryPlus]):
+    operator = pp.Literal(node.operator)("operator")
+    operand = formula_element("operand")
+    return pp.Group(operator + operand).add_parse_action(node.parse_action)
+
+
+formula_unary_plus_op = make_formula_unary_op(ast.FormulaUnaryPlus)
+formula_unary_minus_op = make_formula_unary_op(ast.FormulaUnaryMinus)
+
+
+def make_formula_binary_op(node: Type[ast.FormulaAdd]):
+    operator = pp.Literal(node.operator)("operator")
+    operand = formula_element("operand")
+    return pp.Group(operand + operator + operand).add_parse_action(node.parse_action)
+
+
+formula_add_op = make_formula_binary_op(ast.FormulaAdd)
+formula_sub_op = make_formula_binary_op(ast.FormulaSub)
+formula_mul_op = make_formula_binary_op(ast.FormulaMul)
+formula_div_op = make_formula_binary_op(ast.FormulaDiv)
+formula_exp_op = make_formula_binary_op(ast.FormulaExp)
+formula_eq_op = make_formula_binary_op(ast.FormulaEQ)
+formula_ne_op = make_formula_binary_op(ast.FormulaNE)
+formula_le_op = make_formula_binary_op(ast.FormulaLE)
+formula_lt_op = make_formula_binary_op(ast.FormulaLT)
+formula_ge_op = make_formula_binary_op(ast.FormulaGE)
+formula_gt_op = make_formula_binary_op(ast.FormulaGT)
+
+formula_arith_expr = pp.helpers.infix_notation(
+    formula_element,
+    [
+        (x.operator, x.num_operands, x.assoc, x.parse_action)
+        for x in ast.FormulaNode.formula_arith_op_clses
+    ],
+    lpar=LPAR.suppress(),
+    rpar=RPAR.suppress(),
 )
-
-# The local keyword is used for defining named parameters
-# as local to the top, xdd or phase level
-local = Combine(
-    Keyword("local").suppress()
-    + parameter_name
-    + (parameter_value | parameter_equation)
-)("local")
-
-
-# [existing_prm E]...
-# Allowed operators for existing_prm are +=, -=, *-, /= and ^=
-EXISTING_PRM_OPERATOR = one_of("+= -= *- /= ^= =")("existing_prm_operator")
-existing_prm = Combine(
-    Literal("existing_prm").suppress()
-    + parameter_name
-    + EXISTING_PRM_OPERATOR.suppress()
-    + formula
-    + SEMICOLON.suppress()
-    + Opt(parameter_equation_reporting).suppress()
-)("existing_prm")
+formula_comp_expr = pp.helpers.infix_notation(
+    formula_arith_expr,
+    [
+        (x.operator, x.num_operands, x.assoc, x.parse_action)
+        for x in ast.FormulaNode.formula_comp_op_clses
+    ],
+)
+formula <<= (formula_comp_expr)("formula")
+formula.add_parse_action(ast.FormulaNode.parse_action)
 
 
-pp.autoname_elements()
-TOPASParser = (prm | local | existing_prm | formula)[...]
-TOPASParser.ignore(line_comment)
-TOPASParser.ignore(block_comment)
+root = (formula | prm | line_break | fallback)[...].set_parse_action(
+    ast.RootNode.parse_action
+)
+root.ignore(line_comment)
+root.ignore(block_comment)

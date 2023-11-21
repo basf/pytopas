@@ -4,12 +4,11 @@ import argparse
 import json
 import sys
 import warnings
-from contextlib import nullcontext
 from io import TextIOWrapper
 from typing import List, Optional
 
-from .parser import Parser
 from .exc import ParseWarning
+from .parser import Parser
 
 
 def _topas2json_parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
@@ -23,13 +22,6 @@ def _topas2json_parse_args(args: Optional[List[str]] = None) -> argparse.Namespa
         "file",
         type=argparse.FileType("r"),
         help="Path to TOPAS file or '-' for stdin input",
-    )
-    arg_parser.add_argument(
-        "-p",
-        "--permissive",
-        action="store_true",
-        help="Forgive parser errors",
-        default=True,
     )
     arg_parser.add_argument(
         "--ignore-warnings",
@@ -51,7 +43,7 @@ def topas2json(args: Optional[argparse.Namespace] = None):
     with warnings.catch_warnings():
         if args.ignore_warnings:
             warnings.filterwarnings("ignore", category=ParseWarning)
-        serialized = Parser.parse(input_topas, args.permissive)
+        serialized = Parser.parse(input_topas)
         print(json.dumps(serialized))
 
 

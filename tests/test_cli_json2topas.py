@@ -28,7 +28,6 @@ def test_cli_json2topas(capsys, json_in: str, raises):
         args = _json2topas_parse_args([tmp_file.name])
         json2topas(args)
 
-
     captured = capsys.readouterr()
 
     with raises:

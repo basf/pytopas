@@ -5,7 +5,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "pytopas"
-version = "0.0.2"
+version = "0.0.3"
 description = """Bruker's TOPAS macro language parser"""
 authors = [{name = "Sergei Korolev", email = "knopki@duck.com"}]
 readme = "README.md"
