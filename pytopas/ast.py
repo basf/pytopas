@@ -3,17 +3,24 @@
 from __future__ import annotations
 
 import json
+import sys
 import warnings
 from abc import ABC, abstractclassmethod, abstractmethod
 from collections.abc import Sequence
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from functools import reduce
-from typing import Any, Dict, List, Optional, Self, Tuple, Type, TypeVar, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union, cast
 
 import pyparsing as pp
 from pyparsing.results import ParseResults
 
 from .exc import ParseWarning, ReconstructException
+
+if sys.version_info < (3, 11):
+    from typing_extensions import Self
+else:
+    from typing import Self
+
 
 BaseNodeT = TypeVar("BaseNodeT", bound="BaseNode")
 
