@@ -567,17 +567,13 @@ def test_formula_node(text_in: str, serialized, text_out):
             "prm ! P_name1 123",
             [
                 "topas",
-                ["formula", ["p", {"n": ["parameter_name", "prm"]}]],
                 [
-                    "formula",
-                    [
-                        "p",
-                        {
-                            "!": True,
-                            "n": ["parameter_name", "P_name1"],
-                            "v": ["parameter_value", "123"],
-                        },
-                    ],
+                    "prm",
+                    {
+                        "!": True,
+                        "n": ["parameter_name", "P_name1"],
+                        "v": ["parameter_value", "123"],
+                    },
                 ],
             ],
             "prm ! P_name1 123",

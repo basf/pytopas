@@ -709,3 +709,45 @@ test_formula1 = make_trivial_test(
         None,
     ),
 )
+
+test_root = make_trivial_test(
+    g.root,
+    (
+        "1",
+        [
+            ast.RootNode(
+                statements=[
+                    ast.FormulaNode(
+                        value=ast.ParameterNode(
+                            prm_value=ast.ParameterValueNode(value=1),
+                        )
+                    )
+                ]
+            )
+        ],
+        None,
+    ),
+    (
+        "prm 1",
+        [
+            ast.RootNode(
+                statements=[
+                    ast.PrmNode(
+                        prm_value=ast.ParameterValueNode(value=1),
+                    )
+                ]
+            )
+        ],
+        None,
+    ),
+    (
+        "\n",
+        [ast.RootNode(statements=[ast.LineBreakNode()])],
+        None,
+    ),
+    (
+        "#@@!#$%^&*()",
+        [ast.RootNode(statements=[ast.FallbackNode("#@@!#$%^&*()")])],
+        None,
+    ),
+)

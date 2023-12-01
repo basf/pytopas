@@ -249,7 +249,7 @@ formula <<= (formula_comp_expr)("formula")
 formula.add_parse_action(ast.FormulaNode.parse_action)
 
 
-root = (formula | prm | line_break | fallback)[...].set_parse_action(
+root = (prm | formula | line_break | fallback)[...].set_parse_action(
     ast.RootNode.parse_action
 )
 root.ignore(line_comment)
