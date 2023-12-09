@@ -81,9 +81,9 @@ test_string_val = make_trivial_test(
     ),
 )
 
-test_fallback = make_trivial_test(
-    g.fallback,
-    ("TEST", None, {"unknown": ast.FallbackNode(value="TEST")}),
+test_text = make_trivial_test(
+    g.text,
+    ("TEST", None, {"text": ast.TextNode(value="TEST")}),
 )
 
 test_line_break = make_trivial_test(
@@ -740,7 +740,12 @@ test_root = make_trivial_test(
     ),
     (
         "#@@!#$%^&*()",
-        [ast.RootNode(statements=[ast.FallbackNode("#@@!#$%^&*()")])],
+        [ast.RootNode(statements=[ast.TextNode("#@@!#$%^&*()")])],
+        None,
+    ),
+    (
+        "#@@! #$% ^&*()",
+        [ast.RootNode(statements=[ast.TextNode("#@@! #$% ^&*()")])],
         None,
     ),
 )

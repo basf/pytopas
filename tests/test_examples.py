@@ -28,8 +28,8 @@ from pytopas.exc import ParseWarning
 )
 def test_examples(file_name: str, fallbacks: Optional[int]):
     "Test examples"
-    fallback_cls = ast.DepsMixin.fallback_cls
-    fallback_parser = fallback_cls.get_parser()
+    text_cls = ast.DepsMixin.text_cls
+    fallback_parser = text_cls.get_parser()
     file_path = Path(__file__).parent.parent / "examples" / file_name
 
     assert file_path.exists()

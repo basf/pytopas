@@ -9,22 +9,22 @@ from pytopas import ast
 from pytopas.exc import ParseWarning
 
 
-def test_fallback_node():
-    "Test FallbackNode"
+def test_text_node():
+    "Test TextNode"
     text = "some random text"
     with pytest.warns(ParseWarning):
-        node = ast.FallbackNode.parse(text)
+        node = ast.TextNode.parse(text)
     assert node
     assert node.value == text.split(" ", maxsplit=1)[0]
     assert node.unparse() == text.split(" ", maxsplit=1)[0]
     serialized = node.serialize()
     assert serialized == [node.type, text.split(" ", maxsplit=1)[0]]
-    assert ast.FallbackNode.unserialize(serialized) == node
+    assert ast.TextNode.unserialize(serialized) == node
 
     with pytest.warns(ParseWarning):
-        fallback_node = ast.ParameterValueNode.parse(text)
-    assert isinstance(fallback_node, ast.FallbackNode)
-    assert fallback_node == node
+        text_node = ast.ParameterValueNode.parse(text)
+    assert isinstance(text_node, ast.TextNode)
+    assert text_node == node
 
 
 def test_parameter_name_node():
@@ -551,7 +551,7 @@ def test_formula_node(text_in: str, serialized, text_out):
         ),
         (
             "!#^%&^%^&@#%&^@%#",
-            ["topas", ["fallback", "!#^%&^%^&@#%&^@%#"]],
+            ["topas", ["text", "!#^%&^%^&@#%&^@%#"]],
             "!#^%&^%^&@#%&^@%#",
             pytest.warns(ParseWarning),
         ),

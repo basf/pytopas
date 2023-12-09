@@ -63,12 +63,12 @@ quoted_str = pp.dbl_quoted_string("quoted_str").add_parse_action(quoted_str_acti
 string_val = (quoted_str | ws_escaped_str | simple_str)("string_val")
 
 #
-# fallback
+# text
 #
-fallback = (
+text = (
     pp.Regex(r"\S+")
-    .set_results_name("unknown")
-    .add_parse_action(ast.FallbackNode.parse_action)
+    .set_results_name("text")
+    .add_parse_action(ast.TextNode.parse_action)
 )
 
 #
@@ -273,7 +273,7 @@ formula.add_parse_action(ast.FormulaNode.parse_action)
 # )("existing_prm")
 
 
-root = (prm | formula | line_break | fallback)[...].set_parse_action(
+root = (prm | formula | line_break | text)[...].set_parse_action(
     ast.RootNode.parse_action
 )
 root.ignore(line_comment)

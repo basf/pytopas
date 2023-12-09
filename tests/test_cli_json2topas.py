@@ -13,7 +13,7 @@ from pytopas.exc import ReconstructException
 @pytest.mark.parametrize(
     "json_in, raises",
     [
-        ('["topas", ["fallback", "text"]]', does_not_raise()),
+        ('["topas", ["text", "text"]]', does_not_raise()),
         ("...", pytest.raises(json.JSONDecodeError)),
         ('["topas", ["{}!@##}!@#"]]', pytest.raises(ReconstructException)),
     ],

@@ -39,9 +39,9 @@ class DepsMixin:
 
     @classmethod
     @property
-    def fallback_cls(cls):
-        "Fallback node class"
-        return FallbackNode
+    def text_cls(cls):
+        "Text node class"
+        return TextNode
 
     @classmethod
     @property
@@ -208,9 +208,7 @@ class BaseNode(ABC, DepsMixin):
         "Return parser"
 
     @classmethod
-    def parse(
-        cls, text, parse_all=False, print_dump=False
-    ) -> Self | FallbackNode | None:
+    def parse(cls, text, parse_all=False, print_dump=False) -> Self | TextNode | None:
         "Try to parse text with optional fallback"
         try:
             result = cls.get_parser().parse_string(text, parse_all=parse_all)
@@ -219,7 +217,7 @@ class BaseNode(ABC, DepsMixin):
             return result.pop() if len(result) else None  # type: ignore[assigment]
         except pp.ParseException as err:
             warnings.warn(err.explain(), category=ParseWarning, stacklevel=3)
-            return cls.fallback_cls.parse(text)
+            return cls.text_cls.parse(text)
 
     @abstractmethod
     def unparse(self) -> str:
@@ -255,23 +253,22 @@ NodeSerialized = list[Trivial]
 
 
 @dataclass
-class FallbackNode(BaseNode):
+class TextNode(BaseNode):
     "Last chance node"
-    # TODO: rename fallback node to text node
-    type = "fallback"
+    type = "text"
     value: str
 
     @classmethod
     def parse_action(cls, text: str, loc: int, toks: pp.ParseResults):
-        "Parse action for the fallback parse element"
+        "Parse action for the text parse element"
         short_text = text[loc : 100 + loc]
-        warn_msg = f"FallbackNode: Can't parse text {short_text!r}"
+        warn_msg = f"TextNode: Can't parse text {short_text!r}"
         warnings.warn(warn_msg, category=ParseWarning, stacklevel=3)
         return cls(value=toks.as_list()[0])
 
     @classmethod
     def get_parser(cls):
-        return cls.get_grammar().fallback
+        return cls.get_grammar().text
 
     def unparse(self) -> str:
         return self.value
@@ -398,7 +395,7 @@ class ParameterValueNode(BaseNode):
         return cls.parse(data[1])
 
 
-ParameterEquationValue = Union["FormulaNode", FallbackNode]
+ParameterEquationValue = Union["FormulaNode", TextNode]
 
 
 @dataclass
@@ -406,19 +403,19 @@ class ParameterEquationNode(BaseNode):
     "Parameter equation like = a + 1; : 0"
     type = "prm_eq"
     formula: ParameterEquationValue
-    reporting: ParameterValueNode | FallbackNode | None = None
+    reporting: ParameterValueNode | TextNode | None = None
 
     @classmethod
     @property
     def parameter_equation_value_clses(cls):
         "Parameter equation classes"
-        return (cls.formula_cls, cls.fallback_cls)
+        return (cls.formula_cls, cls.text_cls)
 
     @classmethod
     @property
     def parameter_equation_reporting_clses(cls):
         "Parameter equation reporting classes"
-        return (cls.parameter_value_cls, cls.fallback_cls)
+        return (cls.parameter_value_cls, cls.text_cls)
 
     @classmethod
     def parse_action(cls, toks: pp.ParseResults):
@@ -459,7 +456,7 @@ class ParameterEquationNode(BaseNode):
         return cls(formula, reporting)
 
 
-ParameterValue = Union[ParameterValueNode, ParameterEquationNode, FallbackNode]
+ParameterValue = Union[ParameterValueNode, ParameterEquationNode, TextNode]
 
 
 @dataclass
@@ -502,7 +499,7 @@ class ParameterNode(BaseNode):
     @property
     def parameter_value_clses(cls):
         "Parameter's value classes"
-        return (cls.parameter_value_cls, cls.parameter_equation_cls, cls.fallback_cls)
+        return (cls.parameter_value_cls, cls.parameter_equation_cls, cls.text_cls)
 
     @classmethod
     def parse_action(cls, toks: pp.ParseResults) -> Self:
@@ -671,7 +668,7 @@ class FunctionCallNode(BaseNode):
     "Function call node like `sin(a)`"
     type = "func_call"
     name: str
-    args: list[FormulaNode | str | None | FallbackNode] = field(default_factory=list)
+    args: list[FormulaNode | str | None | TextNode] = field(default_factory=list)
 
     @classmethod
     def func_args_parse_action(cls, toks: pp.ParseResults):
@@ -713,7 +710,7 @@ class FunctionCallNode(BaseNode):
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
         kinds = (
             cls.formula_cls,
-            cls.fallback_cls,
+            cls.text_cls,
         )
         args = [
             (
@@ -773,7 +770,7 @@ class FormulaUnaryPlus(FormulaOp):
             cls.func_call_cls,
             cls.parameter_cls,
             *cls.formula_arith_op_clses,
-            cls.fallback_cls,
+            cls.text_cls,
         )
         operand = cls.match_unserialize(kinds, operand_serial)
         return cls(operand=operand)
@@ -858,7 +855,7 @@ class FormulaAdd(FormulaOp):
             cls.parameter_cls,
             *cls.formula_arith_op_clses,
             *cls.formula_comp_op_clses,
-            cls.fallback_cls,
+            cls.text_cls,
         )
         ops = [cls.match_unserialize(kinds, x) for x in operands]
         return cls(operands=ops)
@@ -998,7 +995,7 @@ FormulaCompOps = Union[
     FormulaGT,
 ]
 FormulaValue = Union[
-    FunctionCallNode, ParameterNode, FormulaArithOps, FormulaCompOps, FallbackNode
+    FunctionCallNode, ParameterNode, FormulaArithOps, FormulaCompOps, TextNode
 ]
 
 
@@ -1035,12 +1032,12 @@ class FormulaNode(BaseNode):
             cls.parameter_cls,
             *cls.formula_arith_op_clses,
             *cls.formula_comp_op_clses,
-            cls.fallback_cls,
+            cls.text_cls,
         )
         return cls(value=cls.match_unserialize(kinds, val))
 
 
-RootStatements = Union[FormulaNode, PrmNode, LineBreakNode, FallbackNode]
+RootStatements = Union[FormulaNode, PrmNode, LineBreakNode, TextNode]
 
 
 @dataclass
@@ -1055,7 +1052,16 @@ class RootNode(BaseNode):
         stmts = toks.as_list()
         if len(stmts) and stmts[-1] == LineBreakNode():
             stmts = stmts[:-1]
-        return cls(statements=stmts)
+        inst = cls(statements=[])
+        # concat text nodes
+        for stmt in stmts:
+            last_stmt = inst.statements[-1] if inst.statements else None
+            if isinstance(last_stmt, TextNode) and isinstance(stmt, TextNode):
+                last_stmt.value = f"{last_stmt.value} {stmt.value}"
+            else:
+                inst.statements.append(stmt)
+
+        return inst
 
     @classmethod
     def get_parser(cls):
@@ -1065,10 +1071,10 @@ class RootNode(BaseNode):
     @property
     def root_statement_clses(cls) -> tuple[type[RootStatements], ...]:
         "Root node statement classes"
-        return (cls.line_break_cls, cls.formula_cls, cls.prm_cls, cls.fallback_cls)
+        return (cls.line_break_cls, cls.formula_cls, cls.prm_cls, cls.text_cls)
 
     @classmethod
-    def parse(cls, text, parse_all=True, print_dump=False) -> Self | FallbackNode:
+    def parse(cls, text, parse_all=True, print_dump=False) -> Self | TextNode:
         "Try to parse text with optional fallback"
         result = super().parse(text, parse_all=parse_all, print_dump=print_dump)
         return result  # type: ignore[assignment]
