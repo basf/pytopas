@@ -10,6 +10,7 @@ pp.ParserElement.enable_left_recursion()
 
 
 def toks_pop_action(toks: pp.ParseResults):
+    "Take first element action"
     return toks[0]
 
 
@@ -202,6 +203,7 @@ formula_element = (func_call | parameter)("formula_element")
 
 
 def make_formula_unary_op(node: Type[ast.FormulaUnaryPlus]):
+    "Create parsing element for unary compare operator"
     operator = pp.Literal(node.operator)("operator")
     operand = formula_element("operand")
     return pp.Group(operator + operand).add_parse_action(node.parse_action)
@@ -212,6 +214,7 @@ formula_unary_minus_op = make_formula_unary_op(ast.FormulaUnaryMinus)
 
 
 def make_formula_binary_op(node: Type[ast.FormulaAdd]):
+    "Create parsing element for binary compare operator"
     operator = pp.Literal(node.operator)("operator")
     operand = formula_element("operand")
     return pp.Group(operand + operator + operand).add_parse_action(node.parse_action)
@@ -233,7 +236,7 @@ formula_arith_expr = pp.helpers.infix_notation(
     formula_element,
     [
         (x.operator, x.num_operands, x.assoc, x.parse_action)
-        for x in ast.FormulaNode.formula_arith_op_clses
+        for x in ast.FormulaNode.formula_arith_op_clses  # pylint: disable=not-an-iterable
     ],
     lpar=LPAR.suppress(),
     rpar=RPAR.suppress(),
@@ -242,11 +245,32 @@ formula_comp_expr = pp.helpers.infix_notation(
     formula_arith_expr,
     [
         (x.operator, x.num_operands, x.assoc, x.parse_action)
-        for x in ast.FormulaNode.formula_comp_op_clses
+        for x in ast.FormulaNode.formula_comp_op_clses  # pylint: disable=not-an-iterable
     ],
 )
 formula <<= (formula_comp_expr)("formula")
 formula.add_parse_action(ast.FormulaNode.parse_action)
+
+# The local keyword is used for defining named parameters
+# as local to the top, xdd or phase level
+# local = Combine(
+#     Keyword("local").suppress()
+#     + parameter_name
+#     + (parameter_value | parameter_equation)
+# )("local")
+
+
+# [existing_prm E]...
+# Allowed operators for existing_prm are +=, -=, *-, /= and ^=
+# EXISTING_PRM_OPERATOR = one_of("+= -= *- /= ^= =")("existing_prm_operator")
+# existing_prm = Combine(
+#     Literal("existing_prm").suppress()
+#     + parameter_name
+#     + EXISTING_PRM_OPERATOR.suppress()
+#     + formula
+#     + SEMICOLON.suppress()
+#     + Opt(parameter_equation_reporting).suppress()
+# )("existing_prm")
 
 
 root = (prm | formula | line_break | fallback)[...].set_parse_action(

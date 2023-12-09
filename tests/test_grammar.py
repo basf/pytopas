@@ -10,12 +10,13 @@ from pytopas import grammar as g
 from pytopas.exc import ParseWarning
 
 
-def d(el: pp.ParserElement):
+def d(elem: pp.ParserElement):  # pylint: disable=invalid-name
     "Enable debug"
-    return el.copy().set_debug(True)
+    return elem.copy().set_debug(True)
 
 
 def make_trivial_test(parser: pp.ParserElement, *params):
+    "Create simple and dumb parametrized test"
     parser_debug = parser.copy().set_debug(True)
 
     @pytest.mark.parametrize("string, as_list, as_dict", params)
@@ -425,7 +426,10 @@ test_prm = make_trivial_test(
     g.prm,
     ("prm 1", None, {"prm": ast.PrmNode(prm_value=ast.ParameterValueNode(value=1))}),
     (
-        "prm ! P_name = a + 1; min 2 max =3; update 4 del =5; stop_when 6 val_on_continue 7",
+        (
+            "prm ! P_name = a + 1; min 2 max =3; "
+            "update 4 del =5; stop_when 6 val_on_continue 7"
+        ),
         [
             ast.PrmNode(
                 prm_to_be_fixed=True,
@@ -576,12 +580,73 @@ formula_parameter_params = list(
 )
 
 
+_test_formula1_param_formula_div = ast.FormulaDiv(
+    operands=[
+        ast.FormulaMul(
+            operands=[
+                ast.FunctionCallNode(
+                    name="a",
+                    args=[
+                        ast.FormulaNode(
+                            value=ast.ParameterNode(
+                                prm_name=ast.ParameterNameNode(name="b"),
+                            )
+                        ),
+                        ast.FormulaNode(
+                            value=ast.ParameterNode(
+                                prm_name=ast.ParameterNameNode(name="c"),
+                            )
+                        ),
+                    ],
+                ),
+                ast.ParameterNode(
+                    prm_name=ast.ParameterNameNode(name="param"),
+                ),
+            ],
+        ),
+        ast.FormulaExp(
+            operands=[
+                ast.ParameterNode(
+                    prm_to_be_fixed=True,
+                    prm_name=ast.ParameterNameNode(name="param"),
+                    prm_value=ast.ParameterValueNode(
+                        value=1,
+                    ),
+                ),
+                ast.FormulaAdd(
+                    operands=[
+                        ast.ParameterNode(
+                            prm_to_be_refined=True,
+                            prm_name=ast.ParameterNameNode(name="param"),
+                        ),
+                        ast.FormulaSub(
+                            operands=[
+                                ast.ParameterNode(
+                                    prm_value=ast.ParameterValueNode(value=4),
+                                    prm_min=ast.ParameterValueNode(value=2),
+                                ),
+                                ast.ParameterNode(
+                                    prm_name=None,
+                                    prm_value=ast.ParameterValueNode(value=5),
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    ],
+)
+
 test_formula1 = make_trivial_test(
     g.formula,
     *formula_func_call_params,
     *formula_parameter_params,
     (
-        "a(b, c) * param / !param 1 ^ (@ param + 4 min 2 - 5) < 6 > 7 <= 9 >= b(c) == 1",
+        (
+            "a(b, c) * param / !param 1 ^ (@ param + 4 min 2 - 5) "
+            "< 6 > 7 <= 9 >= b(c) == 1"
+        ),
         [
             ast.FormulaNode(
                 value=ast.FormulaGT(
@@ -590,79 +655,7 @@ test_formula1 = make_trivial_test(
                             operands=[
                                 ast.FormulaLE(
                                     operands=[
-                                        ast.FormulaDiv(
-                                            operands=[
-                                                ast.FormulaMul(
-                                                    operands=[
-                                                        ast.FunctionCallNode(
-                                                            name="a",
-                                                            args=[
-                                                                ast.FormulaNode(
-                                                                    value=ast.ParameterNode(
-                                                                        prm_name=ast.ParameterNameNode(
-                                                                            name="b"
-                                                                        ),
-                                                                    )
-                                                                ),
-                                                                ast.FormulaNode(
-                                                                    value=ast.ParameterNode(
-                                                                        prm_name=ast.ParameterNameNode(
-                                                                            name="c"
-                                                                        ),
-                                                                    )
-                                                                ),
-                                                            ],
-                                                        ),
-                                                        ast.ParameterNode(
-                                                            prm_name=ast.ParameterNameNode(
-                                                                name="param"
-                                                            ),
-                                                        ),
-                                                    ],
-                                                ),
-                                                ast.FormulaExp(
-                                                    operands=[
-                                                        ast.ParameterNode(
-                                                            prm_to_be_fixed=True,
-                                                            prm_name=ast.ParameterNameNode(
-                                                                name="param"
-                                                            ),
-                                                            prm_value=ast.ParameterValueNode(
-                                                                value=1,
-                                                            ),
-                                                        ),
-                                                        ast.FormulaAdd(
-                                                            operands=[
-                                                                ast.ParameterNode(
-                                                                    prm_to_be_refined=True,
-                                                                    prm_name=ast.ParameterNameNode(
-                                                                        name="param"
-                                                                    ),
-                                                                ),
-                                                                ast.FormulaSub(
-                                                                    operands=[
-                                                                        ast.ParameterNode(
-                                                                            prm_value=ast.ParameterValueNode(
-                                                                                value=4
-                                                                            ),
-                                                                            prm_min=ast.ParameterValueNode(
-                                                                                value=2
-                                                                            ),
-                                                                        ),
-                                                                        ast.ParameterNode(
-                                                                            prm_name=None,
-                                                                            prm_value=ast.ParameterValueNode(
-                                                                                value=5,
-                                                                            ),
-                                                                        ),
-                                                                    ],
-                                                                ),
-                                                            ],
-                                                        ),
-                                                    ],
-                                                ),
-                                            ],
-                                        ),
+                                        _test_formula1_param_formula_div,
                                         ast.ParameterNode(
                                             prm_value=ast.ParameterValueNode(value=6),
                                         ),

@@ -11,4 +11,4 @@ ignore = E203,E501,W503
 classmethod-decorators =
     classmethod
     validator
-exclude = pytopas/lark_standalone.py
+per-file-ignores = __init__.py:F401

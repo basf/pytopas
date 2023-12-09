@@ -50,5 +50,5 @@ jobs:
 
       - name: pyupgrade
         run: |
-          find -name "*.py" -and -not -name "lark_standalone.py" -print0 |\
+          find -name "*.py" -print0 |\
           xargs -0 -n1 pyupgrade --py38-plus

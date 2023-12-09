@@ -15,16 +15,16 @@ def test_fallback_node():
     with pytest.warns(ParseWarning):
         node = ast.FallbackNode.parse(text)
     assert node
-    assert node.value == text.split(" ")[0]
-    assert node.unparse() == text.split(" ")[0]
+    assert node.value == text.split(" ", maxsplit=1)[0]
+    assert node.unparse() == text.split(" ", maxsplit=1)[0]
     serialized = node.serialize()
-    assert serialized == [node.type, text.split(" ")[0]]
+    assert serialized == [node.type, text.split(" ", maxsplit=1)[0]]
     assert ast.FallbackNode.unserialize(serialized) == node
 
     with pytest.warns(ParseWarning):
         fallback_node = ast.ParameterValueNode.parse(text)
-        assert isinstance(fallback_node, ast.FallbackNode)
-        assert fallback_node == node
+    assert isinstance(fallback_node, ast.FallbackNode)
+    assert fallback_node == node
 
 
 def test_parameter_name_node():
@@ -234,7 +234,10 @@ def test_parameter_node(text_in: str, serialized, text_out):
                     "c": ["parameter_value", "6"],
                 },
             ],
-            "prm ! P_name = 0; min 1 max 2 del 3 update 4 stop_when 5 val_on_continue 6",
+            (
+                "prm ! P_name = 0; min 1 max 2 del 3 "
+                "update 4 stop_when 5 val_on_continue 6"
+            ),
         ),
     ],
 )
@@ -252,7 +255,10 @@ def test_prm_node(text_in: str, serialized, text_out):
     "text_in, serialized, text_out",
     [
         (
-            'FUN(,"quoted string",min 1,@,@ min 1, @ P_name1, @ 1, @ P_name1 1,1/Cos(Th),)',
+            (
+                'FUN(,"quoted string",min 1,@,@ min 1, '
+                "@ P_name1, @ 1, @ P_name1 1,1/Cos(Th),)"
+            ),
             [
                 "func_call",
                 "FUN",
@@ -288,7 +294,10 @@ def test_prm_node(text_in: str, serialized, text_out):
                 ],
                 None,
             ],
-            'FUN(, "quoted string", min 1, @, @ min 1, @ P_name1, @ 1, @ P_name1 1, 1 / Cos(Th), )',
+            (
+                'FUN(, "quoted string", min 1, @, @ min 1, '
+                "@ P_name1, @ 1, @ P_name1 1, 1 / Cos(Th), )"
+            ),
         ),
     ],
 )
