@@ -2,6 +2,7 @@
 
 from contextlib import nullcontext
 from dataclasses import asdict
+from decimal import Decimal
 
 import pytest
 
@@ -55,11 +56,11 @@ def test_line_break_node():
         (
             "-12.3`_2_LIMIT_MIN_-13_LIMIT_MAX_2.1",
             {
-                "value": -12.3,
+                "value": Decimal("-12.3"),
                 "esd": 2,
                 "backtick": True,
-                "lim_min": -13,
-                "lim_max": 2.1,
+                "lim_min": Decimal(-13),
+                "lim_max": Decimal("2.1"),
             },
             "-12.3`_2_LIMIT_MIN_-13_LIMIT_MAX_2.1",
         ),

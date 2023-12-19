@@ -1,4 +1,5 @@
 "Trivial grammar"
+from decimal import Decimal
 from typing import Type
 
 import pyparsing as pp
@@ -27,10 +28,11 @@ block_comment = pp.c_style_comment("block_comment").suppress()
 
 
 # simple numbers
-integer = pp.common.integer("integer")
-signed_integer = pp.common.signed_integer("signed_integer")
-real = pp.common.real("real")
-number = pp.common.number("number")
+signed_integer = pp.common.signed_integer("signed_integer").set_parse_action(
+    pp.token_map(Decimal)
+)
+real = pp.common.real("real").set_parse_action(pp.token_map(Decimal))
+number = (real | signed_integer)("number").streamline()
 
 
 #

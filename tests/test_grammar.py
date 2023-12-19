@@ -1,5 +1,6 @@
 "Grammar tests"
 import warnings
+from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
 import pyparsing as pp
@@ -40,16 +41,12 @@ def make_trivial_test(parser: pp.ParserElement, *params):
 
 test_line_comment = make_trivial_test(g.line_comment, (" ' comment", [], {}))
 test_block_comment = make_trivial_test(g.block_comment, ("/* \n comment\n */", [], {}))
-test_integer = make_trivial_test(g.integer, ("100", None, {"integer": 100}))
-test_signed_integer = make_trivial_test(
-    g.signed_integer, ("+100", None, {"signed_integer": 100})
-)
-test_real = make_trivial_test(g.real, ("-1.23", None, {"real": -1.23}))
+test_real = make_trivial_test(g.real, ("-1.23", None, {"real": Decimal("-1.23")}))
 test_number = make_trivial_test(
     g.number,
-    ("100", None, {"number": 100}),
-    ("+100", None, {"number": 100}),
-    ("-1.23", None, {"number": -1.23}),
+    ("100", [Decimal("100")], None),
+    ("+100", [Decimal("100")], None),
+    ("-1.23", [Decimal("-1.23")], None),
 )
 
 test_simple_str = make_trivial_test(
@@ -101,13 +98,17 @@ test_parameter_name = make_trivial_test(
 
 test_parameter_value = make_trivial_test(
     g.parameter_value,
-    ("1", None, {"parameter_value": ast.ParameterValueNode(value=1)}),
+    ("1", None, {"parameter_value": ast.ParameterValueNode(value=Decimal(1))}),
     (
         "-12.3`_2_LIMIT_MIN_-13_LIMIT_MAX_2.1",
         None,
         {
             "parameter_value": ast.ParameterValueNode(
-                value=-12.3, esd=2, backtick=True, lim_min=-13, lim_max=2.1
+                value=Decimal("-12.3"),
+                esd=Decimal("2"),
+                backtick=True,
+                lim_min=Decimal("-13"),
+                lim_max=Decimal("2.1"),
             )
         },
     ),
@@ -125,7 +126,7 @@ test_parameter_equation = make_trivial_test(
                         operands=[
                             ast.ParameterNode(prm_name=ast.ParameterNameNode(name="a")),
                             ast.ParameterNode(
-                                prm_value=ast.ParameterValueNode(value=1),
+                                prm_value=ast.ParameterValueNode(value=Decimal(1)),
                             ),
                         ]
                     )
@@ -142,15 +143,15 @@ test_parameter_equation = make_trivial_test(
                     value=ast.FormulaAdd(
                         operands=[
                             ast.ParameterNode(
-                                prm_value=ast.ParameterValueNode(value=1),
+                                prm_value=ast.ParameterValueNode(value=Decimal(1)),
                             ),
                             ast.ParameterNode(
-                                prm_value=ast.ParameterValueNode(value=2),
+                                prm_value=ast.ParameterValueNode(value=Decimal(2)),
                             ),
                         ]
                     )
                 ),
-                reporting=ast.ParameterValueNode(value=123.123123),
+                reporting=ast.ParameterValueNode(value=Decimal("123.123123")),
             )
         },
     ),
@@ -170,12 +171,12 @@ parameter_params = [
         "min 1 max 2 del 3 update 4 stop_when 5 val_on_continue 6",
         [
             ast.ParameterNode(
-                prm_min=ast.ParameterValueNode(value=1),
-                prm_max=ast.ParameterValueNode(value=2),
-                prm_del=ast.ParameterValueNode(value=3),
-                prm_update=ast.ParameterValueNode(value=4),
-                prm_stop_when=ast.ParameterValueNode(value=5),
-                prm_val_on_continue=ast.ParameterValueNode(value=6),
+                prm_min=ast.ParameterValueNode(value=Decimal(1)),
+                prm_max=ast.ParameterValueNode(value=Decimal(2)),
+                prm_del=ast.ParameterValueNode(value=Decimal(3)),
+                prm_update=ast.ParameterValueNode(value=Decimal(4)),
+                prm_stop_when=ast.ParameterValueNode(value=Decimal(5)),
+                prm_val_on_continue=ast.ParameterValueNode(value=Decimal(6)),
             )
         ],
         None,
@@ -192,12 +193,12 @@ parameter_params = [
         [
             ast.ParameterNode(
                 prm_to_be_refined=True,
-                prm_min=ast.ParameterValueNode(value=1),
-                prm_max=ast.ParameterValueNode(value=2),
-                prm_del=ast.ParameterValueNode(value=3),
-                prm_update=ast.ParameterValueNode(value=4),
-                prm_stop_when=ast.ParameterValueNode(value=5),
-                prm_val_on_continue=ast.ParameterValueNode(value=6),
+                prm_min=ast.ParameterValueNode(value=Decimal(1)),
+                prm_max=ast.ParameterValueNode(value=Decimal(2)),
+                prm_del=ast.ParameterValueNode(value=Decimal(3)),
+                prm_update=ast.ParameterValueNode(value=Decimal(4)),
+                prm_stop_when=ast.ParameterValueNode(value=Decimal(5)),
+                prm_val_on_continue=ast.ParameterValueNode(value=Decimal(6)),
             )
         ],
         None,
@@ -207,13 +208,13 @@ parameter_params = [
         [
             ast.ParameterNode(
                 prm_to_be_refined=True,
-                prm_value=ast.ParameterValueNode(value=0),
-                prm_min=ast.ParameterValueNode(value=1),
-                prm_max=ast.ParameterValueNode(value=2),
-                prm_del=ast.ParameterValueNode(value=3),
-                prm_update=ast.ParameterValueNode(value=4),
-                prm_stop_when=ast.ParameterValueNode(value=5),
-                prm_val_on_continue=ast.ParameterValueNode(value=6),
+                prm_value=ast.ParameterValueNode(value=Decimal(0)),
+                prm_min=ast.ParameterValueNode(value=Decimal(1)),
+                prm_max=ast.ParameterValueNode(value=Decimal(2)),
+                prm_del=ast.ParameterValueNode(value=Decimal(3)),
+                prm_update=ast.ParameterValueNode(value=Decimal(4)),
+                prm_stop_when=ast.ParameterValueNode(value=Decimal(5)),
+                prm_val_on_continue=ast.ParameterValueNode(value=Decimal(6)),
             )
         ],
         None,
@@ -234,12 +235,12 @@ parameter_params = [
             ast.ParameterNode(
                 prm_to_be_refined=True,
                 prm_name=ast.ParameterNameNode("P_name"),
-                prm_min=ast.ParameterValueNode(value=1),
-                prm_max=ast.ParameterValueNode(value=2),
-                prm_del=ast.ParameterValueNode(value=3),
-                prm_update=ast.ParameterValueNode(value=4),
-                prm_stop_when=ast.ParameterValueNode(value=5),
-                prm_val_on_continue=ast.ParameterValueNode(value=6),
+                prm_min=ast.ParameterValueNode(value=Decimal(1)),
+                prm_max=ast.ParameterValueNode(value=Decimal(2)),
+                prm_del=ast.ParameterValueNode(value=Decimal(3)),
+                prm_update=ast.ParameterValueNode(value=Decimal(4)),
+                prm_stop_when=ast.ParameterValueNode(value=Decimal(5)),
+                prm_val_on_continue=ast.ParameterValueNode(value=Decimal(6)),
             )
         ],
         None,

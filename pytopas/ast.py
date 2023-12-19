@@ -9,6 +9,7 @@ import warnings
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from decimal import Decimal
 from functools import reduce
 from typing import Any, Dict, TypeVar, Union, cast
 
@@ -352,11 +353,11 @@ class ParameterNameNode(BaseNode):
 class ParameterValueNode(BaseNode):
     "Parameter node"
     type = "parameter_value"
-    value: float  # TODO: use decimal
-    esd: float | None = None
+    value: Decimal
+    esd: Decimal | None = None
     backtick: bool = False
-    lim_min: float | None = None
-    lim_max: float | None = None
+    lim_min: Decimal | None = None
+    lim_max: Decimal | None = None
 
     @classmethod
     def parse_action(cls, toks: pp.ParseResults):
