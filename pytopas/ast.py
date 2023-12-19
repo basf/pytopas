@@ -209,6 +209,12 @@ class DepsMixin:
         "ExistingPrm class"
         return ExistingPrmNode
 
+    @classmethod
+    @property
+    def num_runs_cls(cls):
+        "NumRuns class"
+        return NumRunsNode
+
 
 @dataclass
 class BaseNode(ABC, DepsMixin):
@@ -1126,8 +1132,47 @@ class ExistingPrmNode(BaseNode):
         )
 
 
+@dataclass
+class NumRunsNode(BaseNode):
+    "Num runs node"
+    type = "num_runs"
+    value: int
+
+    @classmethod
+    def parse_action(cls, toks: pp.ParseResults):
+        "Parse action for the existing prm node"
+        return cls(value=int(toks.as_list()[0]))
+
+    @classmethod
+    def get_parser(cls):
+        return cls.get_grammar().num_runs
+
+    def unparse(self) -> str:
+        return f"{self.type} {self.value}"
+
+    def serialize(self) -> NodeSerialized:
+        return [self.type, self.value]
+
+    @classmethod
+    def unserialize(cls, data: list[Any]):
+        if not hasattr(data, "__len__") or len(data) != 2:
+            raise ReconstructException("assert len == 2", data)
+        typ, value = data
+        if typ != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
+        if not isinstance(value, int):
+            raise ReconstructException(f"assert isinstance(data[1], int)", data)
+        return cls(value)
+
+
 RootStatements = Union[
-    FormulaNode, PrmNode, LocalNode, ExistingPrmNode, LineBreakNode, TextNode
+    FormulaNode,
+    PrmNode,
+    LocalNode,
+    ExistingPrmNode,
+    NumRunsNode,
+    LineBreakNode,
+    TextNode,
 ]
 
 
@@ -1168,6 +1213,7 @@ class RootNode(BaseNode):
             cls.prm_cls,
             cls.local_cls,
             cls.existing_prm_cls,
+            cls.num_runs_cls,
             cls.text_cls,
         )
 

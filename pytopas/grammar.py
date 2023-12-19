@@ -28,11 +28,10 @@ block_comment = pp.c_style_comment("block_comment").suppress()
 
 
 # simple numbers
-signed_integer = pp.common.signed_integer("signed_integer").set_parse_action(
-    pp.token_map(Decimal)
-)
+integer = pp.common.integer("integer")
+signed_integer = pp.common.signed_integer("signed_integer")
 real = pp.common.real("real").set_parse_action(pp.token_map(Decimal))
-number = (real | signed_integer)("number").streamline()
+number = (real | signed_integer)("number").set_parse_action(pp.token_map(Decimal))
 
 
 #
@@ -281,9 +280,18 @@ existing_prm = (
     .add_parse_action(ast.ExistingPrmNode.parse_action)
 )
 
-
-root = (prm | local | existing_prm | formula | line_break | text)[...].set_parse_action(
-    ast.RootNode.parse_action
+# Typically, an INP file is run once; num_runs change’s this behavior
+# where the refinement is restarted and performed again until it is
+# performed num_runs times.
+num_runs = (
+    (pp.Keyword("num_runs").suppress() + integer("nums"))
+    .set_results_name("num_runs")
+    .add_parse_action(ast.NumRunsNode.parse_action)
 )
+
+
+root = (prm | local | existing_prm | num_runs | formula | line_break | text)[
+    ...
+].set_parse_action(ast.RootNode.parse_action)
 root.ignore(line_comment)
 root.ignore(block_comment)

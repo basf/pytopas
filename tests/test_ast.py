@@ -607,6 +607,26 @@ def test_existing_prm_node(text_in: str, serialized, text_out):
 
 
 @pytest.mark.parametrize(
+    "text_in, serialized, text_out",
+    [
+        (
+            "num_runs 10",
+            ["num_runs", 10],
+            "num_runs 10",
+        ),
+    ],
+)
+def test_num_runs_node(text_in: str, serialized, text_out):
+    "Test NumRunsNode and co"
+    node = ast.NumRunsNode.parse(text_in, parse_all=True)
+    assert isinstance(node, ast.NumRunsNode)
+    assert node.serialize() == serialized
+    reconstructed = node.unserialize(serialized)
+    assert reconstructed == node
+    assert reconstructed.unparse() == text_out
+
+
+@pytest.mark.parametrize(
     "text_in, serialized, text_out, warns",
     [
         (
@@ -683,6 +703,7 @@ def test_existing_prm_node(text_in: str, serialized, text_out):
             "existing_prm a = 1;",
             nullcontext(),
         ),
+        ("num_runs 2", ["topas", ["num_runs", 2]], "num_runs 2", nullcontext()),
     ],
 )
 def test_root_node(text_in: str, serialized, text_out, warns):

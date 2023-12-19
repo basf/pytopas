@@ -41,11 +41,18 @@ def make_trivial_test(parser: pp.ParserElement, *params):
 
 test_line_comment = make_trivial_test(g.line_comment, (" ' comment", [], {}))
 test_block_comment = make_trivial_test(g.block_comment, ("/* \n comment\n */", [], {}))
+test_interger = make_trivial_test(g.integer, ("100", None, {"integer": 100}))
+test_signer_integer = make_trivial_test(
+    g.signed_integer,
+    ("100", None, {"signed_integer": 100}),
+    ("+100", None, {"signed_integer": 100}),
+    ("-100", None, {"signed_integer": -100}),
+)
 test_real = make_trivial_test(g.real, ("-1.23", None, {"real": Decimal("-1.23")}))
 test_number = make_trivial_test(
     g.number,
-    ("100", [Decimal("100")], None),
-    ("+100", [Decimal("100")], None),
+    ("100", [Decimal(100)], {"number": Decimal(100)}),
+    ("+100", [Decimal(100)], None),
     ("-1.23", [Decimal("-1.23")], None),
 )
 
@@ -774,6 +781,11 @@ test_existing_prm = make_trivial_test(
     ),
 )
 
+test_num_runs = make_trivial_test(
+    g.num_runs,
+    ("num_runs 10", None, {"num_runs": ast.NumRunsNode(10)}),
+)
+
 test_root = make_trivial_test(
     g.root,
     (
@@ -837,6 +849,11 @@ test_root = make_trivial_test(
                 ]
             )
         ],
+        None,
+    ),
+    (
+        "num_runs 123",
+        [ast.RootNode(statements=[ast.NumRunsNode(value=123)])],
         None,
     ),
     (
