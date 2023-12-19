@@ -754,6 +754,26 @@ test_local = make_trivial_test(
     ),
 )
 
+
+test_existing_prm = make_trivial_test(
+    g.existing_prm,
+    (
+        "existing_prm a -= 1;",
+        None,
+        {
+            "existing_prm": ast.ExistingPrmNode(
+                name=ast.ParameterNameNode(name="a"),
+                op="-=",
+                modificator=ast.FormulaNode(
+                    value=ast.ParameterNode(
+                        prm_value=ast.ParameterValueNode(Decimal("1"))
+                    )
+                ),
+            )
+        },
+    ),
+)
+
 test_root = make_trivial_test(
     g.root,
     (
@@ -794,6 +814,25 @@ test_root = make_trivial_test(
                             prm_name=ast.ParameterNameNode(name="a"),
                             prm_value=ast.ParameterValueNode(value=Decimal("1")),
                         )
+                    )
+                ]
+            )
+        ],
+        None,
+    ),
+    (
+        "existing_prm a *- 1;",
+        [
+            ast.RootNode(
+                statements=[
+                    ast.ExistingPrmNode(
+                        name=ast.ParameterNameNode(name="a"),
+                        op="*-",
+                        modificator=ast.FormulaNode(
+                            value=ast.ParameterNode(
+                                prm_value=ast.ParameterValueNode(Decimal("1")),
+                            )
+                        ),
                     )
                 ]
             )

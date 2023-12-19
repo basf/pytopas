@@ -268,18 +268,21 @@ local = (
 
 # [existing_prm E]...
 # Allowed operators for existing_prm are +=, -=, *-, /= and ^=
-# EXISTING_PRM_OPERATOR = one_of("+= -= *- /= ^= =")("existing_prm_operator")
-# existing_prm = Combine(
-#     Literal("existing_prm").suppress()
-#     + parameter_name
-#     + EXISTING_PRM_OPERATOR.suppress()
-#     + formula
-#     + SEMICOLON.suppress()
-#     + Opt(parameter_equation_reporting).suppress()
-# )("existing_prm")
+EXISTING_PRM_OPERATOR = pp.one_of("+= -= *- /= ^= =")("existing_prm_operator")
+existing_prm = (
+    (
+        pp.Keyword("existing_prm").suppress()
+        + parameter_name
+        + EXISTING_PRM_OPERATOR
+        + formula("formula")
+        + SEMICOLON.suppress()
+    )
+    .set_results_name("existing_prm")
+    .add_parse_action(ast.ExistingPrmNode.parse_action)
+)
 
 
-root = (prm | local | formula | line_break | text)[...].set_parse_action(
+root = (prm | local | existing_prm | formula | line_break | text)[...].set_parse_action(
     ast.RootNode.parse_action
 )
 root.ignore(line_comment)

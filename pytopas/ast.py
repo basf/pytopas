@@ -203,6 +203,12 @@ class DepsMixin:
         "Local class"
         return LocalNode
 
+    @classmethod
+    @property
+    def existing_prm_cls(cls):
+        "ExistingPrm class"
+        return ExistingPrmNode
+
 
 @dataclass
 class BaseNode(ABC, DepsMixin):
@@ -1074,10 +1080,55 @@ class LocalNode(BaseNode):
         typ, val = data
         if typ != cls.type:
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
-        return cls(value=cls.match_unserialize((ParameterNode,), val))
+        return cls(value=cls.parameter_cls.unserialize(val))
 
 
-RootStatements = Union[FormulaNode, PrmNode, LocalNode, LineBreakNode, TextNode]
+@dataclass
+class ExistingPrmNode(BaseNode):
+    "Existing prm node"
+    type = "existing_prm"
+    name: ParameterNameNode
+    op: str
+    modificator: FormulaNode
+
+    @classmethod
+    def parse_action(cls, toks: pp.ParseResults):
+        "Parse action for the existing prm node"
+        return cls(
+            name=toks.parameter_name,  # type: ignore[assigment]
+            op=toks.existing_prm_operator,  # type: ignore[assigment]
+            modificator=toks.formula,  # type: ignore[assigment]
+        )
+
+    @classmethod
+    def get_parser(cls):
+        return cls.get_grammar().existing_prm
+
+    def unparse(self) -> str:
+        return (
+            f"{self.type} {self.name.unparse()} {self.op} {self.modificator.unparse()};"
+        )
+
+    def serialize(self) -> NodeSerialized:
+        return [self.type, self.name.serialize(), self.op, self.modificator.serialize()]
+
+    @classmethod
+    def unserialize(cls, data: list[Any]):
+        if not hasattr(data, "__len__") or len(data) != 4:
+            raise ReconstructException("assert len == 4", data)
+        typ, name, op, mod = data
+        if typ != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
+        return cls(
+            name=cls.parameter_name_cls.unserialize(name),
+            op=op,
+            modificator=cls.formula_cls.unserialize(mod),
+        )
+
+
+RootStatements = Union[
+    FormulaNode, PrmNode, LocalNode, ExistingPrmNode, LineBreakNode, TextNode
+]
 
 
 @dataclass
@@ -1116,6 +1167,7 @@ class RootNode(BaseNode):
             cls.formula_cls,
             cls.prm_cls,
             cls.local_cls,
+            cls.existing_prm_cls,
             cls.text_cls,
         )
 
