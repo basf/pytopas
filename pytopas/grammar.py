@@ -255,11 +255,15 @@ formula.add_parse_action(ast.FormulaNode.parse_action)
 
 # The local keyword is used for defining named parameters
 # as local to the top, xdd or phase level
-# local = Combine(
-#     Keyword("local").suppress()
-#     + parameter_name
-#     + (parameter_value | parameter_equation)
-# )("local")
+local = (
+    (
+        pp.Keyword("local").suppress()
+        + parameter_name("prm_name")
+        + (parameter_value | parameter_equation)("prm_value")
+    )
+    .set_results_name("local")
+    .add_parse_action(ast.LocalNode.parse_action)
+)
 
 
 # [existing_prm E]...
@@ -275,7 +279,7 @@ formula.add_parse_action(ast.FormulaNode.parse_action)
 # )("existing_prm")
 
 
-root = (prm | formula | line_break | text)[...].set_parse_action(
+root = (prm | local | formula | line_break | text)[...].set_parse_action(
     ast.RootNode.parse_action
 )
 root.ignore(line_comment)

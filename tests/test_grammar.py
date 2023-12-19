@@ -720,6 +720,40 @@ test_formula1 = make_trivial_test(
     ),
 )
 
+test_local = make_trivial_test(
+    g.local,
+    (
+        "local a 1",
+        None,
+        {
+            "local": ast.LocalNode(
+                value=ast.ParameterNode(
+                    prm_name=ast.ParameterNameNode("a"),
+                    prm_value=ast.ParameterValueNode(Decimal(1)),
+                )
+            )
+        },
+    ),
+    (
+        "local a = 1;",
+        [
+            ast.LocalNode(
+                value=ast.ParameterNode(
+                    prm_name=ast.ParameterNameNode(name="a"),
+                    prm_value=ast.ParameterEquationNode(
+                        formula=ast.FormulaNode(
+                            value=ast.ParameterNode(
+                                prm_value=ast.ParameterValueNode(Decimal("1")),
+                            )
+                        ),
+                    ),
+                )
+            )
+        ],
+        None,
+    ),
+)
+
 test_root = make_trivial_test(
     g.root,
     (
@@ -744,6 +778,22 @@ test_root = make_trivial_test(
                 statements=[
                     ast.PrmNode(
                         prm_value=ast.ParameterValueNode(value=Decimal(1)),
+                    )
+                ]
+            )
+        ],
+        None,
+    ),
+    (
+        "local a 1",
+        [
+            ast.RootNode(
+                statements=[
+                    ast.LocalNode(
+                        ast.ParameterNode(
+                            prm_name=ast.ParameterNameNode(name="a"),
+                            prm_value=ast.ParameterValueNode(value=Decimal("1")),
+                        )
                     )
                 ]
             )

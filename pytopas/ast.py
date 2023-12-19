@@ -197,6 +197,12 @@ class DepsMixin:
         "Formula class"
         return FormulaNode
 
+    @classmethod
+    @property
+    def local_cls(cls):
+        "Local class"
+        return LocalNode
+
 
 @dataclass
 class BaseNode(ABC, DepsMixin):
@@ -1038,7 +1044,40 @@ class FormulaNode(BaseNode):
         return cls(value=cls.match_unserialize(kinds, val))
 
 
-RootStatements = Union[FormulaNode, PrmNode, LineBreakNode, TextNode]
+@dataclass
+class LocalNode(BaseNode):
+    "Local node"
+    type = "local"
+    value: ParameterNode
+
+    @classmethod
+    def parse_action(cls, toks: pp.ParseResults):
+        "Parse action for the local node"
+        return cls(
+            value=ParameterNode(prm_name=toks.as_list()[0], prm_value=toks.as_list()[1])
+        )
+
+    @classmethod
+    def get_parser(cls):
+        return cls.get_grammar().local
+
+    def unparse(self) -> str:
+        return " ".join([self.type, self.value.unparse()])
+
+    def serialize(self) -> NodeSerialized:
+        return [self.type, self.value.serialize()]
+
+    @classmethod
+    def unserialize(cls, data: list[Any]):
+        if not hasattr(data, "__len__") or len(data) != 2:
+            raise ReconstructException("assert len == 2", data)
+        typ, val = data
+        if typ != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
+        return cls(value=cls.match_unserialize((ParameterNode,), val))
+
+
+RootStatements = Union[FormulaNode, PrmNode, LocalNode, LineBreakNode, TextNode]
 
 
 @dataclass
@@ -1072,7 +1111,13 @@ class RootNode(BaseNode):
     @property
     def root_statement_clses(cls) -> tuple[type[RootStatements], ...]:
         "Root node statement classes"
-        return (cls.line_break_cls, cls.formula_cls, cls.prm_cls, cls.text_cls)
+        return (
+            cls.line_break_cls,
+            cls.formula_cls,
+            cls.prm_cls,
+            cls.local_cls,
+            cls.text_cls,
+        )
 
     @classmethod
     def parse(cls, text, parse_all=True, print_dump=False) -> Self | TextNode:
