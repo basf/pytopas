@@ -18,12 +18,12 @@ from pytopas.exc import ParseWarning
         ("diffpy_example.INP", 22),
         ("Disordered_configuration_analysis.INP", 50),
         ("dmitrienka-sucrose-new.INP", 79),
-        ("LightForm-group-adc_040_7Nb_TDload_725C_15mms_00000.inp", 62),
+        ("LightForm-group-adc_040_7Nb_TDload_725C_15mms_00000.inp", 65),
         ("mylist.txt", 3),
         ("NCM-Doped-stoe-29082022.INP", 69),
-        ("Raw_XY_converter.INP", 10),
+        ("Raw_XY_converter.INP", 9),
         ("starting_R_lebail.INP", 22),
-        ("y2mn2o7-selectivity-1_65.INP", 31),
+        ("y2mn2o7-selectivity-1_65.INP", 34),
     ],
 )
 def test_examples(file_name: str, fallbacks: Optional[int]):

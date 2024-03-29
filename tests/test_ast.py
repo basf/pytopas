@@ -627,6 +627,66 @@ def test_num_runs_node(text_in: str, serialized, text_out):
 
 
 @pytest.mark.parametrize(
+    "text_in, serialized, text_out",
+    [
+        (
+            "xdd file.name",
+            ["xdd", {"filename": "file.name"}],
+            'xdd "file.name"',
+        ),
+        (
+            "xdd file\\ name",
+            ["xdd", {"filename": "file name"}],
+            'xdd "file name"',
+        ),
+        (
+            'xdd "file name"',
+            ["xdd", {"filename": "file name"}],
+            'xdd "file name"',
+        ),
+        (
+            "xdd { 1 2 3 }",
+            ["xdd", {"inline_data": ["1", "2", "3"]}],
+            "xdd { 1 2 3 }",
+        ),
+        (
+            "xdd { _xy 1 2 3 }",
+            ["xdd", {"inline_data": ["1", "2", "3"]}, ["_xy"]],
+            "xdd { _xy 1 2 3 }",
+        ),
+        (
+            "xdd fn range 1",
+            ["xdd", {"filename": "fn", "range": "1"}],
+            'xdd "fn" range 1',
+        ),
+        (
+            "xdd fn xye_format gsas_format fullprof_format gui_reload gui_ignore",
+            [
+                "xdd",
+                {"filename": "fn"},
+                [
+                    "xye_format",
+                    "gsas_format",
+                    "fullprof_format",
+                    "gui_reload",
+                    "gui_ignore",
+                ],
+            ],
+            'xdd "fn" xye_format gsas_format fullprof_format gui_reload gui_ignore',
+        ),
+    ],
+)
+def test_xdd_node(text_in: str, serialized, text_out):
+    "Test XddNode and co"
+    node = ast.XddNode.parse(text_in, parse_all=True)
+    assert isinstance(node, ast.XddNode)
+    assert node.serialize() == serialized
+    reconstructed = node.unserialize(serialized)
+    assert reconstructed == node
+    assert reconstructed.unparse() == text_out
+
+
+@pytest.mark.parametrize(
     "text_in, serialized, text_out, warns",
     [
         (
@@ -704,6 +764,19 @@ def test_num_runs_node(text_in: str, serialized, text_out):
             nullcontext(),
         ),
         ("num_runs 2", ["topas", ["num_runs", 2]], "num_runs 2", nullcontext()),
+        (
+            "xdd { _xy 1 2 3 } range 1 xye_format",
+            [
+                "topas",
+                [
+                    "xdd",
+                    {"inline_data": ['1', '2', '3'], "range": '1'},
+                    ["_xy", "xye_format"]
+                ],
+            ],
+            "xdd { _xy 1 2 3 } range 1 xye_format",
+            nullcontext(),
+        ),
     ],
 )
 def test_root_node(text_in: str, serialized, text_out, warns):

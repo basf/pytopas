@@ -290,7 +290,43 @@ num_runs = (
 )
 
 
-root = (prm | local | existing_prm | num_runs | formula | line_break | text)[
+# [xdd $file [{ $data }] [range #] [xye_format] [gsas_format] [fullprof_format] ]...
+# [gui_reload]
+# [gui_ignore]
+# Defines the start of xdd dependent keywords
+# and the file containing the observed data.
+xdd_filename = string_val("xdd_filename").add_parse_action(toks_pop_action)
+xdd_inline_data = (
+    pp.Literal("{").suppress()
+    + pp.Opt(
+        pp.Keyword("_xy")("xdd_data_xy").add_parse_action(lambda toks: toks[0] == "_xy")
+    )
+    + number[1, ...]("xdd_data")
+    + pp.Literal("}").suppress()
+).set_results_name("xdd_inline_data")
+xdd_optional = (
+    (pp.Keyword("range").suppress() + number("xdd_range"))
+    | pp.Keyword("xye_format")("xye_format").add_parse_action(
+        lambda toks: toks[0] == "xye_format"
+    )
+    | pp.Keyword("gsas_format")("gsas_format").add_parse_action(
+        lambda toks: toks[0] == "gsas_format"
+    )
+    | pp.Keyword("fullprof_format")("fullprof_format").add_parse_action(
+        lambda toks: toks[0] == "fullprof_format"
+    )
+    | pp.Keyword("gui_reload")("gui_reload").add_parse_action(
+        lambda toks: toks[0] == "gui_reload"
+    )
+    | pp.Keyword("gui_ignore")("gui_ignore").add_parse_action(
+        lambda toks: toks[0] == "gui_ignore"
+    )
+)
+xdd = (
+    pp.Keyword("xdd").suppress() + (xdd_inline_data | xdd_filename) + xdd_optional[...]
+)("xdd").add_parse_action(ast.XddNode.parse_action)
+
+root = (prm | local | existing_prm | num_runs | xdd | formula | line_break | text)[
     ...
 ].set_parse_action(ast.RootNode.parse_action)
 root.ignore(line_comment)

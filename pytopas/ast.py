@@ -11,7 +11,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import reduce
-from typing import Any, Dict, TypeVar, Union, cast
+from typing import Any, Dict, List, TypeVar, Union, cast
 
 import pyparsing as pp
 from pyparsing.results import ParseResults
@@ -214,6 +214,12 @@ class DepsMixin:
     def num_runs_cls(cls):
         "NumRuns class"
         return NumRunsNode
+
+    @classmethod
+    @property
+    def xdd_cls(cls):
+        "Xdd class"
+        return XddNode
 
 
 @dataclass
@@ -1165,12 +1171,128 @@ class NumRunsNode(BaseNode):
         return cls(value)
 
 
+@dataclass
+class XddNode(BaseNode):
+    "Xdd node"
+    type = "xdd"
+    filename: str | None = None
+    inline_data_xy: bool = False
+    inline_data: List[Decimal] | None = None
+    range: Decimal | None = None
+    xye_format: bool = False
+    gsas_format: bool = False
+    fullprof_format: bool = False
+    gui_reload: bool = False
+    gui_ignore: bool = False
+
+    @classmethod
+    def parse_action(cls, toks: pp.ParseResults):
+        "Parse action for the xdd node"
+        data = toks.as_dict()
+        return cls(
+            filename=data.get("xdd_filename", None),
+            inline_data_xy=data.get("xdd_data_xy", False),
+            inline_data=data.get("xdd_data", None),
+            range=data.get("xdd_range"),
+            xye_format=data.get("xye_format", False),
+            gsas_format=data.get("gsas_format", False),
+            fullprof_format=data.get("fullprof_format", False),
+            gui_reload=data.get("gui_reload", False),
+            gui_ignore=data.get("gui_ignore", False),
+        )
+
+    @classmethod
+    def get_parser(cls):
+        return cls.get_grammar().xdd
+
+    def unparse(self) -> str:
+        result = self.type
+        if self.filename:
+            filename_dbl_quote_esc = self.filename.replace('"', r"\"")
+            result += f' "{filename_dbl_quote_esc}"'
+        if self.filename is None and self.inline_data:
+            in_parts = (["_xy"] if self.inline_data_xy else []) + list(
+                map(str, self.inline_data)
+            )
+            result += " " + " ".join(["{", *in_parts, "}"])
+        if self.range:
+            result += f" range {self.range}"
+        if self.xye_format:
+            result += " xye_format"
+        if self.gsas_format:
+            result += " gsas_format"
+        if self.fullprof_format:
+            result += " fullprof_format"
+        if self.gui_reload:
+            result += " gui_reload"
+        if self.gui_ignore:
+            result += " gui_ignore"
+        return result
+
+    def serialize(self) -> NodeSerialized:
+        kv = {}
+        flags = []
+        if self.filename is not None:
+            kv["filename"] = self.filename
+        if self.filename is None and self.inline_data_xy:
+            flags.append("_xy")
+        if self.filename is None and isinstance(self.inline_data, list):
+            kv["inline_data"] = [str(x) for x in self.inline_data]
+        if self.range is not None:
+            kv["range"] = str(self.range)
+        if self.xye_format:
+            flags.append("xye_format")
+        if self.gsas_format:
+            flags.append("gsas_format")
+        if self.fullprof_format:
+            flags.append("fullprof_format")
+        if self.gui_reload:
+            flags.append("gui_reload")
+        if self.gui_ignore:
+            flags.append("gui_ignore")
+        return [self.type, kv] if not flags else [self.type, kv, flags]
+
+    @classmethod
+    def unserialize(cls, data: list[Any]):
+        if not hasattr(data, "__len__") or len(data) not in [2, 3]:
+            raise ReconstructException("assert len in [2, 3]", data)
+        if data[0] != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
+        opts = data[1]
+        if not isinstance(opts, dict):
+            raise ReconstructException(f"assert isinstance(data[1], dict)", data)
+        flags = data[2] if len(data) > 2 else []
+        if not isinstance(flags, list):
+            raise ReconstructException(f"assert isinstance(data[2], list)", data)
+
+        return cls(
+            filename=opts.get("filename"),
+            inline_data_xy="_xy" in flags,
+            inline_data=(
+                [Decimal(x) for x in opts["inline_data"]]
+                if isinstance(opts.get("inline_data"), list)
+                else None
+            ),
+            range=(
+                Decimal(opts["range"])
+                if isinstance(opts.get("range"), (int, float, str))
+                else None
+            ),
+            xye_format="xye_format" in flags,
+            gsas_format="gsas_format" in flags,
+            fullprof_format="fullprof_format" in flags,
+            gui_reload="gui_reload" in flags,
+            gui_ignore="gui_ignore" in flags,
+        )
+
+
 RootStatements = Union[
     FormulaNode,
     PrmNode,
     LocalNode,
     ExistingPrmNode,
     NumRunsNode,
+    XddNode,
     LineBreakNode,
     TextNode,
 ]
@@ -1215,6 +1337,7 @@ class RootNode(BaseNode):
             cls.existing_prm_cls,
             cls.num_runs_cls,
             cls.text_cls,
+            cls.xdd_cls,
         )
 
     @classmethod
