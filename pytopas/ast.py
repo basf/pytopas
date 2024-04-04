@@ -221,6 +221,12 @@ class DepsMixin:
         "Xdd class"
         return XddNode
 
+    @classmethod
+    @property
+    def axial_conv_cls(cls):
+        "AxialConv class"
+        return AxialConvNode
+
 
 @dataclass
 class BaseNode(ABC, DepsMixin):
@@ -1286,6 +1292,95 @@ class XddNode(BaseNode):
         )
 
 
+@dataclass
+class AxialConvNode(BaseNode):
+    "axial_conv node"
+    type = "axial_conv"
+    filament_length: ParameterNode
+    sample_length: ParameterNode
+    receiving_slit_length: ParameterNode
+    primary_soller_angle: ParameterNode | None = None
+    secondary_soller_angle: ParameterNode | None = None
+    axial_n_beta: ParameterNode | None = None
+
+    @classmethod
+    def parse_action(cls, toks: pp.ParseResults):
+        "Parse action for the xdd node"
+        data = toks.as_dict()
+        return cls(
+            filament_length=toks.filament_length,  # type: ignore[assigment]
+            sample_length=toks.sample_length,  # type: ignore[assigment]
+            receiving_slit_length=toks.receiving_slit_length,  # type: ignore[assigment]
+            primary_soller_angle=data.get("primary_soller_angle"),  # type: ignore[assigment]
+            secondary_soller_angle=data.get("secondary_soller_angle"),  # type: ignore[assigment]
+            axial_n_beta=data.get("axial_n_beta"),  # type: ignore[assigment]
+        )
+
+    @classmethod
+    def get_parser(cls):
+        return cls.get_grammar().axial_conv
+
+    def unparse(self) -> str:
+        result = (
+            "axial_conv"
+            f" filament_length {self.filament_length.unparse()}"
+            f" sample_length {self.sample_length.unparse()}"
+            f" receiving_slit_length {self.receiving_slit_length.unparse()}"
+        )
+        if self.primary_soller_angle is not None:
+            result += f" primary_soller_angle {self.primary_soller_angle.unparse()}"
+        if self.secondary_soller_angle is not None:
+            result += f" secondary_soller_angle {self.secondary_soller_angle.unparse()}"
+        if self.axial_n_beta is not None:
+            result += f" axial_n_beta {self.axial_n_beta.unparse()}"
+        return result
+
+    def serialize(self) -> NodeSerialized:
+        args = [
+            self.filament_length.serialize(),
+            self.sample_length.serialize(),
+            self.receiving_slit_length.serialize(),
+        ]
+        opts = {}
+        if self.primary_soller_angle is not None:
+            opts["p"] = self.primary_soller_angle.serialize()
+        if self.secondary_soller_angle is not None:
+            opts["s"] = self.secondary_soller_angle.serialize()
+        if self.axial_n_beta is not None:
+            opts["b"] = self.axial_n_beta.serialize()
+        return [self.type, args] if not opts else [self.type, args, opts]
+
+    @classmethod
+    def unserialize(cls, data: list[Any]):
+        if not hasattr(data, "__len__") or len(data) not in [2, 3]:
+            raise ReconstructException("assert len in [2, 3]", data)
+        if data[0] != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
+        args = data[1]
+        if not isinstance(args, list):
+            raise ReconstructException(f"assert isinstance(data[1], list)", data)
+        if len(args) != 3:
+            raise ReconstructException(f"assert len(data[1]) == 3", data)
+        opts = data[2] if len(data) > 2 else {}
+        if not isinstance(opts, dict):
+            raise ReconstructException(f"assert isinstance(data[2], dict)", data)
+
+        return cls(
+            filament_length=cls.parameter_cls.unserialize(args[0]),
+            sample_length=cls.parameter_cls.unserialize(args[1]),
+            receiving_slit_length=cls.parameter_cls.unserialize(args[2]),
+            primary_soller_angle=(
+                cls.parameter_cls.unserialize(opts["p"]) if "p" in opts else None
+            ),
+            secondary_soller_angle=(
+                cls.parameter_cls.unserialize(opts["s"]) if "s" in opts else None
+            ),
+            axial_n_beta=(
+                cls.parameter_cls.unserialize(opts["b"]) if "b" in opts else None
+            ),
+        )
+
+
 RootStatements = Union[
     FormulaNode,
     PrmNode,
@@ -1293,6 +1388,7 @@ RootStatements = Union[
     ExistingPrmNode,
     NumRunsNode,
     XddNode,
+    AxialConvNode,
     LineBreakNode,
     TextNode,
 ]
@@ -1338,6 +1434,7 @@ class RootNode(BaseNode):
             cls.num_runs_cls,
             cls.text_cls,
             cls.xdd_cls,
+            cls.axial_conv_cls,
         )
 
     @classmethod

@@ -326,8 +326,56 @@ xdd = (
     pp.Keyword("xdd").suppress() + (xdd_inline_data | xdd_filename) + xdd_optional[...]
 )("xdd").add_parse_action(ast.XddNode.parse_action)
 
-root = (prm | local | existing_prm | num_runs | xdd | formula | line_break | text)[
-    ...
-].set_parse_action(ast.RootNode.parse_action)
+
+# [axial_conv]...
+#   filament_length E sample_length E receiving_slit_length E
+#   [primary_soller_angle E]
+#   [secondary_soller_angle E]
+#   [axial_n_beta !E]
+# Full axial divergence model using the method of Cheary & Coelho
+
+axial_conv_filament_length = pp.Keyword("filament_length").suppress() + parameter(
+    "filament_length"
+)
+axial_conv_sample_length = pp.Keyword("sample_length").suppress() + parameter(
+    "sample_length"
+)
+axial_conv_receiving_slit_length = pp.Keyword(
+    "receiving_slit_length"
+).suppress() + parameter("receiving_slit_length")
+axial_conv_primary_soller_angle = pp.Keyword(
+    "primary_soller_angle"
+).suppress() + parameter("primary_soller_angle")
+axial_conv_secondary_soller_angle = pp.Keyword(
+    "secondary_soller_angle"
+).suppress() + parameter("secondary_soller_angle")
+axial_conv_axial_n_beta = pp.Keyword("axial_n_beta").suppress() + parameter(
+    "axial_n_beta"
+)
+axial_conv_optional = (
+    axial_conv_primary_soller_angle
+    | axial_conv_secondary_soller_angle
+    | axial_conv_axial_n_beta
+)
+axial_conv = (
+    pp.Keyword("axial_conv").suppress()
+    + axial_conv_filament_length
+    + axial_conv_sample_length
+    + axial_conv_receiving_slit_length
+    + axial_conv_optional[...]
+)("axial_conv").add_parse_action(ast.AxialConvNode.parse_action)
+
+
+root = (
+    prm
+    | local
+    | existing_prm
+    | num_runs
+    | xdd
+    | axial_conv
+    | formula
+    | line_break
+    | text
+)[...].set_parse_action(ast.RootNode.parse_action)
 root.ignore(line_comment)
 root.ignore(block_comment)

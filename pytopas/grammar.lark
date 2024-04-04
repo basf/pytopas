@@ -1,44 +1,7 @@
-//
-// Templates
-//
-
-_separated{x, sep}: x (sep x)*
-
-
-
-// Typically, an INP file is run once; num_runs change’s this behavior
-// where the refinement is restarted and performed again until it is
-// performed num_runs times.
-NUM_RUNS: NUMBER
-num_runs: "num_runs" NUM_RUNS
-
-
 // out_file determines the name of the output file
 // updated on refinement termination
 out_file: "out_file" parameter_equation
 
-
-//
-// axial_conv
-//
-
-// [axial_conv]...
-//   filament_length E sample_length E receiving_slit_length E
-//   [primary_soller_angle E]
-//   [secondary_soller_angle E]
-//   [axial_n_beta !E]
-// Full axial divergence model using the method of Cheary & Coelho
-
-_axial_conv_val: formula
-filament_length: "filament_length" _axial_conv_val
-sample_length: "sample_length" _axial_conv_val
-receiving_slit_length: "receiving_slit_length" _axial_conv_val
-primary_soller_angle: "primary_soller_angle" _axial_conv_val
-secondary_soller_angle: "secondary_soller_angle" _axial_conv_val
-axial_n_beta: "axial_n_beta" _axial_conv_val
-_axial_conv_args: filament_length sample_length receiving_slit_length
-_axial_conv_opt_args: primary_soller_angle? secondary_soller_angle? axial_n_beta?
-axial_conv: "axial_conv" _axial_conv_args _axial_conv_opt_args
 
 //
 // bkg

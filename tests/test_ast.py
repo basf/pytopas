@@ -687,6 +687,56 @@ def test_xdd_node(text_in: str, serialized, text_out):
 
 
 @pytest.mark.parametrize(
+    "text_in, serialized, text_out",
+    [
+        (
+            "axial_conv filament_length 1 sample_length 2 receiving_slit_length 3",
+            [
+                "axial_conv",
+                [
+                    ["p", {"v": ["parameter_value", "1"]}],
+                    ["p", {"v": ["parameter_value", "2"]}],
+                    ["p", {"v": ["parameter_value", "3"]}],
+                ],
+            ],
+            "axial_conv filament_length 1 sample_length 2 receiving_slit_length 3",
+        ),
+        (
+            (
+                "axial_conv filament_length 1 sample_length 2 receiving_slit_length 3 "
+                "primary_soller_angle 4 secondary_soller_angle 5 axial_n_beta 6"
+            ),
+            [
+                "axial_conv",
+                [
+                    ["p", {"v": ["parameter_value", "1"]}],
+                    ["p", {"v": ["parameter_value", "2"]}],
+                    ["p", {"v": ["parameter_value", "3"]}],
+                ],
+                {
+                    "p": ["p", {"v": ["parameter_value", "4"]}],
+                    "s": ["p", {"v": ["parameter_value", "5"]}],
+                    "b": ["p", {"v": ["parameter_value", "6"]}],
+                },
+            ],
+            (
+                "axial_conv filament_length 1 sample_length 2 receiving_slit_length 3 "
+                "primary_soller_angle 4 secondary_soller_angle 5 axial_n_beta 6"
+            ),
+        ),
+    ],
+)
+def test_axial_conv_node(text_in: str, serialized, text_out):
+    "Test AxialConvNode and co"
+    node = ast.AxialConvNode.parse(text_in, parse_all=True)
+    assert isinstance(node, ast.AxialConvNode)
+    assert node.serialize() == serialized
+    reconstructed = node.unserialize(serialized)
+    assert reconstructed == node
+    assert reconstructed.unparse() == text_out
+
+
+@pytest.mark.parametrize(
     "text_in, serialized, text_out, warns",
     [
         (
@@ -770,11 +820,27 @@ def test_xdd_node(text_in: str, serialized, text_out):
                 "topas",
                 [
                     "xdd",
-                    {"inline_data": ['1', '2', '3'], "range": '1'},
-                    ["_xy", "xye_format"]
+                    {"inline_data": ["1", "2", "3"], "range": "1"},
+                    ["_xy", "xye_format"],
                 ],
             ],
             "xdd { _xy 1 2 3 } range 1 xye_format",
+            nullcontext(),
+        ),
+        (
+            "axial_conv filament_length 1 sample_length 2 receiving_slit_length 3",
+            [
+                "topas",
+                [
+                    "axial_conv",
+                    [
+                        ["p", {"v": ["parameter_value", "1"]}],
+                        ["p", {"v": ["parameter_value", "2"]}],
+                        ["p", {"v": ["parameter_value", "3"]}],
+                    ],
+                ],
+            ],
+            "axial_conv filament_length 1 sample_length 2 receiving_slit_length 3",
             nullcontext(),
         ),
     ],

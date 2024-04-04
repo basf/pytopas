@@ -843,6 +843,57 @@ test_xdd = make_trivial_test(
     ),
 )
 
+
+test_axial_conv = make_trivial_test(
+    g.axial_conv,
+    (
+        ("axial_conv filament_length 1 sample_length 2 receiving_slit_length 3 "),
+        None,
+        {
+            "axial_conv": ast.AxialConvNode(
+                filament_length=ast.ParameterNode(
+                    prm_value=ast.ParameterValueNode(Decimal("1")),
+                ),
+                sample_length=ast.ParameterNode(
+                    prm_value=ast.ParameterValueNode(Decimal("2")),
+                ),
+                receiving_slit_length=ast.ParameterNode(
+                    prm_value=ast.ParameterValueNode(Decimal("3")),
+                ),
+            )
+        },
+    ),
+    (
+        (
+            "axial_conv filament_length 1 sample_length 2 receiving_slit_length 3 "
+            "primary_soller_angle 4 secondary_soller_angle 5 axial_n_beta 6"
+        ),
+        None,
+        {
+            "axial_conv": ast.AxialConvNode(
+                filament_length=ast.ParameterNode(
+                    prm_value=ast.ParameterValueNode(Decimal("1")),
+                ),
+                sample_length=ast.ParameterNode(
+                    prm_value=ast.ParameterValueNode(Decimal("2")),
+                ),
+                receiving_slit_length=ast.ParameterNode(
+                    prm_value=ast.ParameterValueNode(Decimal("3")),
+                ),
+                primary_soller_angle=ast.ParameterNode(
+                    prm_value=ast.ParameterValueNode(Decimal("4")),
+                ),
+                secondary_soller_angle=ast.ParameterNode(
+                    prm_value=ast.ParameterValueNode(Decimal("5")),
+                ),
+                axial_n_beta=ast.ParameterNode(
+                    prm_value=ast.ParameterValueNode(Decimal("6")),
+                ),
+            )
+        },
+    ),
+)
+
 test_root = make_trivial_test(
     g.root,
     (
@@ -916,6 +967,27 @@ test_root = make_trivial_test(
     (
         "xdd filename",
         [ast.RootNode(statements=[ast.XddNode(filename="filename")])],
+        None,
+    ),
+    (
+        "axial_conv filament_length 1 sample_length 2 receiving_slit_length 3",
+        [
+            ast.RootNode(
+                statements=[
+                    ast.AxialConvNode(
+                        filament_length=ast.ParameterNode(
+                            prm_value=ast.ParameterValueNode(Decimal("1")),
+                        ),
+                        sample_length=ast.ParameterNode(
+                            prm_value=ast.ParameterValueNode(Decimal("2")),
+                        ),
+                        receiving_slit_length=ast.ParameterNode(
+                            prm_value=ast.ParameterValueNode(Decimal("3")),
+                        ),
+                    )
+                ]
+            )
+        ],
         None,
     ),
     (
