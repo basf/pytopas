@@ -19,7 +19,7 @@ from pyparsing.results import ParseResults
 from .exc import ParseWarning, ReconstructException
 
 if sys.version_info < (3, 11):
-    from typing_extensions import Self
+    from typing_extensions import Self  # pragma: no cover
 else:
     from typing import Self
 
@@ -1444,7 +1444,11 @@ class RootNode(BaseNode):
         return result  # type: ignore[assignment]
 
     def unparse(self):
-        return " ".join(x.unparse() for x in self.statements)
+        result = ""
+        for idx, stmt in enumerate(self.statements):
+            delim = "" if idx == 0 or isinstance(stmt, (LineBreakNode,)) else " "
+            result += f"{delim}{stmt.unparse()}"
+        return result
 
     def serialize(self) -> NodeSerialized:
         return [self.type, *[x.serialize() for x in self.statements]]

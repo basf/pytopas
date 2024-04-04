@@ -1,0 +1,13 @@
+[
+    "topas",
+    [
+        "formula",
+        [
+            "func_call",
+            "a",
+            ["formula", ["p", {"n": ["parameter_name", "b"]}]],
+            ["formula", ["p", {"n": ["parameter_name", "c"]}]]
+        ]
+    ],
+    ["lb"]
+]

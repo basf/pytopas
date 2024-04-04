@@ -1,0 +1,10 @@
+[
+    "topas",
+    [
+        "existing_prm",
+        ["parameter_name", "a"],
+        "=",
+        ["formula", ["p", {"v": ["parameter_value", "1"]}]]
+    ],
+    ["lb"]
+]

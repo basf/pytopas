@@ -1,0 +1,13 @@
+[
+    "axial_conv",
+    [
+        ["p", {"v": ["parameter_value", "1"]}],
+        ["p", {"v": ["parameter_value", "2"]}],
+        ["p", {"v": ["parameter_value", "3"]}]
+    ],
+    {
+        "p": ["p", {"v": ["parameter_value", "4"]}],
+        "s": ["p", {"v": ["parameter_value", "5"]}],
+        "b": ["p", {"v": ["parameter_value", "6"]}]
+    }
+]

@@ -1,0 +1,11 @@
+[
+    "xdd",
+    {"filename": "fn"},
+    [
+        "xye_format",
+        "gsas_format",
+        "fullprof_format",
+        "gui_reload",
+        "gui_ignore"
+    ]
+]

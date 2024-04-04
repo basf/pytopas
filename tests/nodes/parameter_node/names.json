@@ -1,0 +1,19 @@
+[
+    "p",
+    {
+        "n": ["parameter_name", "A1"],
+        ">": [
+            "p",
+            {
+                "n": ["parameter_name", "B2"],
+                ">": [
+                    "p",
+                    {
+                        "n": ["parameter_name", "C3"],
+                        ">": ["p", {"n": ["parameter_name", "D4"]}]
+                    }
+                ]
+            }
+        ]
+    }
+]

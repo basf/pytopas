@@ -1,0 +1,35 @@
+[
+    "func_call",
+    "FUN",
+    null,
+    "quoted string",
+    ["formula", ["p", {"_": ["parameter_value", "1"]}]],
+    ["formula", ["p", {"@": true}]],
+    ["formula", ["p", {"@": true, "_": ["parameter_value", "1"]}]],
+    ["formula", ["p", {"@": true, "n": ["parameter_name", "P_name1"]}]],
+    ["formula", ["p", {"@": true, "v": ["parameter_value", "1"]}]],
+    [
+        "formula",
+        [
+            "p",
+            {
+                "@": true,
+                "n": ["parameter_name", "P_name1"],
+                "v": ["parameter_value", "1"]
+            }
+        ]
+    ],
+    [
+        "formula",
+        [
+            "/",
+            ["p", {"v": ["parameter_value", "1"]}],
+            [
+                "func_call",
+                "Cos",
+                ["formula", ["p", {"n": ["parameter_name", "Th"]}]]
+            ]
+        ]
+    ],
+    null
+]

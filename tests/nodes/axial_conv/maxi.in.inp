@@ -1,0 +1,7 @@
+axial_conv
+    filament_length 1
+    sample_length 2
+    receiving_slit_length 3
+    primary_soller_angle 4
+    secondary_soller_angle 5
+    axial_n_beta 6
