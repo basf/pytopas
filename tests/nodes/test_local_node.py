@@ -3,6 +3,8 @@
 import pytest
 
 from pytopas import ast
+from pytopas.exc import ReconstructException
+
 
 @pytest.mark.parametrize(
     "text_in, serialized, text_out",
@@ -42,3 +44,11 @@ def test_local_node(text_in: str, serialized, text_out):
     reconstructed = node.unserialize(serialized)
     assert reconstructed == node
     assert reconstructed.unparse() == text_out
+
+
+def test_local_unserialize_fail():
+    "Test LocalNode"
+    with pytest.raises(ReconstructException):
+        ast.LocalNode.unserialize([])
+    with pytest.raises(ReconstructException):
+        ast.LocalNode.unserialize(["not this node", 1])

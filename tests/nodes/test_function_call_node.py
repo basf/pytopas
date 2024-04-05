@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from pytopas import ast
+from pytopas.exc import ReconstructException
 
 SIMPLE_DIR = Path(__file__).parent / "function_call"
 
@@ -30,3 +31,11 @@ def test_function_call_node(in_path: Path, json_path: Path, out_path: Path):
     reconstructed = node.unserialize(serialized)
     assert reconstructed == node
     assert reconstructed.unparse() == text_out
+
+
+def test_function_call_node_unserialize_fail():
+    "Test FunctionCallNode"
+    with pytest.raises(ReconstructException):
+        ast.FunctionCallNode.unserialize([])
+    with pytest.raises(ReconstructException):
+        ast.FunctionCallNode.unserialize(["not this node", 123])

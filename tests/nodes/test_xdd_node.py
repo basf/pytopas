@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from pytopas import ast
+from pytopas.exc import ReconstructException
 
 SIMPLE_DIR = Path(__file__).parent / "xdd"
 
@@ -29,3 +30,15 @@ def test_xdd_node(in_path: Path, json_path: Path, out_path: Path):
     reconstructed = node.unserialize(serialized)
     assert reconstructed == node
     assert reconstructed.unparse() == text_out
+
+
+def test_xdd_unserialize_fail():
+    "Test XddNode"
+    with pytest.raises(ReconstructException):
+        ast.XddNode.unserialize([])
+    with pytest.raises(ReconstructException):
+        ast.XddNode.unserialize(["not this node", 1])
+    with pytest.raises(ReconstructException):
+        ast.XddNode.unserialize(["xdd", "not dict"])
+    with pytest.raises(ReconstructException):
+        ast.XddNode.unserialize(["xdd", {}, "not list"])

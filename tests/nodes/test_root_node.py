@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from pytopas import ast
-from pytopas.exc import ParseWarning
+from pytopas.exc import ParseWarning, ReconstructException
 
 SIMPLE_DIR = Path(__file__).parent / "root"
 WARN_DIR = Path(__file__).parent / "root_warn"
@@ -37,3 +37,11 @@ def test_root_node(in_path: Path, json_path: Path, out_path: Path, warns):
     reconstructed = node.unserialize(serialized)
     assert reconstructed == node
     assert reconstructed.unparse() == text_out
+
+
+def test_root_node_unserialize_fail():
+    "Test RootNode"
+    with pytest.raises(ReconstructException):
+        ast.RootNode.unserialize([])
+    with pytest.raises(ReconstructException):
+        ast.RootNode.unserialize(["not this node"])

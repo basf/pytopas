@@ -3,6 +3,8 @@
 import pytest
 
 from pytopas import ast
+from pytopas.exc import ReconstructException
+
 
 @pytest.mark.parametrize(
     "text_in, serialized, text_out",
@@ -27,3 +29,11 @@ def test_existing_prm_node(text_in: str, serialized, text_out):
     reconstructed = node.unserialize(serialized)
     assert reconstructed == node
     assert reconstructed.unparse() == text_out
+
+
+def test_existing_prm_unserialize_fail():
+    "Test ExistingPrmNode"
+    with pytest.raises(ReconstructException):
+        ast.ExistingPrmNode.unserialize([])
+    with pytest.raises(ReconstructException):
+        ast.ExistingPrmNode.unserialize(["not this node", 1, 2, 3])

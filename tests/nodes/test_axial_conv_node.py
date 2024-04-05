@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from pytopas import ast
+from pytopas.exc import ReconstructException
 
 SIMPLE_DIR = Path(__file__).parent / "axial_conv"
 
@@ -30,3 +31,17 @@ def test_axial_conv_node(in_path: Path, json_path: Path, out_path: Path):
     reconstructed = node.unserialize(serialized)
     assert reconstructed == node
     assert reconstructed.unparse() == text_out
+
+
+def test_axial_conv_unserialize_fail():
+    "Test AxialConvNode"
+    with pytest.raises(ReconstructException):
+        ast.AxialConvNode.unserialize([])
+    with pytest.raises(ReconstructException):
+        ast.AxialConvNode.unserialize(["not this node", 1])
+    with pytest.raises(ReconstructException):
+        ast.AxialConvNode.unserialize(["axial_conv", "not list"])
+    with pytest.raises(ReconstructException):
+        ast.AxialConvNode.unserialize(["axial_conv", [], "not dict"])
+    with pytest.raises(ReconstructException):
+        ast.AxialConvNode.unserialize(["axial_conv", [1, 2, 3], "not dict"])

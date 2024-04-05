@@ -1,11 +1,13 @@
 "Test ParameterValueName"
 
-from decimal import Decimal
 from dataclasses import asdict
+from decimal import Decimal
 
 import pytest
 
 from pytopas import ast
+from pytopas.exc import ReconstructException
+
 
 @pytest.mark.parametrize(
     "text_in, as_dict, text_out",
@@ -43,3 +45,13 @@ def test_parameter_value_node(text_in, as_dict, text_out):
     serialized = node.serialize()
     assert serialized == [node.type, text_out]
     assert ast.ParameterValueNode.unserialize(serialized) == node
+
+
+def test_parameter_name_node_unserialize_fail():
+    "Test ParameterValueNode"
+    with pytest.raises(ReconstructException):
+        ast.ParameterValueNode.unserialize([])
+    with pytest.raises(ReconstructException):
+        ast.ParameterValueNode.unserialize(["not this node", 123])
+    with pytest.raises(ReconstructException):
+        ast.ParameterValueNode.unserialize(["parameter_value", 123])

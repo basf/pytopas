@@ -545,7 +545,7 @@ class ParameterNode(BaseNode):
                     return cls(prm_name=data, next=prev)
                 if isinstance(data, ParameterValueNode):
                     return cls(prm_value=data, next=prev)
-                return None
+                return None  # pragma: no cover
 
             return cast(
                 Self, reduce(mk_linked_params, reversed(toks.as_list()[0]), None)

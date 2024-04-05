@@ -3,7 +3,7 @@
 import pytest
 
 from pytopas import ast
-from pytopas.exc import ParseWarning
+from pytopas.exc import ParseWarning, ReconstructException
 
 
 def test_text_node():
@@ -22,3 +22,28 @@ def test_text_node():
         text_node = ast.ParameterValueNode.parse(text)
     assert isinstance(text_node, ast.TextNode)
     assert text_node == node
+
+
+def test_text_node_dump(capsys):
+    "Test TextNode"
+    text = "some random text"
+    with pytest.warns(ParseWarning):
+        ast.TextNode.parse(text, print_dump=True)
+    captured = capsys.readouterr()
+    assert "TextNode" in captured.out
+
+
+def test_text_node_match_unserialize_fail():
+    "Test TextNode"
+    with pytest.raises(ReconstructException):
+        ast.TextNode.match_unserialize((ast.TextNode,), [])
+
+
+def test_text_node_unserialize_fail():
+    "Test TextNode"
+    with pytest.raises(ReconstructException):
+        ast.TextNode.unserialize([])
+    with pytest.raises(ReconstructException):
+        ast.TextNode.unserialize(["not text node", "text"])
+    with pytest.raises(ReconstructException):
+        ast.TextNode.unserialize(["text", [1, 2, 3]])

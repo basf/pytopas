@@ -3,6 +3,8 @@
 import pytest
 
 from pytopas import ast
+from pytopas.exc import ReconstructException
+
 
 @pytest.mark.parametrize(
     "text_in, serialized, text_out",
@@ -46,10 +48,18 @@ from pytopas import ast
     ],
 )
 def test_parameter_equation_node(text_in: str, serialized, text_out):
-    "Test ParameterEquationNode and co"
+    "Test ParameterEquationNode"
     node = ast.ParameterEquationNode.parse(text_in, parse_all=True)
     assert isinstance(node, ast.ParameterEquationNode)
     assert node.serialize() == serialized
     reconstructed = node.unserialize(serialized)
     assert reconstructed == node
     assert reconstructed.unparse() == text_out
+
+
+def test_parameter_equation_node_unserialize_fail():
+    "Test ParameterEquationNode"
+    with pytest.raises(ReconstructException):
+        ast.ParameterEquationNode.unserialize([])
+    with pytest.raises(ReconstructException):
+        ast.ParameterEquationNode.unserialize(["not this node", 123])

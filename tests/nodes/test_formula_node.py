@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from pytopas import ast
-
+from pytopas.exc import ReconstructException
 
 OPS_DIR = Path(__file__).parent / "formula_op"
 FORMULA_DIR = Path(__file__).parent / "formula"
@@ -46,6 +46,22 @@ def test_formula_op_node(
     assert reconstructed.unparse() == text_out
 
 
+def test_formula_unary_op_unserialize_fail():
+    "Test FormulaUnaryPlus and descendants"
+    with pytest.raises(ReconstructException):
+        ast.FormulaUnaryPlus.unserialize([])
+    with pytest.raises(ReconstructException):
+        ast.FormulaUnaryPlus.unserialize(["not this node", 1])
+
+
+def test_formula_binary_op_unserialize_fail():
+    "Test FormulaAdd and descendants"
+    with pytest.raises(ReconstructException):
+        ast.FormulaAdd.unserialize([])
+    with pytest.raises(ReconstructException):
+        ast.FormulaAdd.unserialize(["not this node", 1, 1])
+
+
 def get_formula_params():
     ins = list(sorted(FORMULA_DIR.glob("*.in.inp")))
     jsons = sorted(FORMULA_DIR.glob("*.json"))
@@ -66,3 +82,11 @@ def test_formula_node(in_path: Path, json_path: Path, out_path: Path):
     reconstructed = node.unserialize(serialized)
     assert reconstructed == node
     assert reconstructed.unparse() == text_out
+
+
+def test_formula_unserialize_fail():
+    "Test FormulaNode"
+    with pytest.raises(ReconstructException):
+        ast.FormulaNode.unserialize([])
+    with pytest.raises(ReconstructException):
+        ast.FormulaNode.unserialize(["not this node", 1])
