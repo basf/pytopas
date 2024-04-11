@@ -14,20 +14,6 @@ out_file: "out_file" parameter_equation
 bkg: "bkg" PARAMETER_TO_BE_REFINED? parameter_value+
 
 
-//
-// Macroses
-//
-
-// Macros are defined using the macro directive;
-// Macros can have multiple arguments or none
-
-MACRO_NAME: PARAMETER_NAME
-macro_def: MACRO_NAME ("(" _separated{PARAMETER_NAME, ","} ")")?
-macro_body: _statement*
-macro: "macro" macro_def "{" macro_body "}"
-
-
-
 // [lam [ymin_on_ymax #] [no_th_dependence] [Lam !E] [calculate_Lam]]
 //   [la E lo E [lh E] | [lg E] [lo_ref] ]...
 // Defines an emission profile

@@ -1,0 +1,6 @@
+["macro",
+ "multi",
+ [["formula", ["p", {"n": ["parameter_name", "runs"]}]],
+  ["formula", ["p", {"n": ["parameter_name", "not_used"]}]]],
+ [["prm", {"n": ["parameter_name", "param_name"], "v": ["parameter_value", "10"]}],
+  ["num_runs", ["parameter_name", "runs"]], ["lb"]]]

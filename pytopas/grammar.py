@@ -366,6 +366,34 @@ axial_conv = (
 )("axial_conv").add_parse_action(ast.AxialConvNode.parse_action)
 
 
+# Macros are defined using the macro directive;
+# Macros can have multiple arguments or none
+macro_name = pp.Word(pp.alphas, pp.alphanums + "_")("macro_name")
+macro_args = LPAR.suppress() + pp.Opt(func_args) + RPAR.suppress()
+macro_statement = (
+    prm
+    | local
+    | existing_prm
+    | num_runs
+    | xdd
+    | axial_conv
+    | formula
+    | line_break
+    | quoted_str
+    | pp.OneOrMore(text, stop_on=pp.Literal("}")) # NOTE: no nested {}
+)("macro_statement")
+macro_statement.ignore(line_comment)
+macro_statement.ignore(block_comment)
+macro_body = (
+    pp.Literal("{").suppress()
+    + macro_statement[...]("macro_statements")
+    + pp.Literal("}").suppress()
+)
+macro = (
+    pp.Keyword("macro") + macro_name + pp.Opt(macro_args)("macro_args") + macro_body
+)("macro").add_parse_action(ast.MacroNode.parse_action)
+
+
 root = (
     prm
     | local
@@ -373,6 +401,7 @@ root = (
     | num_runs
     | xdd
     | axial_conv
+    | macro
     | formula
     | line_break
     | text

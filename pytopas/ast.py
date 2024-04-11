@@ -229,9 +229,15 @@ class DepsMixin:
 
     @classmethod
     @property
+    def macro_cls(cls):
+        "MacroNode class"
+        return MacroNode
+
+    @classmethod
+    @property
     def root_cls(cls):
         "RootNode class"
-        return RootNode
+        return RootNode  # pragma: no cover
 
 
 @dataclass
@@ -724,20 +730,36 @@ class FunctionCallNode(BaseNode):
     def get_parser(cls):
         return cls.get_grammar().func_call
 
-    def unparse(self):
-        args = []
-        for x in self.args:
+    @classmethod
+    def unparse_args(cls, args: list[FormulaNode | str | None | TextNode]):
+        result = []
+        for x in args:
             if isinstance(x, BaseNode):
-                args.append(x.unparse())
+                result.append(x.unparse())
             if isinstance(x, str):
-                args.append(json.dumps(x))
+                result.append(json.dumps(x))
             if x is None:
-                args.append("")
-        return f"{self.name}({', '.join(args)})"
+                result.append("")
+        return ", ".join(result)
+
+    def unparse(self):
+        return f"{self.name}({self.unparse_args(self.args)})"
 
     def serialize(self) -> NodeSerialized:
         args = [(x.serialize() if isinstance(x, BaseNode) else x) for x in self.args]
         return [self.type, self.name, *args]
+
+    @classmethod
+    def unserialize_args(cls, data: list[Any]):
+        kinds = (cls.formula_cls, cls.text_cls)
+        return [
+            (
+                cls.match_unserialize(kinds, x)
+                if isinstance(x, list)
+                else cast(Union[str, None], x)
+            )
+            for x in data
+        ]
 
     @classmethod
     def unserialize(cls, data: list[Any]):
@@ -745,19 +767,7 @@ class FunctionCallNode(BaseNode):
             raise ReconstructException("assert len >= 2", data)
         if data[0] != cls.type:
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
-        kinds = (
-            cls.formula_cls,
-            cls.text_cls,
-        )
-        args = [
-            (
-                cls.match_unserialize(kinds, x)
-                if isinstance(x, list)
-                else cast(Union[str, None], x)
-            )
-            for x in data[2:]
-        ]
-        return cls(name=data[1], args=args)
+        return cls(name=data[1], args=cls.unserialize_args(data[2:]))
 
 
 @dataclass
@@ -1397,7 +1407,7 @@ class AxialConvNode(BaseNode):
         )
 
 
-RootStatements = Union[
+RootMacroCommonStatemtents = Union[
     FormulaNode,
     PrmNode,
     LocalNode,
@@ -1408,6 +1418,103 @@ RootStatements = Union[
     LineBreakNode,
     TextNode,
 ]
+
+MacroStatements = RootMacroCommonStatemtents
+
+
+@dataclass
+class MacroNode(BaseNode):
+    "Macro node"
+    type = "macro"
+    name: str
+    args: list[FormulaNode | str | None | TextNode] = field(default_factory=list)
+    statements: list[MacroStatements | str] = field(default_factory=list)
+
+    @classmethod
+    def parse_action(cls, toks: pp.ParseResults):
+        "Parse action for the root node"
+        data = toks.as_dict()
+        return cls(
+            name=toks.macro_name,  # type: ignore[assigment]
+            args=data.get("macro_args", []),
+            statements=data.get("macro_statements", []),
+        )
+
+    @classmethod
+    def get_parser(cls):
+        return cls.get_grammar().macro
+
+    @classmethod
+    @property
+    def macro_statement_clses(cls) -> tuple[type[MacroStatements], ...]:
+        "Macro node statement classes"
+        return (
+            cls.line_break_cls,
+            cls.formula_cls,
+            cls.prm_cls,
+            cls.local_cls,
+            cls.existing_prm_cls,
+            cls.num_runs_cls,
+            cls.text_cls,
+            cls.xdd_cls,
+            cls.axial_conv_cls,
+        )
+
+    def unparse(self):
+        result = f"macro {self.name}"
+
+        if self.args:
+            result += f"({FunctionCallNode.unparse_args(self.args)})"
+
+        stmts = [x.unparse() if isinstance(x, BaseNode) else x for x in self.statements]
+        if not stmts:
+            result += " {}"
+        if len(stmts) == 1:
+            result += " { " + stmts[0] + " }"
+        if len(stmts) > 1:
+            result += " {\n"
+            for idx, stmt in enumerate(stmts):
+                delim = "" if idx == 0 or stmt == "\n" else "\n"
+                result += f"{delim}{stmt}"
+            result += "}"
+        return result
+
+    def serialize(self) -> NodeSerialized:
+        args = [(x.serialize() if isinstance(x, BaseNode) else x) for x in self.args]
+        stmts = [
+            (x.serialize() if isinstance(x, BaseNode) else x) for x in self.statements
+        ]
+        return [self.type, self.name, args, stmts]
+
+    @classmethod
+    def unserialize(cls, data: list[Any]):
+        if not hasattr(data, "__len__") or len(data) != 4:
+            raise ReconstructException("assert len == 4", data)
+        if data[0] != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
+        if not isinstance(data[1], str):
+            raise ReconstructException(f"assert type of data[1] == str", data)
+        if not isinstance(data[2], list):
+            raise ReconstructException(f"assert type of data[2] == list", data)
+        if not isinstance(data[3], list):
+            raise ReconstructException(f"assert type of data[3] == list", data)
+
+        stmts = [
+            (
+                x
+                if isinstance(x, str)
+                else cls.match_unserialize(cls.macro_statement_clses, x)
+            )
+            for x in data[3]
+        ]
+        return cls(
+            name=data[1],
+            args=FunctionCallNode.unserialize_args(data[2]),
+            statements=stmts,
+        )
+
+
+RootStatements = RootMacroCommonStatemtents
 
 
 @dataclass
@@ -1451,6 +1558,7 @@ class RootNode(BaseNode):
             cls.text_cls,
             cls.xdd_cls,
             cls.axial_conv_cls,
+            cls.macro_cls,
         )
 
     @classmethod
