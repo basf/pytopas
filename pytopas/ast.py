@@ -1,5 +1,5 @@
 "Syntax tree"
-# pylint: disable=too-many-lines
+# pylint: disable=too-many-lines,cyclic-import
 
 from __future__ import annotations
 
@@ -744,6 +744,7 @@ class FunctionCallNode(BaseNode):
 
     @classmethod
     def unparse_args(cls, args: list[FormulaNode | str | None | TextNode]):
+        "Reconstruct args"
         result = []
         for x in args:
             if isinstance(x, BaseNode):
@@ -763,6 +764,7 @@ class FunctionCallNode(BaseNode):
 
     @classmethod
     def unserialize_args(cls, data: list[Any]):
+        "Reconstruct args"
         kinds = (cls.formula_cls, cls.text_cls)
         return [
             (
@@ -1209,7 +1211,7 @@ class NumRunsNode(BaseNode):
         if typ != cls.type:
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
         if not isinstance(value, (int, list)):
-            raise ReconstructException(f"assert isinstance(data[1], int)", data)
+            raise ReconstructException("assert isinstance(data[1], int)", data)
         return cls(
             value if isinstance(value, int) else ParameterNameNode.unserialize(value)
         )
@@ -1253,7 +1255,7 @@ class XddNode(BaseNode):
         result = self.type
         if self.filename:
             filename_dbl_quote_esc = self.filename.replace('"', r"\"")
-            result += f' "{filename_dbl_quote_esc}"'
+            result += f" {filename_dbl_quote_esc!r}"
         if self.filename is None and self.inline_data:
             in_parts = (["_xy"] if self.inline_data_xy else []) + list(
                 map(str, self.inline_data)
@@ -1304,10 +1306,10 @@ class XddNode(BaseNode):
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
         opts = data[1]
         if not isinstance(opts, dict):
-            raise ReconstructException(f"assert isinstance(data[1], dict)", data)
+            raise ReconstructException("assert isinstance(data[1], dict)", data)
         flags = data[2] if len(data) > 2 else []
         if not isinstance(flags, list):
-            raise ReconstructException(f"assert isinstance(data[2], list)", data)
+            raise ReconstructException("assert isinstance(data[2], list)", data)
 
         return cls(
             filename=opts.get("filename"),
@@ -1349,9 +1351,9 @@ class AxialConvNode(BaseNode):
             filament_length=toks.filament_length,  # type: ignore[assigment]
             sample_length=toks.sample_length,  # type: ignore[assigment]
             receiving_slit_length=toks.receiving_slit_length,  # type: ignore[assigment]
-            primary_soller_angle=data.get("primary_soller_angle"),  # type: ignore[assigment]
-            secondary_soller_angle=data.get("secondary_soller_angle"),  # type: ignore[assigment]
-            axial_n_beta=data.get("axial_n_beta"),  # type: ignore[assigment]
+            primary_soller_angle=data.get("primary_soller_angle"),
+            secondary_soller_angle=data.get("secondary_soller_angle"),
+            axial_n_beta=data.get("axial_n_beta"),
         )
 
     @classmethod
@@ -1396,12 +1398,12 @@ class AxialConvNode(BaseNode):
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
         args = data[1]
         if not isinstance(args, list):
-            raise ReconstructException(f"assert isinstance(data[1], list)", data)
+            raise ReconstructException("assert isinstance(data[1], list)", data)
         if len(args) != 3:
-            raise ReconstructException(f"assert len(data[1]) == 3", data)
+            raise ReconstructException("assert len(data[1]) == 3", data)
         opts = data[2] if len(data) > 2 else {}
         if not isinstance(opts, dict):
-            raise ReconstructException(f"assert isinstance(data[2], dict)", data)
+            raise ReconstructException("assert isinstance(data[2], dict)", data)
 
         return cls(
             filament_length=cls.parameter_cls.unserialize(args[0]),
@@ -1428,7 +1430,7 @@ class BkgNode(BaseNode):
     @classmethod
     def parse_action(cls, toks: pp.ParseResults):
         "Parse action for the bkg node"
-        return cls(params=(toks.as_list()))
+        return cls(params=toks.as_list())
 
     @classmethod
     def get_parser(cls):
@@ -1447,8 +1449,8 @@ class BkgNode(BaseNode):
             raise ReconstructException("assert len >= 2", data)
         if data[0] != cls.type:
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
-        if not all([isinstance(x, list) for x in data[1:]]):
-            raise ReconstructException(f"assert all of data[1:] of list type", data)
+        if not all(isinstance(x, list) for x in data[1:]):
+            raise ReconstructException("assert all of data[1:] of list type", data)
         return cls(params=[cls.parameter_cls.unserialize(x) for x in data[1:]])
 
 
@@ -1461,7 +1463,7 @@ class ScaleNode(BaseNode):
     @classmethod
     def parse_action(cls, toks: pp.ParseResults):
         "Parse action for the bkg node"
-        return cls(param=(toks.as_list()[0]))
+        return cls(param=toks.as_list()[0])
 
     @classmethod
     def get_parser(cls):
@@ -1480,7 +1482,7 @@ class ScaleNode(BaseNode):
         if data[0] != cls.type:
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
         if not isinstance(data[1], list):
-            raise ReconstructException(f"assert isinstance(data[1], list)", data)
+            raise ReconstructException("assert isinstance(data[1], list)", data)
         return cls(param=cls.parameter_cls.unserialize(data[1]))
 
 
@@ -1574,11 +1576,11 @@ class MacroNode(BaseNode):
         if data[0] != cls.type:
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
         if not isinstance(data[1], str):
-            raise ReconstructException(f"assert type of data[1] == str", data)
+            raise ReconstructException("assert type of data[1] == str", data)
         if not isinstance(data[2], list):
-            raise ReconstructException(f"assert type of data[2] == list", data)
+            raise ReconstructException("assert type of data[2] == list", data)
         if not isinstance(data[3], list):
-            raise ReconstructException(f"assert type of data[3] == list", data)
+            raise ReconstructException("assert type of data[3] == list", data)
 
         stmts = [
             (

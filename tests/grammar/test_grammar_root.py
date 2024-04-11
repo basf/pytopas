@@ -124,9 +124,7 @@ test_root = make_trivial_grammar_test(
             ast.RootNode(
                 statements=[
                     ast.ScaleNode(
-                        ast.ParameterNode(
-                            prm_value=ast.ParameterValueNode(Decimal(1))
-                        )
+                        ast.ParameterNode(prm_value=ast.ParameterValueNode(Decimal(1)))
                     )
                 ]
             )
