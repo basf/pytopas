@@ -51,4 +51,4 @@ jobs:
       - name: pyupgrade
         run: |
           find -name "*.py" -print0 |\
-          xargs -0 -n1 pyupgrade --py38-plus
+          xargs -0 -n1 pyupgrade --py38-plus --keep-runtime-typing
