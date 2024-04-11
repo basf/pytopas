@@ -107,7 +107,7 @@ recursive = true
 suggestion-mode = true
 
 [tool.pylint.basic]
-good-names = ["id", "x", "xy", "y", "_", "__"]
+good-names = ["id", "kv", "op", "x", "xy", "y", "_", "__"]
 
 [tool.pylint.design]
 max-args = 7

@@ -237,7 +237,7 @@ formula_arith_expr = pp.helpers.infix_notation(
     formula_element,
     [
         (x.operator, x.num_operands, x.assoc, x.parse_action)
-        for x in ast.FormulaNode.formula_arith_op_clses  # pylint: disable=not-an-iterable
+        for x in ast.FormulaNode.formula_arith_op_clses()  # pylint: disable=not-an-iterable
     ],
     lpar=LPAR.suppress(),
     rpar=RPAR.suppress(),
@@ -246,7 +246,7 @@ formula_comp_expr = pp.helpers.infix_notation(
     formula_arith_expr,
     [
         (x.operator, x.num_operands, x.assoc, x.parse_action)
-        for x in ast.FormulaNode.formula_comp_op_clses  # pylint: disable=not-an-iterable
+        for x in ast.FormulaNode.formula_comp_op_clses()  # pylint: disable=not-an-iterable
     ],
 )
 formula <<= (formula_comp_expr)("formula")

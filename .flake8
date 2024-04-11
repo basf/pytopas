@@ -8,7 +8,7 @@ select = C,E,F,W,B,B9
 # E203: whitespace before ':' (black behaviour)
 # E501: flake8 line length (covered by bugbear B950)
 # W503: line break before binary operator (black behaviour)
-ignore = B905,E203,E501,W503
+ignore = B905,B907,E203,E501,W503
 classmethod-decorators =
     classmethod
     validator

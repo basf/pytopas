@@ -7,7 +7,6 @@ import json
 import sys
 import warnings
 from abc import ABC, abstractmethod
-from collections.abc import Sequence
 from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import reduce
@@ -18,10 +17,16 @@ from pyparsing.results import ParseResults
 
 from .exc import ParseWarning, ReconstructException
 
+if sys.version_info < (3, 9):
+    from typing import Sequence  # pragma: no cover
+else:
+    from collections.abc import Sequence  # pragma: no cover
+
+
 if sys.version_info < (3, 11):
     from typing_extensions import Self  # pragma: no cover
 else:
-    from typing import Self
+    from typing import Self  # pragma: no cover
 
 
 BaseNodeT = TypeVar("BaseNodeT", bound="BaseNode")
@@ -39,214 +44,181 @@ class DepsMixin:
         return grammar
 
     @classmethod
-    @property
     def text_cls(cls):
         "Text node class"
         return TextNode
 
     @classmethod
-    @property
     def line_break_cls(cls):
         "Line break node class"
         return LineBreakNode
 
     @classmethod
-    @property
     def parameter_name_cls(cls):
         "Parameter name node class"
         return ParameterNameNode
 
     @classmethod
-    @property
     def parameter_value_cls(cls):
         "Parameter value node class"
         return ParameterValueNode
 
     @classmethod
-    @property
     def parameter_equation_cls(cls):
         "Parameter equation node class"
         return ParameterEquationNode
 
     @classmethod
-    @property
     def parameter_cls(cls):
         "Parameter node class"
         return ParameterNode
 
     @classmethod
-    @property
     def prm_cls(cls):
         "`prm` node class"
         return PrmNode
 
     @classmethod
-    @property
     def func_call_cls(cls):
         "Formula function call class"
         return FunctionCallNode
 
     @classmethod
-    @property
     def formula_unary_plus_cls(cls):
         "Formula unary + op class"
         return FormulaUnaryPlus
 
     @classmethod
-    @property
     def formula_unary_minus_cls(cls):
         "Formula unary - op class"
         return FormulaUnaryMinus
 
     @classmethod
-    @property
     def formula_add_cls(cls):
         "Formula + op class"
         return FormulaAdd
 
     @classmethod
-    @property
     def formula_sub_cls(cls):
         "Formula - op class"
         return FormulaSub
 
     @classmethod
-    @property
     def formula_mul_cls(cls):
         "Formula * op class"
         return FormulaMul
 
     @classmethod
-    @property
     def formula_div_cls(cls):
         "Formula / op class"
         return FormulaDiv
 
     @classmethod
-    @property
     def formula_exp_cls(cls):
         "Formula ^ op class"
         return FormulaExp
 
     @classmethod
-    @property
     def formula_arith_op_clses(cls) -> tuple[type[FormulaArithOps], ...]:
         "Formula element unary operation classes"
         return (
-            cls.formula_unary_plus_cls,
-            cls.formula_unary_minus_cls,
-            cls.formula_exp_cls,
-            cls.formula_mul_cls,
-            cls.formula_div_cls,
-            cls.formula_sub_cls,
-            cls.formula_add_cls,
+            cls.formula_unary_plus_cls(),
+            cls.formula_unary_minus_cls(),
+            cls.formula_exp_cls(),
+            cls.formula_mul_cls(),
+            cls.formula_div_cls(),
+            cls.formula_sub_cls(),
+            cls.formula_add_cls(),
         )
 
     @classmethod
-    @property
     def formula_eq_cls(cls):
         "Formula == op class"
         return FormulaEQ
 
     @classmethod
-    @property
     def formula_ne_cls(cls):
         "Formula != op class"
         return FormulaNE
 
     @classmethod
-    @property
     def formula_le_cls(cls):
         "Formula <= op class"
         return FormulaLE
 
     @classmethod
-    @property
     def formula_lt_cls(cls):
         "Formula < op class"
         return FormulaLT
 
     @classmethod
-    @property
     def formula_ge_cls(cls):
         "Formula >= op class"
         return FormulaGE
 
     @classmethod
-    @property
     def formula_gt_cls(cls):
         "Formula > op class"
         return FormulaGT
 
     @classmethod
-    @property
     def formula_comp_op_clses(cls) -> tuple[type[FormulaCompOps], ...]:
         "Formula element compare operation classes"
         return (
-            cls.formula_eq_cls,
-            cls.formula_ne_cls,
-            cls.formula_le_cls,
-            cls.formula_lt_cls,
-            cls.formula_ge_cls,
-            cls.formula_gt_cls,
+            cls.formula_eq_cls(),
+            cls.formula_ne_cls(),
+            cls.formula_le_cls(),
+            cls.formula_lt_cls(),
+            cls.formula_ge_cls(),
+            cls.formula_gt_cls(),
         )
 
     @classmethod
-    @property
     def formula_cls(cls):
         "Formula class"
         return FormulaNode
 
     @classmethod
-    @property
     def local_cls(cls):
         "Local class"
         return LocalNode
 
     @classmethod
-    @property
     def existing_prm_cls(cls):
         "ExistingPrm class"
         return ExistingPrmNode
 
     @classmethod
-    @property
     def num_runs_cls(cls):
         "NumRuns class"
         return NumRunsNode
 
     @classmethod
-    @property
     def xdd_cls(cls):
         "Xdd class"
         return XddNode
 
     @classmethod
-    @property
     def axial_conv_cls(cls):
         "AxialConv class"
         return AxialConvNode
 
     @classmethod
-    @property
     def bkg_cls(cls):
         "BkgNode class"
         return BkgNode
 
     @classmethod
-    @property
     def scale_cls(cls):
         "ScaleNode class"
         return ScaleNode
 
     @classmethod
-    @property
     def macro_cls(cls):
         "MacroNode class"
         return MacroNode
 
     @classmethod
-    @property
     def root_cls(cls):
         "RootNode class"
         return RootNode  # pragma: no cover
@@ -272,7 +244,7 @@ class BaseNode(ABC, DepsMixin):
             return result.pop() if len(result) else None  # type: ignore[assigment]
         except pp.ParseException as err:
             warnings.warn(err.explain(), category=ParseWarning, stacklevel=3)
-            return cls.text_cls.parse(text)
+            return cls.text_cls().parse(text)
 
     @abstractmethod
     def unparse(self) -> str:
@@ -284,7 +256,7 @@ class BaseNode(ABC, DepsMixin):
 
     @classmethod
     @abstractmethod
-    def unserialize(cls, _: list[Any]) -> Self:  # noqa: B902
+    def unserialize(cls, _: List[Any]) -> Self:  # noqa: B902
         "Reconstruct node from dictionary"
 
     @staticmethod
@@ -304,7 +276,7 @@ class BaseNode(ABC, DepsMixin):
 
 
 Trivial = Union[None, bool, int, float, str, Sequence["Trivial"], Dict[str, "Trivial"]]
-NodeSerialized = list[Trivial]
+NodeSerialized = List[Trivial]
 
 
 @dataclass
@@ -461,16 +433,14 @@ class ParameterEquationNode(BaseNode):
     reporting: ParameterValueNode | TextNode | None = None
 
     @classmethod
-    @property
     def parameter_equation_value_clses(cls):
         "Parameter equation classes"
-        return (cls.formula_cls, cls.text_cls)
+        return (cls.formula_cls(), cls.text_cls())
 
     @classmethod
-    @property
     def parameter_equation_reporting_clses(cls):
         "Parameter equation reporting classes"
-        return (cls.parameter_value_cls, cls.text_cls)
+        return (cls.parameter_value_cls(), cls.text_cls())
 
     @classmethod
     def parse_action(cls, toks: pp.ParseResults):
@@ -502,11 +472,13 @@ class ParameterEquationNode(BaseNode):
             raise ReconstructException("assert len >= 2", data)
         if data[0] != cls.type:
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
-        formula = cls.match_unserialize(cls.parameter_equation_value_clses, data[1])
+        formula = cls.match_unserialize(cls.parameter_equation_value_clses(), data[1])
         reporting = (
             None
             if len(data) < 3
-            else cls.match_unserialize(cls.parameter_equation_reporting_clses, data[2])
+            else cls.match_unserialize(
+                cls.parameter_equation_reporting_clses(), data[2]
+            )
         )
         return cls(formula, reporting)
 
@@ -551,10 +523,9 @@ class ParameterNode(BaseNode):
     next: ParameterNode | None = None
 
     @classmethod
-    @property
     def parameter_value_clses(cls):
         "Parameter's value classes"
-        return (cls.parameter_value_cls, cls.parameter_equation_cls, cls.text_cls)
+        return (cls.parameter_value_cls(), cls.parameter_equation_cls(), cls.text_cls())
 
     @classmethod
     def parse_action(cls, toks: pp.ParseResults) -> Self:
@@ -639,16 +610,16 @@ class ParameterNode(BaseNode):
             if s_key in opts and isinstance(opts[s_key], list):
                 val = opts[s_key]
                 if o_key == "prm_name":
-                    param.prm_name = cls.parameter_name_cls.unserialize(val)
+                    param.prm_name = cls.parameter_name_cls().unserialize(val)
                 elif o_key == "prm_value":
                     param.prm_value = cls.match_unserialize(
-                        cls.parameter_value_clses, val
+                        cls.parameter_value_clses(), val
                     )
                 else:
                     setattr(
                         param,
                         o_key,
-                        cls.match_unserialize(cls.parameter_value_clses, val),
+                        cls.match_unserialize(cls.parameter_value_clses(), val),
                     )
         if opts.get("!") is True:
             param.prm_to_be_fixed = True
@@ -694,7 +665,7 @@ class PrmNode(ParameterNode):
 
     @classmethod
     def parse_action(cls, toks: pp.ParseResults):
-        param = cls.parameter_cls.parse_action(toks)
+        param = cls.parameter_cls().parse_action(toks)
         return cls.from_parameter(param)
 
     @classmethod
@@ -713,8 +684,8 @@ class PrmNode(ParameterNode):
             raise ReconstructException("assert len >= 2", data)
         if data[0] != cls.type:
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
-        p_type = cls.parameter_cls.type
-        param = cls.parameter_cls.unserialize([p_type, data[1]])
+        p_type = cls.parameter_cls().type
+        param = cls.parameter_cls().unserialize([p_type, data[1]])
         return cls.from_parameter(param)
 
 
@@ -765,7 +736,7 @@ class FunctionCallNode(BaseNode):
     @classmethod
     def unserialize_args(cls, data: list[Any]):
         "Reconstruct args"
-        kinds = (cls.formula_cls, cls.text_cls)
+        kinds = (cls.formula_cls(), cls.text_cls())
         return [
             (
                 cls.match_unserialize(kinds, x)
@@ -828,10 +799,10 @@ class FormulaUnaryPlus(FormulaOp):
         if typ != cls.type:
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
         kinds = (
-            cls.func_call_cls,
-            cls.parameter_cls,
-            *cls.formula_arith_op_clses,
-            cls.text_cls,
+            cls.func_call_cls(),
+            cls.parameter_cls(),
+            *cls.formula_arith_op_clses(),
+            cls.text_cls(),
         )
         operand = cls.match_unserialize(kinds, operand_serial)
         return cls(operand=operand)
@@ -862,7 +833,7 @@ class FormulaAdd(FormulaOp):
     "Formula addition operation"
     type = "+"
     operator = "+"
-    operands: list[FormulaValue]
+    operands: List[FormulaValue]
     num_operands = 2
     assoc = pp.helpers.OpAssoc.LEFT
 
@@ -887,7 +858,7 @@ class FormulaAdd(FormulaOp):
             parentheses = False
             operand_src = operand.unparse()
             # pylint: disable=isinstance-second-argument-not-valid-type
-            if isinstance(operand, self.formula_arith_op_clses):
+            if isinstance(operand, self.formula_arith_op_clses()):
                 if (
                     operand.num_operands > 1
                     and operand.assoc == pp.helpers.OpAssoc.LEFT
@@ -912,11 +883,11 @@ class FormulaAdd(FormulaOp):
         if typ != cls.type:
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
         kinds = (
-            cls.func_call_cls,
-            cls.parameter_cls,
-            *cls.formula_arith_op_clses,
-            *cls.formula_comp_op_clses,
-            cls.text_cls,
+            cls.func_call_cls(),
+            cls.parameter_cls(),
+            *cls.formula_arith_op_clses(),
+            *cls.formula_comp_op_clses(),
+            cls.text_cls(),
         )
         ops = [cls.match_unserialize(kinds, x) for x in operands]
         return cls(operands=ops)
@@ -1089,11 +1060,11 @@ class FormulaNode(BaseNode):
         if typ != cls.type:
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
         kinds = (
-            cls.func_call_cls,
-            cls.parameter_cls,
-            *cls.formula_arith_op_clses,
-            *cls.formula_comp_op_clses,
-            cls.text_cls,
+            cls.func_call_cls(),
+            cls.parameter_cls(),
+            *cls.formula_arith_op_clses(),
+            *cls.formula_comp_op_clses(),
+            cls.text_cls(),
         )
         return cls(value=cls.match_unserialize(kinds, val))
 
@@ -1128,7 +1099,7 @@ class LocalNode(BaseNode):
         typ, val = data
         if typ != cls.type:
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
-        return cls(value=cls.parameter_cls.unserialize(val))
+        return cls(value=cls.parameter_cls().unserialize(val))
 
 
 @dataclass
@@ -1168,9 +1139,9 @@ class ExistingPrmNode(BaseNode):
         if typ != cls.type:
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
         return cls(
-            name=cls.parameter_name_cls.unserialize(name),
+            name=cls.parameter_name_cls().unserialize(name),
             op=op,
-            modificator=cls.formula_cls.unserialize(mod),
+            modificator=cls.formula_cls().unserialize(mod),
         )
 
 
@@ -1255,7 +1226,7 @@ class XddNode(BaseNode):
         result = self.type
         if self.filename:
             filename_dbl_quote_esc = self.filename.replace('"', r"\"")
-            result += f" {filename_dbl_quote_esc!r}"
+            result += f' "{filename_dbl_quote_esc}"'
         if self.filename is None and self.inline_data:
             in_parts = (["_xy"] if self.inline_data_xy else []) + list(
                 map(str, self.inline_data)
@@ -1406,17 +1377,17 @@ class AxialConvNode(BaseNode):
             raise ReconstructException("assert isinstance(data[2], dict)", data)
 
         return cls(
-            filament_length=cls.parameter_cls.unserialize(args[0]),
-            sample_length=cls.parameter_cls.unserialize(args[1]),
-            receiving_slit_length=cls.parameter_cls.unserialize(args[2]),
+            filament_length=cls.parameter_cls().unserialize(args[0]),
+            sample_length=cls.parameter_cls().unserialize(args[1]),
+            receiving_slit_length=cls.parameter_cls().unserialize(args[2]),
             primary_soller_angle=(
-                cls.parameter_cls.unserialize(opts["p"]) if "p" in opts else None
+                cls.parameter_cls().unserialize(opts["p"]) if "p" in opts else None
             ),
             secondary_soller_angle=(
-                cls.parameter_cls.unserialize(opts["s"]) if "s" in opts else None
+                cls.parameter_cls().unserialize(opts["s"]) if "s" in opts else None
             ),
             axial_n_beta=(
-                cls.parameter_cls.unserialize(opts["b"]) if "b" in opts else None
+                cls.parameter_cls().unserialize(opts["b"]) if "b" in opts else None
             ),
         )
 
@@ -1451,7 +1422,7 @@ class BkgNode(BaseNode):
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
         if not all(isinstance(x, list) for x in data[1:]):
             raise ReconstructException("assert all of data[1:] of list type", data)
-        return cls(params=[cls.parameter_cls.unserialize(x) for x in data[1:]])
+        return cls(params=[cls.parameter_cls().unserialize(x) for x in data[1:]])
 
 
 @dataclass
@@ -1483,7 +1454,7 @@ class ScaleNode(BaseNode):
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
         if not isinstance(data[1], list):
             raise ReconstructException("assert isinstance(data[1], list)", data)
-        return cls(param=cls.parameter_cls.unserialize(data[1]))
+        return cls(param=cls.parameter_cls().unserialize(data[1]))
 
 
 RootMacroCommonStatemtents = Union[
@@ -1526,21 +1497,20 @@ class MacroNode(BaseNode):
         return cls.get_grammar().macro
 
     @classmethod
-    @property
     def macro_statement_clses(cls) -> tuple[type[MacroStatements], ...]:
         "Macro node statement classes"
         return (
-            cls.line_break_cls,
-            cls.formula_cls,
-            cls.prm_cls,
-            cls.local_cls,
-            cls.existing_prm_cls,
-            cls.num_runs_cls,
-            cls.text_cls,
-            cls.xdd_cls,
-            cls.axial_conv_cls,
-            cls.bkg_cls,
-            cls.scale_cls,
+            cls.axial_conv_cls(),
+            cls.bkg_cls(),
+            cls.existing_prm_cls(),
+            cls.formula_cls(),
+            cls.line_break_cls(),
+            cls.local_cls(),
+            cls.num_runs_cls(),
+            cls.prm_cls(),
+            cls.scale_cls(),
+            cls.text_cls(),
+            cls.xdd_cls(),
         )
 
     def unparse(self):
@@ -1586,13 +1556,13 @@ class MacroNode(BaseNode):
             (
                 x
                 if isinstance(x, str)
-                else cls.match_unserialize(cls.macro_statement_clses, x)
+                else cls.match_unserialize(cls.macro_statement_clses(), x)
             )
             for x in data[3]
         ]
         return cls(
             name=data[1],
-            args=cls.func_call_cls.unserialize_args(data[2]),
+            args=cls.func_call_cls().unserialize_args(data[2]),
             statements=stmts,
         )
 
@@ -1628,22 +1598,21 @@ class RootNode(BaseNode):
         return cls.get_grammar().root
 
     @classmethod
-    @property
     def root_statement_clses(cls) -> tuple[type[RootStatements], ...]:
         "Root node statement classes"
         return (
-            cls.line_break_cls,
-            cls.formula_cls,
-            cls.prm_cls,
-            cls.local_cls,
-            cls.existing_prm_cls,
-            cls.num_runs_cls,
-            cls.text_cls,
-            cls.xdd_cls,
-            cls.axial_conv_cls,
-            cls.bkg_cls,
-            cls.scale_cls,
-            cls.macro_cls,
+            cls.line_break_cls(),
+            cls.formula_cls(),
+            cls.prm_cls(),
+            cls.local_cls(),
+            cls.existing_prm_cls(),
+            cls.num_runs_cls(),
+            cls.text_cls(),
+            cls.xdd_cls(),
+            cls.axial_conv_cls(),
+            cls.bkg_cls(),
+            cls.scale_cls(),
+            cls.macro_cls(),
         )
 
     @classmethod
@@ -1670,6 +1639,6 @@ class RootNode(BaseNode):
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
         return cls(
             statements=[
-                cls.match_unserialize(cls.root_statement_clses, x) for x in data[1:]
+                cls.match_unserialize(cls.root_statement_clses(), x) for x in data[1:]
             ]
         )

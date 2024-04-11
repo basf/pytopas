@@ -28,7 +28,7 @@ from pytopas.exc import ParseWarning
 )
 def test_examples(file_name: str, fallbacks: Optional[int]):
     "Test examples"
-    text_cls = ast.DepsMixin.text_cls
+    text_cls = ast.DepsMixin.text_cls()
     fallback_parser = text_cls.get_parser()
     file_path = Path(__file__).parent.parent / "examples" / file_name
 

@@ -1,6 +1,6 @@
 "TOPAS parser"
 
-from typing import Any
+from typing import Any, List
 
 from .ast import NodeSerialized, RootNode
 
@@ -15,7 +15,7 @@ class Parser:
         return tree.serialize()
 
     @staticmethod
-    def reconstruct(data: list[Any]) -> str:
+    def reconstruct(data: List[Any]) -> str:
         "Reconstruct TOPAS source code from setialized tree"
         tree = RootNode.unserialize(data)
         return tree.unparse()
