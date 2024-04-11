@@ -14,6 +14,11 @@ from pytopas.exc import ReconstructException
             ["num_runs", 10],
             "num_runs 10",
         ),
+        (
+            "num_runs runs",
+            ["num_runs", ["parameter_name", "runs"]],
+            "num_runs runs",
+        ),
     ],
 )
 def test_num_runs_node(text_in: str, serialized, text_out):

@@ -1,0 +1,4 @@
+["macro",
+ "nm",
+ [["formula", ["p", {"n": ["parameter_name", "runs"]}]]],
+ [["num_runs", ["parameter_name", "runs"]]]]

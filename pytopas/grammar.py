@@ -284,7 +284,7 @@ existing_prm = (
 # where the refinement is restarted and performed again until it is
 # performed num_runs times.
 num_runs = (
-    (pp.Keyword("num_runs").suppress() + integer("nums"))
+    (pp.Keyword("num_runs").suppress() + (integer("nums") ^ parameter_name("nums")))
     .set_results_name("num_runs")
     .add_parse_action(ast.NumRunsNode.parse_action)
 )

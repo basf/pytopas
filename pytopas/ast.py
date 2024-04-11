@@ -1154,22 +1154,30 @@ class ExistingPrmNode(BaseNode):
 class NumRunsNode(BaseNode):
     "Num runs node"
     type = "num_runs"
-    value: int
+    value: int | ParameterNameNode
 
     @classmethod
     def parse_action(cls, toks: pp.ParseResults):
         "Parse action for the existing prm node"
-        return cls(value=int(toks.as_list()[0]))
+        try:
+            return cls(value=int(toks.as_list()[0]))
+        except TypeError:
+            return cls(value=toks.as_list()[0])
 
     @classmethod
     def get_parser(cls):
         return cls.get_grammar().num_runs
 
     def unparse(self) -> str:
+        if isinstance(self.value, BaseNode):
+            return f"{self.type} {self.value.unparse()}"
         return f"{self.type} {self.value}"
 
     def serialize(self) -> NodeSerialized:
-        return [self.type, self.value]
+        return [
+            self.type,
+            self.value.serialize() if isinstance(self.value, BaseNode) else self.value,
+        ]
 
     @classmethod
     def unserialize(cls, data: list[Any]):
@@ -1178,9 +1186,11 @@ class NumRunsNode(BaseNode):
         typ, value = data
         if typ != cls.type:
             raise ReconstructException(f"assert data[0] == {cls.type}", data)
-        if not isinstance(value, int):
+        if not isinstance(value, (int, list)):
             raise ReconstructException(f"assert isinstance(data[1], int)", data)
-        return cls(value)
+        return cls(
+            value if isinstance(value, int) else ParameterNameNode.unserialize(value)
+        )
 
 
 @dataclass
