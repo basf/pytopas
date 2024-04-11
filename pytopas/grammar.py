@@ -375,6 +375,13 @@ bkg = (pp.Keyword("bkg").suppress() + parameter[1, ...]("bkg_params"))(
 ).add_parse_action(ast.BkgNode.parse_action)
 
 
+# [scale E]
+# Rietveld scale factor
+scale = (pp.Keyword("scale").suppress() + parameter("scale_param"))(
+    "scale"
+).add_parse_action(ast.ScaleNode.parse_action)
+
+
 # Macros are defined using the macro directive;
 # Macros can have multiple arguments or none
 macro_name = pp.Word(pp.alphas, pp.alphanums + "_")("macro_name")
@@ -387,6 +394,7 @@ macro_statement = (
     | xdd
     | axial_conv
     | bkg
+    | scale
     | formula
     | line_break
     | quoted_str
@@ -412,6 +420,7 @@ root = (
     | xdd
     | axial_conv
     | bkg
+    | scale
     | macro
     | formula
     | line_break

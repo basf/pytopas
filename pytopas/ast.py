@@ -235,6 +235,12 @@ class DepsMixin:
 
     @classmethod
     @property
+    def scale_cls(cls):
+        "ScaleNode class"
+        return ScaleNode
+
+    @classmethod
+    @property
     def macro_cls(cls):
         "MacroNode class"
         return MacroNode
@@ -1446,16 +1452,50 @@ class BkgNode(BaseNode):
         return cls(params=[cls.parameter_cls.unserialize(x) for x in data[1:]])
 
 
+@dataclass
+class ScaleNode(BaseNode):
+    "scale node"
+    type = "scale"
+    param: ParameterNode
+
+    @classmethod
+    def parse_action(cls, toks: pp.ParseResults):
+        "Parse action for the bkg node"
+        return cls(param=(toks.as_list()[0]))
+
+    @classmethod
+    def get_parser(cls):
+        return cls.get_grammar().scale
+
+    def unparse(self) -> str:
+        return f"{self.type} {self.param.unparse()}"
+
+    def serialize(self) -> NodeSerialized:
+        return [self.type, self.param.serialize()]
+
+    @classmethod
+    def unserialize(cls, data: list[Any]):
+        if not hasattr(data, "__len__") or len(data) != 2:
+            raise ReconstructException("assert len == 2", data)
+        if data[0] != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
+        if not isinstance(data[1], list):
+            raise ReconstructException(f"assert isinstance(data[1], list)", data)
+        return cls(param=cls.parameter_cls.unserialize(data[1]))
+
+
 RootMacroCommonStatemtents = Union[
-    FormulaNode,
-    PrmNode,
-    LocalNode,
-    ExistingPrmNode,
-    NumRunsNode,
-    XddNode,
     AxialConvNode,
+    BkgNode,
+    ExistingPrmNode,
+    FormulaNode,
     LineBreakNode,
+    LocalNode,
+    NumRunsNode,
+    PrmNode,
+    ScaleNode,
     TextNode,
+    XddNode,
 ]
 
 MacroStatements = RootMacroCommonStatemtents
@@ -1498,6 +1538,7 @@ class MacroNode(BaseNode):
             cls.xdd_cls,
             cls.axial_conv_cls,
             cls.bkg_cls,
+            cls.scale_cls,
         )
 
     def unparse(self):
@@ -1599,6 +1640,7 @@ class RootNode(BaseNode):
             cls.xdd_cls,
             cls.axial_conv_cls,
             cls.bkg_cls,
+            cls.scale_cls,
             cls.macro_cls,
         )
 
