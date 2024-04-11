@@ -102,6 +102,36 @@ test_root = make_trivial_grammar_test(
         None,
     ),
     (
+        "bkg 1",
+        [
+            ast.RootNode(
+                statements=[
+                    ast.BkgNode(
+                        [
+                            ast.ParameterNode(
+                                prm_value=ast.ParameterValueNode(Decimal(1))
+                            )
+                        ]
+                    )
+                ]
+            )
+        ],
+        None,
+    ),
+    (
+        'macro name("arg1", "arg2") { "quoted string" }',
+        [
+            ast.RootNode(
+                statements=[
+                    ast.MacroNode(
+                        name="name", args=["arg1", "arg2"], statements=["quoted string"]
+                    )
+                ]
+            )
+        ],
+        None,
+    ),
+    (
         "\n",
         [ast.RootNode(statements=[ast.LineBreakNode()])],
         None,

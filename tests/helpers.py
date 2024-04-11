@@ -29,6 +29,7 @@ def make_trivial_grammar_test(parser: pp.ParserElement, *params):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=ParseWarning)
             results = parser_debug.copy().parse_string(string, parse_all=True)
+            print(results)
         if as_list is not None:
             assert results.as_list() == as_list
         if as_dict is not None:

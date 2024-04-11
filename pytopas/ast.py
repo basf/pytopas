@@ -229,6 +229,12 @@ class DepsMixin:
 
     @classmethod
     @property
+    def bkg_cls(cls):
+        "BkgNode class"
+        return BkgNode
+
+    @classmethod
+    @property
     def macro_cls(cls):
         "MacroNode class"
         return MacroNode
@@ -1168,7 +1174,7 @@ class NumRunsNode(BaseNode):
 
     @classmethod
     def parse_action(cls, toks: pp.ParseResults):
-        "Parse action for the existing prm node"
+        "Parse action for the num_runs node"
         try:
             return cls(value=int(toks.as_list()[0]))
         except TypeError:
@@ -1407,6 +1413,39 @@ class AxialConvNode(BaseNode):
         )
 
 
+@dataclass
+class BkgNode(BaseNode):
+    "bkg node"
+    type = "bkg"
+    params: list[ParameterNode] = field(default_factory=list)
+
+    @classmethod
+    def parse_action(cls, toks: pp.ParseResults):
+        "Parse action for the bkg node"
+        return cls(params=(toks.as_list()))
+
+    @classmethod
+    def get_parser(cls):
+        return cls.get_grammar().bkg
+
+    def unparse(self) -> str:
+        tail = " ".join([x.unparse() for x in self.params])
+        return f"{self.type} {tail}"
+
+    def serialize(self) -> NodeSerialized:
+        return [self.type, *[x.serialize() for x in self.params]]
+
+    @classmethod
+    def unserialize(cls, data: list[Any]):
+        if not hasattr(data, "__len__") or len(data) < 2:
+            raise ReconstructException("assert len >= 2", data)
+        if data[0] != cls.type:
+            raise ReconstructException(f"assert data[0] == {cls.type}", data)
+        if not all([isinstance(x, list) for x in data[1:]]):
+            raise ReconstructException(f"assert all of data[1:] of list type", data)
+        return cls(params=[cls.parameter_cls.unserialize(x) for x in data[1:]])
+
+
 RootMacroCommonStatemtents = Union[
     FormulaNode,
     PrmNode,
@@ -1458,6 +1497,7 @@ class MacroNode(BaseNode):
             cls.text_cls,
             cls.xdd_cls,
             cls.axial_conv_cls,
+            cls.bkg_cls,
         )
 
     def unparse(self):
@@ -1509,12 +1549,12 @@ class MacroNode(BaseNode):
         ]
         return cls(
             name=data[1],
-            args=FunctionCallNode.unserialize_args(data[2]),
+            args=cls.func_call_cls.unserialize_args(data[2]),
             statements=stmts,
         )
 
 
-RootStatements = RootMacroCommonStatemtents
+RootStatements = Union[RootMacroCommonStatemtents, MacroNode]
 
 
 @dataclass
@@ -1558,6 +1598,7 @@ class RootNode(BaseNode):
             cls.text_cls,
             cls.xdd_cls,
             cls.axial_conv_cls,
+            cls.bkg_cls,
             cls.macro_cls,
         )
 

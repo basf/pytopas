@@ -366,6 +366,15 @@ axial_conv = (
 )("axial_conv").add_parse_action(ast.AxialConvNode.parse_action)
 
 
+# [bkg [@] # # # ...]
+# Defines a Chebyshev polynomial where the number of coefficients is equal
+# to the number of numeric values appearing after bkg.
+
+bkg = (pp.Keyword("bkg").suppress() + parameter[1, ...]("bkg_params"))(
+    "bkg"
+).add_parse_action(ast.BkgNode.parse_action)
+
+
 # Macros are defined using the macro directive;
 # Macros can have multiple arguments or none
 macro_name = pp.Word(pp.alphas, pp.alphanums + "_")("macro_name")
@@ -377,10 +386,11 @@ macro_statement = (
     | num_runs
     | xdd
     | axial_conv
+    | bkg
     | formula
     | line_break
     | quoted_str
-    | pp.OneOrMore(text, stop_on=pp.Literal("}")) # NOTE: no nested {}
+    | pp.OneOrMore(text, stop_on=pp.Literal("}"))  # NOTE: no nested {}
 )("macro_statement")
 macro_statement.ignore(line_comment)
 macro_statement.ignore(block_comment)
@@ -401,6 +411,7 @@ root = (
     | num_runs
     | xdd
     | axial_conv
+    | bkg
     | macro
     | formula
     | line_break

@@ -2,18 +2,6 @@
 // updated on refinement termination
 out_file: "out_file" parameter_equation
 
-
-//
-// bkg
-//
-
-// [bkg [@] # # # ...]
-// Defines a Chebyshev polynomial where the number of coefficients is equal
-// to the number of numeric values appearing after bkg.
-
-bkg: "bkg" PARAMETER_TO_BE_REFINED? parameter_value+
-
-
 // [lam [ymin_on_ymax #] [no_th_dependence] [Lam !E] [calculate_Lam]]
 //   [la E lo E [lh E] | [lg E] [lo_ref] ]...
 // Defines an emission profile
