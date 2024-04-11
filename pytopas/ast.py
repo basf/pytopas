@@ -227,6 +227,12 @@ class DepsMixin:
         "AxialConv class"
         return AxialConvNode
 
+    @classmethod
+    @property
+    def root_cls(cls):
+        "RootNode class"
+        return RootNode
+
 
 @dataclass
 class BaseNode(ABC, DepsMixin):
@@ -1398,7 +1404,7 @@ RootStatements = Union[
 class RootNode(BaseNode):
     "Root node of AST"
     type = "topas"
-    statements: list[RootStatements]
+    statements: list[RootStatements] = field(default_factory=list)
 
     @classmethod
     def parse_action(cls, toks: pp.ParseResults):
@@ -1446,7 +1452,7 @@ class RootNode(BaseNode):
     def unparse(self):
         result = ""
         for idx, stmt in enumerate(self.statements):
-            delim = "" if idx == 0 or isinstance(stmt, (LineBreakNode,)) else " "
+            delim = "" if idx == 0 or isinstance(stmt, (LineBreakNode,)) else "\n"
             result += f"{delim}{stmt.unparse()}"
         return result
 

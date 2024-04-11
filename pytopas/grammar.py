@@ -376,6 +376,7 @@ root = (
     | formula
     | line_break
     | text
-)[...].set_parse_action(ast.RootNode.parse_action)
+)[...]
+root.set_parse_action(ast.RootNode.parse_action)
 root.ignore(line_comment)
 root.ignore(block_comment)
