@@ -1,35 +1,41 @@
 "Test topas2json tree"
+import json
+import warnings
 from contextlib import nullcontext as does_not_raise
 from tempfile import NamedTemporaryFile
 
 import pytest
 
-from pytopas import TOPASParser, UnexpectedToken
 from pytopas.cli import _topas2json_parse_args, topas2json
+from pytopas.exc import ParseWarning
+from pytopas.parser import Parser
 
 
 @pytest.mark.parametrize(
-    "topas_in, compact, raises",
+    "topas_in, ignore_warnings, warns",
     [
-        ("a = a + 1 ; 0", False, does_not_raise()),
-        ("a = a + 1 ; 0", True, does_not_raise()),
-        ("{}!@##}!@#", True, pytest.raises(UnexpectedToken)),
+        ("1", False, does_not_raise()),
+        ("!@#$%^&*()", False, pytest.warns(ParseWarning)),
+        ("!@#$%^&*()", True, does_not_raise()),
     ],
 )
-def test_cli_topas2json(capsys, topas_in, compact, raises):
+def test_cli_topas2json(capsys, topas_in, ignore_warnings, warns):
     "Test topas2json cli tool"
 
-    with raises, NamedTemporaryFile() as tmp_file:
+    with NamedTemporaryFile() as tmp_file:
         tmp_file.write(topas_in.encode("utf-8"))
         tmp_file.flush()
 
         args = _topas2json_parse_args(
-            ["-c", tmp_file.name] if compact else [tmp_file.name]
+            ["--ignore-warnings", tmp_file.name] if ignore_warnings else [tmp_file.name]
         )
-        topas2json(args)
+
+        with warns:
+            topas2json(args)
 
     captured = capsys.readouterr()
 
-    with raises:
-        tree = TOPASParser().parse(topas_in)
-        assert captured.out == tree.to_json(compact=compact) + "\n"
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=ParseWarning)
+        text = Parser.parse(topas_in)
+        assert captured.out == json.dumps(text) + "\n"

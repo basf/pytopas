@@ -1,0 +1,28 @@
+[
+    "formula",
+    [
+        "+",
+        ["p", {"n": ["parameter_name", "TEST"]}],
+        [
+            "/",
+            [
+                "*",
+                [
+                    "-",
+                    ["p", {"n": ["parameter_name", "TEST"]}],
+                    ["p", {"n": ["parameter_name", "TEST"]}]
+                ],
+                ["p", {"n": ["parameter_name", "TEST"]}]
+            ],
+            [
+                "^",
+                ["p", {"n": ["parameter_name", "TEST"]}],
+                [
+                    "+",
+                    ["p", {"n": ["parameter_name", "TEST"]}],
+                    ["p", {"n": ["parameter_name", "TEST"]}]
+                ]
+            ]
+        ]
+    ]
+]

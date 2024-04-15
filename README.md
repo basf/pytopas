@@ -7,24 +7,31 @@ This is the parser for Bruker's TOPAS macro language. We have compared two canon
 Parse TOPAS input and convert it to JSON:
 
 ```python
+import json
 from pytopas import TOPASParser
 
-src = "a = a + 1 ; 0"
+src = "a(b,c)"
 
-parser = TOPASParser()
-tree = parser.parse(src)
-print(tree.to_json(compact=True))
+tree = TOPASParser.parse(src)
+print(json.dumps(tree))
 ```
 
 Convert parser's JSON-encoded TOPAS code back into the TOPAS input format:
 
 ```python
+import json
 from pytopas import TOPASParseTree
 
-input_json = '["topas", ["a = a + 1 ; 0"]]'
-
-tree = TOPASParseTree.from_json(input_json)
-print(tree.to_topas())
+input_json = """
+["topas",
+  ["formula",
+    ["func_call", "a",
+      ["formula", ["p", {"n": ["parameter_name", "b"]}]],
+      ["formula", ["p", {"n": ["parameter_name", "c"]}]]]]]
+"""
+serialized = json.loads(input_json)
+src = TOPASParser.reconstruct(serialized)
+print(src)
 
 ```
 
@@ -33,16 +40,16 @@ print(tree.to_topas())
 After installing the package, two command line utilities will be available.
 
 ```
-usage: topas2json [-h] [-c] file
+usage: topas2json [-h] [--ignore-warnings] file
 
 Parse TOPAS input and output JSON
 
 positional arguments:
-  file           Path to TOPAS file or '-' for stdin input
+  file               Path to TOPAS file or '-' for stdin input
 
 options:
-  -h, --help     show this help message and exit
-  -c, --compact  Use compact output
+  -h, --help         show this help message and exit
+  --ignore-warnings  Don't print parsing warnings
 ```
 
 ```
@@ -60,9 +67,7 @@ options:
 
 ## Development
 
-Install package with optional dependencies: `pip install -e .[dev,lint,test,release]`
-
-Regenerate standalone `lark` parser after `grammar.lark` change: `make parser`
+Install package with optional dependencies: `pip install -e .[lint,test,release]`
 
 ## License
 

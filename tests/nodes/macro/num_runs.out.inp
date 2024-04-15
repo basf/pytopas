@@ -1,0 +1,1 @@
+macro nm(runs) { num_runs runs }

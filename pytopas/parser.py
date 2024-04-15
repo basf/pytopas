@@ -1,28 +1,21 @@
 "TOPAS parser"
 
-from typing import Callable, Optional
+from typing import Any, List
 
-from .lark_standalone import DATA, MEMO, Lark, UnexpectedInput
-from .transformer import TOPASTransformer
-from .tree import TOPASParseTree
+from .ast import NodeSerialized, RootNode
 
 
-class TOPASParser(Lark):
-    "TOPAS parser"
+class Parser:
+    "TOPAS Parser"
 
-    def __init__(self) -> None:  # pylint: disable=W0231
-        "Init"
-        self._load(
-            {"data": DATA, "memo": MEMO},
-            transformer=TOPASTransformer(),
-        )
+    @staticmethod
+    def parse(text: str) -> NodeSerialized:
+        "Parse TOPAS source code to serialized tree"
+        tree = RootNode.parse(text)
+        return tree.serialize()
 
-    def parse(
-        self,
-        text: str,
-        start: Optional[str] = None,
-        on_error: Optional[Callable[[UnexpectedInput], bool]] = None,
-    ) -> TOPASParseTree:
-        "Parse TOPAS"
-
-        return super().parse(text, start, on_error)
+    @staticmethod
+    def reconstruct(data: List[Any]) -> str:
+        "Reconstruct TOPAS source code from setialized tree"
+        tree = RootNode.unserialize(data)
+        return tree.unparse()

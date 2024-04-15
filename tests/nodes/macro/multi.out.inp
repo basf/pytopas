@@ -1,0 +1,4 @@
+macro multi(runs, not_used) {
+prm param_name 10
+num_runs runs
+}

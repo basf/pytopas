@@ -1,9 +1,5 @@
 "TOPAS parser"
 
-from .lark_standalone import UnexpectedToken
-from .parser import TOPASParser
-from .tree import TOPASParseTree
+from .parser import Parser as TOPASParser
 
-__VERSION__ = "0.0.1"
-
-__all__ = ["TOPASParser", "TOPASParseTree", "UnexpectedToken"]
+__VERSION__ = "0.0.3"

@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8"]
+        python-version: ["3.11"]
 
     steps:
       - name: Checkout repository
@@ -50,5 +50,5 @@ jobs:
 
       - name: pyupgrade
         run: |
-          find -name "*.py" -and -not -name "lark_standalone.py" -print0 |\
-          xargs -0 -n1 pyupgrade --py38-plus
+          find -name "*.py" -print0 |\
+          xargs -0 -n1 pyupgrade --py38-plus --keep-runtime-typing

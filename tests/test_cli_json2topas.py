@@ -1,20 +1,21 @@
 "Test topas2json tree"
+import json
 from contextlib import nullcontext as does_not_raise
-from json import JSONDecodeError
 from tempfile import NamedTemporaryFile
 
 import pytest
 
-from pytopas import TOPASParseTree, UnexpectedToken
+from pytopas import TOPASParser
 from pytopas.cli import _json2topas_parse_args, json2topas
+from pytopas.exc import ReconstructException
 
 
 @pytest.mark.parametrize(
     "json_in, raises",
     [
-        ('["topas", ["a = a + 1 ; 0"]]', does_not_raise()),
-        ("...", pytest.raises(JSONDecodeError)),
-        ('["topas", ["{}!@##}!@#"]]', pytest.raises(UnexpectedToken)),
+        ('["topas", ["text", "text"]]', does_not_raise()),
+        ("...", pytest.raises(json.JSONDecodeError)),
+        ('["topas", ["{}!@##}!@#"]]', pytest.raises(ReconstructException)),
     ],
 )
 def test_cli_json2topas(capsys, json_in: str, raises):
@@ -30,5 +31,4 @@ def test_cli_json2topas(capsys, json_in: str, raises):
     captured = capsys.readouterr()
 
     with raises:
-        tree = TOPASParseTree.from_json(json_in)
-        assert captured.out == tree.to_topas() + "\n"
+        assert captured.out == TOPASParser.reconstruct(json.loads(json_in)) + "\n"

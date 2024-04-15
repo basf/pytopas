@@ -1,0 +1,12 @@
+[
+    "topas",
+    [
+        "axial_conv",
+        [
+            ["p", {"v": ["parameter_value", "1"]}],
+            ["p", {"v": ["parameter_value", "2"]}],
+            ["p", {"v": ["parameter_value", "3"]}]
+        ]
+    ],
+    ["lb"]
+]

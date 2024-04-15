@@ -1,0 +1,12 @@
+[
+    "topas",
+    [
+        "prm",
+        {
+            "!": true,
+            "n": ["parameter_name", "P_name1"],
+            "v": ["parameter_value", "123"]
+        }
+    ],
+    ["lb"]
+]

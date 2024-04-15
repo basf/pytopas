@@ -1,0 +1,11 @@
+[
+    "topas",
+    [
+        "local",
+        [
+            "p",
+            {"n": ["parameter_name", "a"], "v": ["parameter_value", "1"]}
+        ]
+    ],
+    ["lb"]
+]
