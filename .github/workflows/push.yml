@@ -42,7 +42,7 @@ jobs:
       - name: Create bump and changelog
         id: cz
         if: github.repository == 'metis-science/pytopas'
-        uses: commitizen-tools/commitizen-action@4498afe6f2f1c5993fb29f22db7b597538c00aae
+        uses: commitizen-tools/commitizen-action@1f11eb222996406681d2bfa1eb3d997eca46557c
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           changelog_increment_filename: .CHANGELOG-CURRENT.md
