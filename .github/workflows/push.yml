@@ -63,7 +63,7 @@ jobs:
         run: git describe --tags --exact-match
 
       - name: Create Release Draft
-        uses: softprops/action-gh-release@c9b46fe7aad9f02afd89b12450b780f52dacfb2d
+        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87
         if: steps.no-bump.outcome == 'success'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
