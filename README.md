@@ -1,6 +1,6 @@
 # pytopas
 
-This is an early version of Bruker's TOPAS macro language parser, used by [commercial](https://www.bruker.com/de/products-and-solutions/diffractometers-and-x-ray-microscopes/x-ray-diffractometers/diffrac-suite-software.html) and [academic](http://www.topas-academic.net) TOPAS code. We have compared two canonical parsing approaches for Python, `lark` vs. `pyparsing`, and ended up with `pyparsing` being more convenient for debugging.
+This is an early version of Bruker's TOPAS macro language parser. This macro language is used by [commercial](https://www.bruker.com/de/products-and-solutions/diffractometers-and-x-ray-microscopes/x-ray-diffractometers/diffrac-suite-software.html) and [academic](http://www.topas-academic.net) TOPAS code. We have compared two canonical parsing approaches for Python, `lark` vs. `pyparsing`, and ended up with `pyparsing` being more convenient for debugging.
 
 
 ## Installation
